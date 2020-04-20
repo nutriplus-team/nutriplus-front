@@ -1,69 +1,67 @@
 import React, { Component } from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
-import EndCardapio from "./EndCardapio";
-import PrincipalCardapio from "./PrincipalCardapio";
+import EndSuggestions from "./EndSuggestions";
+import MainSuggestions from "./MainSuggestions";
 import { sendAuthenticatedRequest } from "../../utility/httpHelper";
-//preciso apagar isso
 
-const mapa_traducao = {
+const displayMap = {
   calories: "Calorias",
   proteins: "Proteínas",
   carbohydrates: "Carboidratos",
   lipids: "Lipídeos",
-  fiber: "Fibra Alimentar"
+  fiber: "Fibra Alimentar",
 };
 
-class Cardapio extends Component {
+class FoodSuggestions extends Component {
   state = {
-    atributos: null,
-    global: null
+    attributes: null,
+    global: null,
   };
 
   componentDidMount = async () => {
     this.setState({
-      mounted: 1
+      mounted: 1,
     });
     sendAuthenticatedRequest(
       "/foods/get-units/",
       "get",
       () => {},
-      info => {
-        //console.log(info);
-        let atributos = Object.keys(info).map(
-          key => `${mapa_traducao[key]} (${info[key]})`
+      (info) => {
+        let attributes = Object.keys(info).map(
+          (key) => `${displayMap[key]} (${info[key]})`
         );
         this.setState({
-          atributos: atributos
+          attributes: attributes,
         });
       }
     );
   };
 
-  handleGlobal = global => {
+  handleGlobal = (global) => {
     this.setState({ global: global });
   };
 
   render() {
     let routes;
-    if (this.state.atributos) {
+    if (this.state.attributes) {
       routes = (
         <Switch>
           <Route
             path="/cardapio/:id/principal"
-            render={props => (
-              <PrincipalCardapio
+            render={(props) => (
+              <MainSuggestions
                 {...props}
-                atributos={this.state.atributos}
+                attributes={this.state.attributes}
                 handleGlobal={this.handleGlobal}
               />
             )}
           />
           <Route
             path="/cardapio/:id/fim"
-            render={props => (
-              <EndCardapio
+            render={(props) => (
+              <EndSuggestions
                 {...props}
-                atributos={this.state.atributos}
+                attributes={this.state.attributes}
                 global={this.state.global}
               />
             )}
@@ -76,10 +74,10 @@ class Cardapio extends Component {
       );
     }
 
-    if (this.state.mounted && this.state.atributos) {
+    if (this.state.mounted && this.state.attributes) {
       return <div>{routes}</div>;
     } else return "";
   }
 }
 
-export default Cardapio;
+export default FoodSuggestions;

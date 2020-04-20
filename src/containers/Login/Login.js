@@ -6,7 +6,7 @@ import {
   Grid,
   Header,
   Message,
-  Segment
+  Segment,
 } from "semantic-ui-react";
 
 class Login extends Component {
@@ -17,9 +17,9 @@ class Login extends Component {
       method: "post",
       body: JSON.stringify({
         username: this.state.username,
-        password: this.state.password
+        password: this.state.password,
       }),
-      headers: new Headers({ "Content-Type": "application/json" })
+      headers: new Headers({ "Content-Type": "application/json" }),
     });
     const answ = await res;
     const info = await answ.json();
@@ -27,9 +27,9 @@ class Login extends Component {
       this.setState({ wrong_input: "Usuário ou senha incorretos." });
     } else if (answ.status === 200) {
       this.setState({ wrong_input: "" });
-      console.log(info);
+      //console.log(info);
       this.props.updateLogin();
-      console.log(this.state.token);
+      //console.log(this.state.token);
       localStorage.setItem("stored_token", info.token);
       localStorage.setItem("stored_refresh", info.refresh);
       localStorage.setItem("stored_auth", 1);
@@ -54,7 +54,7 @@ class Login extends Component {
                 icon="user"
                 iconPosition="left"
                 placeholder="Nome de usuário"
-                onChange={event => {
+                onChange={(event) => {
                   this.setState({ username: event.target.value });
                 }}
               />
@@ -64,7 +64,7 @@ class Login extends Component {
                 iconPosition="left"
                 placeholder="Senha"
                 type="password"
-                onChange={event => {
+                onChange={(event) => {
                   this.setState({ password: event.target.value });
                 }}
               />

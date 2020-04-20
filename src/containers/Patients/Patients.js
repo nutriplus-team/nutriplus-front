@@ -15,13 +15,13 @@ class Patients extends Component {
     error: null,
     hasNext: false,
     hasPrevious: false,
-    redirect: false
+    redirect: false,
   };
 
   componentDidUpdate = async () => {
     if (this.props.location.search.length > 0) {
       const query = new URLSearchParams(this.props.location.search);
-      console.log(this.props);
+      //console.log(this.props);
       if (
         query.get("refresh") &&
         this.props.location.pathname === "/pacientes"
@@ -29,17 +29,17 @@ class Patients extends Component {
         sendAuthenticatedRequest(
           "/patients/get-all-patients/",
           "get",
-          message =>
+          (message) =>
             this.setState({
-              error: message
+              error: message,
             }),
-          info =>
+          (info) =>
             this.setState({
               patientsQueryInfo: info,
               error: null,
               hasPrevious: false,
               hasNext: info.next !== null,
-              redirect: true
+              redirect: true,
             })
         );
       }
@@ -50,16 +50,16 @@ class Patients extends Component {
     sendAuthenticatedRequest(
       "/patients/get-all-patients/",
       "get",
-      message =>
+      (message) =>
         this.setState({
-          error: message
+          error: message,
         }),
-      info =>
+      (info) =>
         this.setState({
           patientsQueryInfo: info,
           error: null,
           hasPrevious: false,
-          hasNext: info.next !== null
+          hasNext: info.next !== null,
         })
     );
   };
@@ -70,31 +70,31 @@ class Patients extends Component {
         <Switch>
           <Route
             path="/pacientes/register"
-            render={props => <Register {...props} />}
+            render={(props) => <Register {...props} />}
           />
           <Route
             exact
             path="/pacientes/:id/criar-ficha"
-            render={props => <PatientRecordCreator {...props} />}
+            render={(props) => <PatientRecordCreator {...props} />}
           />
           <Route
             exact
             path="/pacientes/:id/ficha/:ficha_id"
-            render={props => <PatientRecord {...props} />}
+            render={(props) => <PatientRecord {...props} />}
           />
           <Route
             path="/pacientes/:id/ficha/:ficha_id/edit"
-            render={props => <PatientRecordCreator {...props} />}
+            render={(props) => <PatientRecordCreator {...props} />}
           />
           <Route
             exact
             path="/pacientes/:id"
-            render={props => <Patient {...props} />}
+            render={(props) => <Patient {...props} />}
           />
           <Route
             exact
             path="/pacientes/:id/edit"
-            render={props => <Register {...props} />}
+            render={(props) => <Register {...props} />}
           />
           <Route
             path="/pacientes"
@@ -113,23 +113,23 @@ class Patients extends Component {
                   <Paginator
                     queryResults={this.state.patientsQueryInfo}
                     filter={() => true}
-                    listElementMap={patient => (
+                    listElementMap={(patient) => (
                       <li key={patient.id}>
                         <NavLink to={"/pacientes/" + patient.id}>
                           {patient.name}
                         </NavLink>
                       </li>
                     )}
-                    setResults={patientInfo =>
+                    setResults={(patientInfo) =>
                       this.setState({ patientsQueryInfo: patientInfo })
                     }
-                    setHasNext={value => this.setState({ hasNext: value })}
-                    setHasPrevious={value =>
+                    setHasNext={(value) => this.setState({ hasNext: value })}
+                    setHasPrevious={(value) =>
                       this.setState({ hasPrevious: value })
                     }
-                    setMessage={message =>
+                    setMessage={(message) =>
                       this.setState({
-                        error: message
+                        error: message,
                       })
                     }
                     hasPrevious={this.state.hasPrevious}

@@ -11,24 +11,24 @@ class PatientRecord extends Component {
     sendAuthenticatedRequest(
       "/patients/get-single-record/" + params["ficha_id"] + "/",
       "get",
-      message =>
+      (message) =>
         this.setState({
-          error: message
+          error: message,
         }),
-      results => this.setState({ record: results })
+      (results) => this.setState({ record: results })
     );
     sendAuthenticatedRequest(
       "/patients/get-info/" + params["id"] + "/",
       "get",
-      message =>
+      (message) =>
         this.setState({
-          error: message
+          error: message,
         }),
-      results => this.setState({ patient: results, error: null })
+      (results) => this.setState({ patient: results, error: null })
     );
   };
 
-  mapNumberToPhysicalActivityOption = number => {
+  mapNumberToPhysicalActivityOption = (number) => {
     switch (+number) {
       case 1:
         return "Não faz atividade física";
@@ -45,7 +45,7 @@ class PatientRecord extends Component {
     }
   };
 
-  processObjectKey = key => {
+  processObjectKey = (key) => {
     if (key === "patient") {
       return (
         "Paciente: " + (this.state.patient ? this.state.patient.name : null)
@@ -166,28 +166,28 @@ class PatientRecord extends Component {
     sendAuthenticatedRequest(
       "/patients/remove-record/" + params["ficha_id"] + "/",
       "get",
-      message => {
+      (message) => {
         this.setState({
-          error: message
+          error: message,
         });
       },
       () => {
         this.setState({
-          redirectUrl: "/pacientes/" + params["id"] + "/?refresh=true"
+          redirectUrl: "/pacientes/" + params["id"] + "/?refresh=true",
         });
       }
     );
   };
 
   render() {
-    console.log("patientRecord state", this.state);
+    //console.log("patientRecord state", this.state);
     const params = this.props.match.params;
     return (
       <div>
         {this.state.error ? <p>{this.state.error}</p> : null}
         {this.state.record ? (
           <div>
-            {Object.keys(this.state.record).map(key => (
+            {Object.keys(this.state.record).map((key) => (
               <p key={key}>{this.processObjectKey(key)}</p>
             ))}
           </div>

@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import "./App.css";
 import { Route, Switch, Redirect } from "react-router-dom";
-import Login from "./containers/login_page/login_page";
+import Login from "./containers/Login/Login";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import Patients from "./containers/Patients/Patients";
-import FoodSuggestions from "./components/FoodSuggestions/FoodSuggestions";
+import FoodSuggestions from "./containers/FoodSuggestions/FoodSuggestions";
 import Main from "./components/Main/Main";
 import Logout from "./containers/Logout/Logout";
 import Subscribe from "./containers/Subscribe/Subscribe";
@@ -16,13 +16,12 @@ class App extends Component {
   componentDidMount = async () => {
     let isAuthenticated = localStorage.getItem("stored_auth") || false;
     if (isAuthenticated === "1") {
-      await new Promise(resolve => {
+      await new Promise((resolve) => {
         this.setState({ isAuthenticated: true }, () => {
           resolve();
         });
       });
     }
-    console.log(localStorage.getItem("stored_token"));
   };
 
   loginHandler = () => {
@@ -30,7 +29,7 @@ class App extends Component {
   };
 
   logoutHandler = async () => {
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       localStorage.setItem("stored_token", "");
       localStorage.setItem("stored_refresh", "");
       localStorage.setItem("stored_auth", false);
@@ -45,11 +44,13 @@ class App extends Component {
       <Switch>
         <Route
           path="/auth"
-          render={props => <Login {...props} updateLogin={this.loginHandler} />}
+          render={(props) => (
+            <Login {...props} updateLogin={this.loginHandler} />
+          )}
         />
         <Route
           path="/subscription"
-          render={props => <Subscribe {...props} />}
+          render={(props) => <Subscribe {...props} />}
         />
         <Route path="/" exact component={Main} />
         <Redirect to="/" />
@@ -59,18 +60,21 @@ class App extends Component {
     if (this.state.isAuthenticated) {
       routes = (
         <Switch>
-          <Route path="/pacientes" render={props => <Patients {...props} />} />
+          <Route
+            path="/pacientes"
+            render={(props) => <Patients {...props} />}
+          />
           <Route
             path="/cardapio/:id"
-            render={props => <FoodSuggestions {...props} />}
+            render={(props) => <FoodSuggestions {...props} />}
           />
           <Route
             path="/alimentos"
-            render={props => <FoodDatabaseEditor {...props} />}
+            render={(props) => <FoodDatabaseEditor {...props} />}
           />
           <Route
             path="/logout"
-            render={props => (
+            render={(props) => (
               <Logout {...props} updateLogout={this.logoutHandler} />
             )}
           />

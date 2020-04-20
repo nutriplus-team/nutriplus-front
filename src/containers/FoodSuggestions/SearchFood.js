@@ -3,7 +3,7 @@ import { Form, Input } from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../utility/httpHelper";
 import Paginator from "../../utility/paginator";
 
-const SearchFood = props => {
+const SearchFood = (props) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
@@ -12,14 +12,13 @@ const SearchFood = props => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      console.log(searchRef);
       if (searchQuery === searchRef.current.inputRef.current.value) {
         if (searchQuery !== "") {
           sendAuthenticatedRequest(
             "/foods/search/" + searchQuery + "/",
             "get",
-            message => {},
-            info => {
+            (message) => {},
+            (info) => {
               setQueryResults(info);
               setHasNext(info.next !== null);
               setHasPrevious(false);
@@ -43,7 +42,7 @@ const SearchFood = props => {
           icon="search"
           iconPosition="left"
           placeholder="Comidas a inserir"
-          onChange={async event => {
+          onChange={async (event) => {
             setSearchQuery(event.target.value);
           }}
           value={searchQuery}
@@ -55,14 +54,14 @@ const SearchFood = props => {
           <Paginator
             queryResults={queryResults}
             filter={() => true}
-            listElementMap={obj => (
+            listElementMap={(obj) => (
               <p
                 style={{ cursor: "pointer" }}
                 key={obj.id}
                 onClick={() =>
                   props.handlefoodClick(
                     obj,
-                    props.refeicao,
+                    props.meal,
                     setQueryResults,
                     setSearchQuery
                   )

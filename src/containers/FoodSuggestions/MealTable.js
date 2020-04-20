@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-
 import { Menu } from "semantic-ui-react";
 
-class TabelaRefeicoes extends Component {
+class MealTable extends Component {
   state = {};
   render() {
-    let refeicao = this.props.refeicao;
+    let meal = this.props.meal;
     let name = "Infos";
     return (
       <center>
@@ -16,48 +15,48 @@ class TabelaRefeicoes extends Component {
               <Menu.Item
                 name={name}
                 value={0}
-                active={refeicao === 0}
-                onClick={this.props.handleRefeicao}
+                active={meal === 0}
+                onClick={this.props.handleMeal}
               >
                 Café da manhã
               </Menu.Item>
               <Menu.Item
                 name={name}
                 value={1}
-                active={refeicao === 1}
-                onClick={this.props.handleRefeicao}
+                active={meal === 1}
+                onClick={this.props.handleMeal}
               >
                 Lanche da manhã
               </Menu.Item>
               <Menu.Item
                 name={name}
                 value={2}
-                active={refeicao === 2}
-                onClick={this.props.handleRefeicao}
+                active={meal === 2}
+                onClick={this.props.handleMeal}
               >
                 Almoço
               </Menu.Item>
               <Menu.Item
                 name={name}
                 value={3}
-                active={refeicao === 3}
-                onClick={this.props.handleRefeicao}
+                active={meal === 3}
+                onClick={this.props.handleMeal}
               >
                 Lanche da tarde
               </Menu.Item>
               <Menu.Item
                 name={name}
                 value={4}
-                active={refeicao === 4}
-                onClick={this.props.handleRefeicao}
+                active={meal === 4}
+                onClick={this.props.handleMeal}
               >
                 Jantar
               </Menu.Item>
               <Menu.Item
                 name={name}
                 value={5}
-                active={refeicao === 5}
-                onClick={this.props.handleRefeicao}
+                active={meal === 5}
+                onClick={this.props.handleMeal}
               >
                 Lanche da noite
               </Menu.Item>
@@ -69,4 +68,4 @@ class TabelaRefeicoes extends Component {
   }
 }
 
-export default TabelaRefeicoes;
+export default MealTable;

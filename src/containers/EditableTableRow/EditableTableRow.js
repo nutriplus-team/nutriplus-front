@@ -7,18 +7,18 @@ class EditableTableRow extends Component {
     super(props);
     this.state = { modified: false };
     Object.keys(this.props.food)
-      .filter(key => key !== "id")
-      .forEach(key =>
+      .filter((key) => key !== "id")
+      .forEach((key) =>
         key === "nutrition_facts"
           ? Object.keys(this.props.food[key]).forEach(
-              nutritionKey =>
+              (nutritionKey) =>
                 (this.state[
                   nutritionKey + this.props.food.id
                 ] = this.props.food[key][nutritionKey])
             )
           : key === "meal_set"
           ? (this.state[key + this.props.food.id] = this.props.food[key]
-              .map(meal => this.mapMeal(meal))
+              .map((meal) => this.mapMeal(meal))
               .reduce(
                 (total, actual, index, array) =>
                   index === array.length - 1
@@ -30,7 +30,7 @@ class EditableTableRow extends Component {
       );
   }
 
-  mapMeal = mealNumber => {
+  mapMeal = (mealNumber) => {
     switch (mealNumber) {
       case 1:
         return "Café da manhã";
@@ -53,24 +53,24 @@ class EditableTableRow extends Component {
     return (
       <Table.Row>
         {Object.keys(this.props.food)
-          .filter(key => key !== "id")
-          .map(key =>
+          .filter((key) => key !== "id")
+          .map((key) =>
             key === "measure_amount"
               ? "measure_type"
               : key === "measure_type"
               ? "measure_amount"
               : key
           )
-          .map(key =>
+          .map((key) =>
             key === "nutrition_facts" ? (
-              Object.keys(this.props.food[key]).map(nutritionKey => (
+              Object.keys(this.props.food[key]).map((nutritionKey) => (
                 <EditableCell
                   key={nutritionKey + this.props.food.id}
                   value={this.state[nutritionKey + this.props.food.id]}
-                  onChange={value =>
+                  onChange={(value) =>
                     this.setState({
                       [nutritionKey + this.props.food.id]: value,
-                      modified: true
+                      modified: true,
                     })
                   }
                   isNumber
@@ -80,10 +80,10 @@ class EditableTableRow extends Component {
               <EditableCell
                 key={key + this.props.food.id}
                 value={this.state[key + this.props.food.id]}
-                onChange={value =>
+                onChange={(value) =>
                   this.setState({
                     [key + this.props.food.id]: value,
-                    modified: true
+                    modified: true,
                   })
                 }
               />
@@ -91,10 +91,10 @@ class EditableTableRow extends Component {
               <EditableCell
                 key={key + this.props.food.id}
                 value={this.state[key + this.props.food.id]}
-                onChange={value =>
+                onChange={(value) =>
                   this.setState({
                     [key + this.props.food.id]: value,
-                    modified: true
+                    modified: true,
                   })
                 }
                 isNumber
@@ -103,10 +103,10 @@ class EditableTableRow extends Component {
               <EditableCell
                 key={key + this.props.food.id}
                 value={this.state[key + this.props.food.id]}
-                onChange={value =>
+                onChange={(value) =>
                   this.setState({
                     [key + this.props.food.id]: value,
-                    modified: true
+                    modified: true,
                   })
                 }
               />
@@ -114,7 +114,9 @@ class EditableTableRow extends Component {
           )}
         <Table.Cell>
           <Button
-            onClick={() => console.log("RowState", this.state)}
+            onClick={() => {
+              //console.log("RowState", this.state)
+            }}
             size="medium"
             disabled={!this.state.modified}
           >

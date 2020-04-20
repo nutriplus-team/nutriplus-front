@@ -3,12 +3,12 @@ import { Table } from "semantic-ui-react";
 
 class Infos extends Component {
   state = {
-    valorNutricional: this.props.valorNutricional
+    nutritionFacts: this.props.nutritionFacts,
   };
 
-  componentDidUpdate = prevProps => {
-    if (this.props.valorNutricional !== prevProps.valorNutricional) {
-      this.setState({ valorNutricional: this.props.valorNutricional });
+  componentDidUpdate = (prevProps) => {
+    if (this.props.nutritionFacts !== prevProps.nutritionFacts) {
+      this.setState({ nutritionFacts: this.props.nutritionFacts });
     }
   };
 
@@ -17,15 +17,15 @@ class Infos extends Component {
       <Table>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell>Infos </Table.HeaderCell>
+            <Table.HeaderCell>Infos</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {this.state.valorNutricional.map(valor => {
+          {this.state.nutritionFacts.map((value) => {
             return (
-              <Table.Row>
-                <Table.Cell>{valor[0]}</Table.Cell>
-                <Table.Cell>{valor[1].toFixed(2)}</Table.Cell>
+              <Table.Row key={value[0]}>
+                <Table.Cell>{value[0]}</Table.Cell>
+                <Table.Cell>{value[1].toFixed(2)}</Table.Cell>
               </Table.Row>
             );
           })}
