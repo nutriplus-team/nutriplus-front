@@ -7,7 +7,9 @@ export const sendAuthenticatedRequest = async (
   fullURL = false
 ) => {
   let response;
-  let base_url = "http://localhost:8080";
+
+  const base_url = process.env.REACT_APP_BACKEND_URL;
+
   if (!fullURL) {
     url = base_url + url;
   }
