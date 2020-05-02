@@ -17,11 +17,13 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint ."
   },
   "eslintConfig": {
     "extends": "react-app"
   },
+  "eslintIgnore": ["build/*"],
   "browserslist": {
     "production": [
       ">0.2%",
@@ -35,6 +37,9 @@
     ]
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-plugin-babel": "^5.3.0",
     "react-dev-utils": "^9.0.4"
   }
 }
