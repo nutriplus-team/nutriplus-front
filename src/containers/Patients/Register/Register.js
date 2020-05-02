@@ -281,7 +281,7 @@ const Register = (props) => {
                             </ul>
                         )}
                         {queryResults && (
-              <>
+                            <>
                 <hr />
                 <Paginator
                   queryResults={ queryResults }
@@ -305,7 +305,7 @@ const Register = (props) => {
                   hasNext={ hasNext }
                   buttonSize="mini"
                 />
-              </>
+                            </>
                         )}
                         <Button color="teal" fluid size="large" onClick={ register }>
                             {editing ? 'Editar paciente' : 'Registrar paciente'}

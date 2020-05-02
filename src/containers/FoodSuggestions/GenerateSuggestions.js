@@ -99,14 +99,14 @@ class GenerateSuggestions extends Component {
       const table = this.generateTable();
       if (table) {
           return (
-        <>
+              <>
           <center>
               <br />
               <h3> Gerador de cardápios</h3>
               {table}
           </center>
           <Button onClick={ () => this.handleFetch() }>Gerar!</Button>
-        </>
+              </>
           );
       } return '';
   }

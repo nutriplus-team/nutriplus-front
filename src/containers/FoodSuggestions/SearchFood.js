@@ -49,7 +49,7 @@ const SearchFood = (props) => {
                 />
             </Form.Field>
             {queryResults && (
-        <>
+                <>
           <hr />
           <Paginator
             queryResults={ queryResults }
@@ -76,7 +76,7 @@ const SearchFood = (props) => {
             hasNext={ hasNext }
             buttonSize="mini"
           />
-        </>
+                </>
             )}
         </div>
     );

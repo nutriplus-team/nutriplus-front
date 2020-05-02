@@ -5,7 +5,7 @@ import gen_menu from '../../assets/images/gen_menu.jpg';
 import gen_options from '../../assets/images/gen_options.jpg';
 
 const main = () => (
-  <>
+    <>
     <Grid textAlign="center">
         <Grid.Column width={ 9 }>
             <p style={ { textAlign: 'justify', fontSize: 25 } }>
@@ -39,7 +39,7 @@ const main = () => (
             <img src={ gen_options } alt="gen_options" style={ { width: 900 } } />
         </Grid.Column>
     </Grid>
-  </>
+    </>
 );
 
 export default main;

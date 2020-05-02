@@ -63,15 +63,15 @@ const paginator = (props) => {
     );
 
     return (
-    <>
+        <>
       {results}
       {(props.queryResults.next || props.queryResults.previous) && (
-        <>
+          <>
           {prevButton}
           {nextButton}
-        </>
+          </>
       )}
-    </>
+        </>
     );
 };
 
