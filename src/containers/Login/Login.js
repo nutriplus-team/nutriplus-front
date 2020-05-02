@@ -13,7 +13,8 @@ class Login extends Component {
   state = {};
 
   login = async () => {
-    const res = await fetch("http://localhost:8080/user/login/", {
+    const backUrl = process.env.REACT_APP_BACKEND_URL + "/user/login/";
+    const res = await fetch(backUrl, {
       method: "post",
       body: JSON.stringify({
         username: this.state.username,
