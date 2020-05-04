@@ -41,9 +41,9 @@ const paginator = (props) => {
 
     const prevButton = (
         <Button
-          onClick={ handleChangePage('previous') }
+          onClick={ () => handleChangePage('previous') }
           icon
-          floated="left"
+          floated='left'
           size={ props.buttonSize || 'medium' }
           disabled={ !props.hasPrevious }
         >
@@ -52,10 +52,10 @@ const paginator = (props) => {
     );
     const nextButton = (
         <Button
-          onClick={ handleChangePage('next') }
+          onClick={ () => handleChangePage('next') }
           disabled={ !props.hasNext }
           icon
-          floated="right"
+          floated='right'
           size={ props.buttonSize || 'medium' }
         >
             <Icon name="angle double right" />

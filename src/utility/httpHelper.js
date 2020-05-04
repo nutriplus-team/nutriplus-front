@@ -7,24 +7,26 @@ export const sendAuthenticatedRequest = async (
     fullURL = false,
 ) => {
     let response;
-    const base_url = 'http://localhost:8080';
+
+    const base_url = process.env.REACT_APP_BACKEND_URL;
+
     if (!fullURL) {
         url = base_url + url;
     }
     if (body) {
         response = await fetch(url, {
-            method,
-            body,
+            method: method,
+            body: body,
             headers: new Headers({
-                Authorization: `Port ${localStorage.getItem('stored_token')}`,
+                Authorization: 'Port ' + localStorage.getItem('stored_token'),
                 'Content-Type': 'application/json',
             }),
         });
     } else {
         response = await fetch(url, {
-            method,
+            method: method,
             headers: new Headers({
-                Authorization: `Port ${localStorage.getItem('stored_token')}`,
+                Authorization: 'Port ' + localStorage.getItem('stored_token'),
             }),
         });
     }
