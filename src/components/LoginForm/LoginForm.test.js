@@ -108,7 +108,7 @@ describe('<LoginForm />', () => {
         expect(form.prop('loading')).toBe(true);
     });
 
-    it('should handle erro', () => {
+    it('should handle error', () => {
         const wrapper = shallow(
             <LoginForm
               username=''
