@@ -1,42 +1,41 @@
-import React, { Component } from "react";
-import { Table } from "semantic-ui-react";
+import React, { Component } from 'react';
+import { Table } from 'semantic-ui-react';
 
 class Infos extends Component {
   state = {
-    nutritionFacts: this.props.nutritionFacts,
+      nutritionFacts: this.props.nutritionFacts,
   };
 
   componentDidUpdate = (prevProps) => {
-    if (this.props.nutritionFacts !== prevProps.nutritionFacts) {
-      this.setState({ nutritionFacts: this.props.nutritionFacts });
-    }
+      if (this.props.nutritionFacts !== prevProps.nutritionFacts) {
+          this.setState({ nutritionFacts: this.props.nutritionFacts });
+      }
   };
 
   generateTable = () => {
-    let table = (
-      <Table>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>Infos</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {this.state.nutritionFacts.map((value) => {
-            return (
-              <Table.Row key={value[0]}>
-                <Table.Cell>{value[0]}</Table.Cell>
-                <Table.Cell>{value[1].toFixed(2)}</Table.Cell>
-              </Table.Row>
-            );
-          })}
-        </Table.Body>
-      </Table>
-    );
-    return table;
+      const table = (
+          <Table>
+              <Table.Header>
+                  <Table.Row>
+                      <Table.HeaderCell>Infos</Table.HeaderCell>
+                  </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                  {this.state.nutritionFacts.map((value) => (
+                      <Table.Row key={ value[0] }>
+                          <Table.Cell>{value[0]}</Table.Cell>
+                          <Table.Cell>{value[1].toFixed(2)}</Table.Cell>
+                      </Table.Row>
+                  ))}
+              </Table.Body>
+          </Table>
+      );
+      return table;
   };
+
   render() {
-    let table = this.generateTable();
-    return table;
+      const table = this.generateTable();
+      return table;
   }
 }
 

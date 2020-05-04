@@ -1,21 +1,21 @@
-import React, { Component } from "react";
-import "./App.css";
-import { Route, Switch, Redirect } from "react-router-dom";
-import Login from "./containers/Login/Login";
-import Toolbar from "./components/Navigation/Toolbar/Toolbar";
-import Patients from "./containers/Patients/Patients";
-import FoodSuggestions from "./containers/FoodSuggestions/FoodSuggestions";
-import Main from "./components/Main/Main";
-import Logout from "./containers/Logout/Logout";
-import Subscribe from "./containers/Subscribe/Subscribe";
-import FoodDatabaseEditor from "./containers/FoodDatabaseEditor/FoodDatabaseEditor";
+import React, { Component } from 'react';
+import './App.css';
+import { Route, Switch, Redirect } from 'react-router-dom';
+import Login from './containers/Login/Login';
+import Toolbar from './components/Navigation/Toolbar/Toolbar';
+import Patients from './containers/Patients/Patients';
+import FoodSuggestions from './containers/FoodSuggestions/FoodSuggestions';
+import Main from './components/Main/Main';
+import Logout from './containers/Logout/Logout';
+import Subscribe from './containers/Subscribe/Subscribe';
+import FoodDatabaseEditor from './containers/FoodDatabaseEditor/FoodDatabaseEditor';
 
 class App extends Component {
   state = { isAuthenticated: false };
 
   componentDidMount = async () => {
-    let isAuthenticated = localStorage.getItem("stored_auth") || false;
-    if (isAuthenticated === "1") {
+    const isAuthenticated = localStorage.getItem('stored_auth') || false;
+    if (isAuthenticated === '1') {
       await new Promise((resolve) => {
         this.setState({ isAuthenticated: true }, () => {
           resolve();
@@ -30,9 +30,9 @@ class App extends Component {
 
   logoutHandler = async () => {
     await new Promise((resolve) => {
-      localStorage.setItem("stored_token", "");
-      localStorage.setItem("stored_refresh", "");
-      localStorage.setItem("stored_auth", false);
+      localStorage.setItem('stored_token', '');
+      localStorage.setItem('stored_refresh', '');
+      localStorage.setItem('stored_auth', false);
       this.setState({ isAuthenticated: false }, () => {
         resolve();
       });
@@ -86,9 +86,9 @@ class App extends Component {
     return (
       <div className="App">
         <Toolbar isAuth={this.state.isAuthenticated} />
-        <br></br>
-        <br></br>
-        <br></br>
+        <br />
+        <br />
+        <br />
         {routes}
       </div>
     );
