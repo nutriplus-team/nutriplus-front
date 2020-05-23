@@ -296,12 +296,14 @@ class EndCardapio extends Component {
           sendAuthenticatedRequest(
               `/menu/add-new/${this.props.match.params.id}/`,
               'post',
-              /* (mes) => {
-                  // console.log("mes: ", mes);
+              /*(mes) => {
+                  console.log('mes: ', mes);
               },
               (res) => {
-                  // console.log("res: ", res);
+                  console.log('res: ', res);
               },*/
+              () => {},
+              () => {},
               JSON.stringify(body),
           );
       });
@@ -328,11 +330,13 @@ class EndCardapio extends Component {
                   `/menu/add-new/${this.props.match.params.id}/`,
                   'post',
                   /*(mes) => {
-                      // console.log("mes: ", mes);
+                      console.log('mes: ', mes);
                   },
                   (res) => {
-                      // console.log("res: ", res);
+                      console.log('res: ', res);
                   },*/
+                  () => {},
+                  () => {},
                   JSON.stringify(body),
               );
           });
