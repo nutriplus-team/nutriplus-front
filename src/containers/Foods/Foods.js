@@ -37,13 +37,15 @@ const FoodDatabaseEditor = () => {
         requestFoodInfo();
     }, []);
 
-    useEffect(() => {
+    const makeQuery = (foodName) => {
+        setFoodNameQuery(foodName);
         setLoaded(false);
-        if (foodNameQuery === '')
+
+        if (foodName === '')
             requestFoodInfo();
         else
             sendAuthenticatedRequest(
-                `/foods/search/${foodNameQuery}/`,
+                `/foods/search/${foodName}/`,
                 'get',
                 (message) => setError(message),
                 (info) => {
@@ -54,15 +56,10 @@ const FoodDatabaseEditor = () => {
                     setLoaded(true);
                     setError(null);
                 },
-            );        
-    }, [foodNameQuery]);
-
-    const reload = () => {
-        setLoaded(false);
-        requestFoodInfo();
+            );      
     };
 
-    const click = (foodId, foodIdx) => {
+    const clickEdition = (foodId, foodIdx) => {
         const food = foodInfo.results[foodIdx];
         if (food.id !== foodId)
             return;
@@ -70,7 +67,34 @@ const FoodDatabaseEditor = () => {
         setOpenModal(true);
     };
 
-    const handleCloseModal = () => setOpenModal(false);
+    const buttonRemove = (foodId, foodIdx) => {
+        const food = foodInfo.results[foodIdx];
+        if (food.id !== foodId)
+            return;
+
+        setFoodNameQuery('');
+        setLoaded(false);
+        sendAuthenticatedRequest(
+            `/foods/remove/${foodId}/`,
+            'get',
+            (message) => setError(message),
+            () => {
+                requestFoodInfo();
+            },
+        );  
+    };
+
+    const buttonAdd = () => {
+        setSelectedFood();
+        setOpenModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setFoodNameQuery('');
+        setOpenModal(false);
+        setLoaded(false);
+        requestFoodInfo();
+    };
 
     return (
         <>
@@ -81,7 +105,11 @@ const FoodDatabaseEditor = () => {
             />
             <Grid centered>
                 <Grid.Column width={ 12 }>
-                    <FoodsSearchInput disabled={ !loaded } handleSearch={ (foodName) => setFoodNameQuery(foodName) } />
+                    <FoodsSearchInput
+                      disabled={ !loaded } 
+                      foodName={ foodNameQuery } 
+                      handleSearch={ makeQuery } 
+                    />
                     <FoodsTable 
                       loaded={ loaded }
                       error={ error }
@@ -92,9 +120,9 @@ const FoodDatabaseEditor = () => {
                       setHasPrevious={ setHasPrevious }
                       hasNext={ hasNext }
                       setHasNext={ setHasNext }
-                      handleReload={ reload }
-                      handleClick={ click }
-                      handleButton={ () => {} }
+                      handleAdd={ buttonAdd }
+                      handleClick={ clickEdition }
+                      handleRemove={ buttonRemove }
                     />
                 </Grid.Column>
             </Grid>

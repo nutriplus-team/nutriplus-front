@@ -22,8 +22,8 @@ const foodsTable = (props) => {
                 <Table.HeaderCell>Fibra alimentar (g)</Table.HeaderCell>
                 <Table.HeaderCell>Refeições</Table.HeaderCell>
                 <Table.HeaderCell>
-                    <Button icon size='big' onClick={ () => props.handleReload() }>
-                        <Icon name='redo' />
+                    <Button icon size='big' onClick={ () => props.handleAdd() }>
+                        <Icon name='add square' />
                     </Button>
                 </Table.HeaderCell>
             </Table.Row>
@@ -77,7 +77,7 @@ const foodsTable = (props) => {
                           food={ food } 
                           key={ food.id } 
                           handleClick={ () => props.handleClick(food.id, idx) }
-                          handleButton={ () => props.handleButton(food.id, idx) }
+                          handleButton={ () => props.handleRemove(food.id, idx) }
                         />
                       ) }
                       setResults={ (foodInfo) => props.setFoodInfo(foodInfo) }

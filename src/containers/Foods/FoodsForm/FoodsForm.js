@@ -3,18 +3,39 @@ import React, {useState} from 'react';
 import { Button, Form, Segment, Message, Checkbox } from 'semantic-ui-react';
 
 import { numberValidator } from '../../../utility/validators';
+import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 
 const FoodsForm = (props) => {
+    let isEditing = true;
+    if (props.food === undefined)
+        isEditing = false;
+
+    let food;
+    if (isEditing)
+        food = props.food;
+    else
+        food = {};
+
     const [error, setError] = useState({content: '', header: ''});
     const [isLoading, setIsLoading] = useState(false);
   
-    const [name, setName] = useState(props.food['food_name']);
-    const [group, setGroup] = useState(props.food['food_group']);
-    const [totalGrams, setTotalGrams] = useState(props.food['measure_total_grams']);
-    const [type, setType] = useState(props.food['measure_type']);
-    const [amount, setAmount] = useState(props.food['measure_amount']);
-    const [nutritionFacts, setNutritionFacts] = useState(props.food['nutrition_facts']);
-    const [mealSet, setMealSet] = useState(props.food['meal_set']);
+    const [name, setName] = useState(food['food_name']);
+    const [group, setGroup] = useState(food['food_group']);
+    const [totalGrams, setTotalGrams] = useState(food['measure_total_grams']);
+    const [type, setType] = useState(food['measure_type']);
+    const [amount, setAmount] = useState(food['measure_amount']);
+    
+    const [nutritionFacts, setNutritionFacts] = useState(
+        isEditing
+            ? props.food['nutrition_facts']
+            : {}
+    );
+
+    const [mealSet, setMealSet] = useState(
+        isEditing
+            ? props.food['meal_set']
+            : []
+    );
 
     const handleNutritionFactsChange = (name, newValue) => {
         const update = {...nutritionFacts};
@@ -38,7 +59,7 @@ const FoodsForm = (props) => {
         setMealSet(update);
     };
 
-    const submit = () => {
+    const submit = async () => {
         setIsLoading(true);
 
         const updatedFood = {
@@ -47,19 +68,18 @@ const FoodsForm = (props) => {
             'measure_total_grams': totalGrams,
             'measure_type': type,
             'measure_amount': amount,
-            'nutrition_facts': nutritionFacts,
-            'meal_set': mealSet
+            'calories': nutritionFacts['calories'],
+            'proteins': nutritionFacts['proteins'],
+            'carbohydrates': nutritionFacts['carbohydrates'],
+            'lipids': nutritionFacts['lipids'],
+            'fiber': nutritionFacts['fiber'],
+            'meal_set': mealSet.join('&')
         };
 
         let valid = 
           ['measure_total_grams', 'measure_amount']
               .map((key) => numberValidator(updatedFood[key], 4, true, 1))
               .reduce((prev, curr) => prev && curr);
-
-        valid &= Object
-            .keys(updatedFood['nutrition_facts'])
-            .map((key) => numberValidator(updatedFood['nutrition_facts'][key], 4, true, 1))
-            .reduce((prev, curr) => prev && curr);
 
         if (!valid) {
             setError({
@@ -70,10 +90,29 @@ const FoodsForm = (props) => {
             return;
         }
 
-        // Make HTTP request
-        setError({content: '', header: ''});
-        setIsLoading(false);
-        props.afterSubmit();
+        let url;
+        if (isEditing)
+            url = `/foods/edit-food/${food.id}/`;
+        else
+            url = '/foods/add-new/';
+
+        sendAuthenticatedRequest(
+            url,
+            'post',
+            () => {
+                setError({
+                    header: 'Erro ao se comunicar com o serviço.',
+                    content: 'Por favor, tente mais tarde.'
+                });
+                setIsLoading(false);
+            },
+            () => {
+                setError({content: '', header: ''});
+                setIsLoading(false);
+                props.afterSubmit();
+            },
+            JSON.stringify(updatedFood)
+        );
     };
 
     return (
@@ -208,7 +247,7 @@ const FoodsForm = (props) => {
             />
           </Form.Field>
           <Button color='teal' fluid size='large'>
-            Login
+            Salvar
           </Button>
         </Segment>
       </Form>

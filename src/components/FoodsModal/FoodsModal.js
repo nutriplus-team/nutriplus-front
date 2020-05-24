@@ -14,7 +14,7 @@ const FoodsModal = (props) => (
       centered={ false }
       size='tiny'
     >
-        <Modal.Header >Edite o alimento selecionado.</Modal.Header>
+        <Modal.Header >Insira/Altere informações do alimento.</Modal.Header>
         <Modal.Content centered>
             <FoodsForm
               food={ props.selectedFood }
