@@ -196,6 +196,14 @@ const Register = (props) => {
                 <Header as="h2" color="teal" textAlign="center">
           Insira as informações do paciente abaixo
                 </Header>
+                <Button
+                  className={ classes.backButton }
+                  color="teal"
+                  size="medium"
+                  onClick={ () => props.history.push(`/pacientes/${props.match.params.id === undefined ? '' : props.match.params.id }`) }
+                >
+                Voltar
+                </Button>
                 <Form size="large">
                     <Segment stacked>
                         <Form.Input
