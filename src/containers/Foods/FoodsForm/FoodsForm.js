@@ -149,7 +149,7 @@ const FoodsForm = (props) => {
               />
           </Form.Field>
           <Form.Field>
-              <label>Quantidade da Medida</label>
+              <label>Unidade da Medida</label>
               <Form.Input 
                 fluid
                 value={ type }
@@ -157,7 +157,7 @@ const FoodsForm = (props) => {
               />
           </Form.Field>
           <Form.Field>
-              <label>Unidade da Medida</label>
+              <label>Quantidade da Medida</label>
               <Form.Input 
                 fluid
                 value={ amount }

@@ -13,8 +13,8 @@ const foodsTable = (props) => {
                 <Table.HeaderCell>Alimento</Table.HeaderCell>
                 <Table.HeaderCell>Grupo do alimento</Table.HeaderCell>
                 <Table.HeaderCell>Peso da porção (em gramas)</Table.HeaderCell>
-                <Table.HeaderCell>Quantidade da medida</Table.HeaderCell>
                 <Table.HeaderCell>Unidade da medida</Table.HeaderCell>
+                <Table.HeaderCell>Quantidade da medida</Table.HeaderCell>
                 <Table.HeaderCell>Valor energético (kcal)</Table.HeaderCell>
                 <Table.HeaderCell>Proteínas (g)</Table.HeaderCell>
                 <Table.HeaderCell>Carboidratos (g)</Table.HeaderCell>

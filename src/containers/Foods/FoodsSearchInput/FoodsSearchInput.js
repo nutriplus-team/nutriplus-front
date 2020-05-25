@@ -9,7 +9,6 @@ const FoodSearchInput = (props) => {
     const searchRef = useRef();
 
     useEffect(() => {
-        console.log('useEffect executed');
         setSearch(props.foodName);
         setInputInfo(props.foodName);
     }, [props.foodName]);
@@ -25,7 +24,7 @@ const FoodSearchInput = (props) => {
         return () => {
             clearTimeout(timer);
         };
-    }, [inputInfo]);
+    });
 
     return (
         <Form 
