@@ -19,16 +19,22 @@ const FoodsForm = (props) => {
     const [error, setError] = useState({content: '', header: ''});
     const [isLoading, setIsLoading] = useState(false);
   
-    const [name, setName] = useState(food['food_name']);
-    const [group, setGroup] = useState(food['food_group']);
-    const [totalGrams, setTotalGrams] = useState(food['measure_total_grams']);
-    const [type, setType] = useState(food['measure_type']);
-    const [amount, setAmount] = useState(food['measure_amount']);
+    const [name, setName] = useState(food['food_name'] || '');
+    const [group, setGroup] = useState(food['food_group'] || '');
+    const [totalGrams, setTotalGrams] = useState(food['measure_total_grams'] || 0);
+    const [type, setType] = useState(food['measure_type'] || '');
+    const [amount, setAmount] = useState(food['measure_amount'] || 0);
     
     const [nutritionFacts, setNutritionFacts] = useState(
         isEditing
             ? props.food['nutrition_facts']
-            : {}
+            : {            
+                'calories': 0,
+                'proteins': 0,
+                'carbohydrates': 0,
+                'lipids': 0,
+                'fiber': 0,
+            }
     );
 
     const [mealSet, setMealSet] = useState(
@@ -45,8 +51,6 @@ const FoodsForm = (props) => {
 
     const handleToggle = (number) => {
         const previous = [...mealSet];
-
-        console.log(previous);
 
         let update = [];
         if (previous.includes(number))
