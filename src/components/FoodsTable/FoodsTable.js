@@ -34,11 +34,11 @@ const foodsTable = (props) => {
         <Paginator
           queryResults={ {results: [...Array(10).keys()]} }
           filter={ () => true }
-          listElementMap={ () => (
-                <Table.Row>
+          listElementMap={ (elem) => (
+                <Table.Row key={ elem }>
                     {
-                        [...Array(12).keys()].map(() => (
-                            <Table.Cell>
+                        [...Array(12).keys()].map((idx) => (
+                            <Table.Cell key={ idx }>
                                 <Placeholder>
                                     <Placeholder.Line />
                                 </Placeholder>

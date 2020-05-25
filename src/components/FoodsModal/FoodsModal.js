@@ -15,7 +15,7 @@ const FoodsModal = (props) => (
       size='tiny'
     >
         <Modal.Header >Insira/Altere informações do alimento.</Modal.Header>
-        <Modal.Content centered>
+        <Modal.Content>
             <FoodsForm
               food={ props.selectedFood }
               afterSubmit={ props.handleClose }

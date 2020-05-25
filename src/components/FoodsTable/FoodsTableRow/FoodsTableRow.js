@@ -27,7 +27,7 @@ const foodsTableRow = (props) => {
         case 'nutrition_facts':
             return Object.keys(props.food[key])
                 .map((nutritionKey) => (
-                        <Table.Cell>
+                        <Table.Cell key={ key + nutritionKey }>
                         {
                             props.food[key][nutritionKey]
                         }
@@ -35,7 +35,7 @@ const foodsTableRow = (props) => {
                 ));
         case 'meal_set':
             return (
-                    <Table.Cell>
+                    <Table.Cell key={ key }>
                         {
                             props.food[key]
                                 .map((meal) => mapMeal(meal))
@@ -45,7 +45,7 @@ const foodsTableRow = (props) => {
             );
         default:
             return (
-                    <Table.Cell>
+                    <Table.Cell key={ key }>
                         {
                             props.food[key]
                         }

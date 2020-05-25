@@ -173,7 +173,7 @@ const FoodsForm = (props) => {
               />
           </Form.Field>
           <Form.Field>
-              <label>Proteínas</label>
+              <label>Proteínas (g)</label>
               <Form.Input 
                 fluid
                 value={ nutritionFacts['proteins'] }
