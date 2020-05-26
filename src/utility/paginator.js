@@ -29,7 +29,7 @@ const paginator = (props) => {
             <List divided relaxed floated={ 'right' }>
                 {results.map((result) => {
                     return (
-                    <List.Item >
+                    <List.Item key={ result.key }>
                         <List.Icon name='user circle' size='large' verticalAlign='middle' />
                         <List.Content>
                             <List.Header style = { {'text-align': 'left', 'margin-left': '10px' } }>{result}</List.Header>
