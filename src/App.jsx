@@ -8,7 +8,7 @@ import FoodSuggestions from './containers/FoodSuggestions/FoodSuggestions';
 import Main from './components/Main/Main.jsx';
 import Logout from './containers/Logout/Logout';
 import Subscribe from './containers/Subscribe/Subscribe';
-import FoodDatabaseEditor from './containers/FoodDatabaseEditor/FoodDatabaseEditor';
+import Foods from './containers/Foods/Foods';
 
 class App extends Component {
   state = { isAuthenticated: false };
@@ -70,7 +70,7 @@ class App extends Component {
           />
           <Route
             path="/alimentos"
-            render={ (props) => <FoodDatabaseEditor { ...props } /> }
+            render={ (props) => <Foods { ...props } /> }
           />
           <Route
             path="/logout"

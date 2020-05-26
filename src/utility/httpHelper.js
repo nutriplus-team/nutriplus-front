@@ -31,6 +31,11 @@ export const sendAuthenticatedRequest = async (
         });
     }
 
+    if (response.status === 204) {
+        afterRequest();
+        return;
+    }
+
     const responseJson = await response.json();
     if (response.status === 400) {
         setMessage('Houve algum problema na conexão com o servidor!');
