@@ -5,7 +5,7 @@ import Login from './containers/Login/Login';
 import Toolbar from './components/Navigation/Toolbar/Toolbar';
 import Patients from './containers/Patients/Patients';
 import FoodSuggestions from './containers/FoodSuggestions/FoodSuggestions';
-import Main from './components/Main/Main';
+import Main from './components/Main/Main.jsx';
 import Logout from './containers/Logout/Logout';
 import Subscribe from './containers/Subscribe/Subscribe';
 import Foods from './containers/Foods/Foods';
@@ -52,7 +52,7 @@ class App extends Component {
           path="/subscription"
           render={ (props) => <Subscribe { ...props } /> }
         />
-        <Route path="/" exact component={ Main } />
+        <Route path="/" render={ (props) => <Main { ...props } /> } />
         <Redirect to="/" />
       </Switch>
       );
@@ -78,7 +78,9 @@ class App extends Component {
               <Logout { ...props } updateLogout={ this.logoutHandler } />
             ) }
           />
-          <Route path="/" exact component={ Main } />
+          <Route path="/" 
+            render={ (props) => <Main { ...props } /> }
+          />
           <Redirect to="/" />
         </Switch>
           );

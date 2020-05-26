@@ -304,10 +304,17 @@ const Register = (props) => {
                   hasPrevious={ hasPrevious }
                   hasNext={ hasNext }
                   buttonSize="mini"
+                  isTable={ true }
                 />
                             </>
                         )}
-                        <Button color="teal" fluid size="large" onClick={ register }>
+                        <Button
+                          size="medium"
+                          onClick={ () => props.history.push(`/pacientes/${props.match.params.id === undefined ? '' : props.match.params.id }`) }
+                        >
+                        Voltar
+                        </Button>
+                        <Button color="teal" onClick={ register }>
                             {editing ? 'Editar paciente' : 'Registrar paciente'}
                         </Button>
                         <p>{message}</p>

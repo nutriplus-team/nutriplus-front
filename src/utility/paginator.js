@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Icon, Table } from 'semantic-ui-react';
+import { Button, Icon, Table, List } from 'semantic-ui-react';
 
 import { sendAuthenticatedRequest } from './httpHelper';
 
@@ -26,7 +26,17 @@ const paginator = (props) => {
 
     if (props.isList) {
         results = (
-            <ul style={ { listStyleType: 'none', paddingLeft: 0 } }>{results}</ul>
+            <List divided relaxed>
+                {results.map((result) => {
+                    return (
+                    <List.Item key={ result.key }>
+                        <List.Icon name='user circle' size='large' verticalAlign='middle' />
+                        <List.Content>
+                            <List.Header style = { {textAlign: 'left', marginLeft: '10px' } }>{result}</List.Header>
+                        </List.Content>
+                    </List.Item>);
+                })}
+            </List>
         );
     }
 
