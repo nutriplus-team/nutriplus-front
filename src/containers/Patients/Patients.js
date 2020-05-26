@@ -99,7 +99,7 @@ class Patients extends Component {
                     exact
                     render={ () => (
                           <div className={ classes.patients }>
-                          <Header size='huge' style = { {'text-align': 'left' } } >Meus Pacientes</Header>
+                          <Header size='huge' style = { {textAlign: 'left' } } >Meus Pacientes</Header>
                               {this.state.patientsQueryInfo && (
                                   <Paginator
                                     queryResults={ this.state.patientsQueryInfo }
