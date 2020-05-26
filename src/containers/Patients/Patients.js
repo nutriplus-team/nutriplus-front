@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button } from 'semantic-ui-react';
+import { Button, Header } from 'semantic-ui-react';
 import {
     Route, Switch, NavLink, Redirect,
 } from 'react-router-dom';
@@ -99,14 +99,7 @@ class Patients extends Component {
                     exact
                     render={ () => (
                           <div className={ classes.patients }>
-                              <Button
-                                color="teal"
-                                size="small"
-                                onClick={ () => this.props.history.push('/pacientes/register') }
-                              >
-                  Registrar paciente
-                              </Button>
-                              <br />
+                          <Header size='huge' style = { {'text-align': 'left' } } >Meus Pacientes</Header>
                               {this.state.patientsQueryInfo && (
                                   <Paginator
                                     queryResults={ this.state.patientsQueryInfo }
@@ -131,6 +124,12 @@ class Patients extends Component {
                               )}
                               {this.state.error && <p>{this.state.error}</p>}
                               {this.state.redirect && <Redirect to="/pacientes" />}
+                        <Button
+                          color="teal"
+                          size="small"
+                          onClick={ () => this.props.history.push('/pacientes/register') }
+                        >Registrar paciente
+                        </Button>
                           </div>
                     ) }
                   />

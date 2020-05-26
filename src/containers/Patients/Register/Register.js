@@ -304,6 +304,7 @@ const Register = (props) => {
                   hasPrevious={ hasPrevious }
                   hasNext={ hasNext }
                   buttonSize="mini"
+                  isTable={ true }
                 />
                             </>
                         )}
