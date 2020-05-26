@@ -88,10 +88,7 @@ class App extends Component {
       return (
       <div className="App">
         <Toolbar isAuth={ this.state.isAuthenticated } />
-        <br />
-        <br />
-        <br />
-        {routes}
+        <div style={ {margin: '65px 0px 0px 0px'} }>{routes}</div>
       </div>
       );
   }
