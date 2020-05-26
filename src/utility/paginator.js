@@ -26,7 +26,7 @@ const paginator = (props) => {
 
     if (props.isList) {
         results = (
-            <List divided relaxed floated={ 'right' }>
+            <List divided relaxed>
                 {results.map((result) => {
                     return (
                     <List.Item key={ result.key }>
