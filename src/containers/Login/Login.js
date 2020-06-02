@@ -39,18 +39,22 @@ class Login extends Component {
       this.setState({ loading: true });
 
       const backUrl = process.env.REACT_APP_BACKEND_URL + '/user/login/';
+      console.log(backUrl);
+      console.log(JSON.stringify({
+          usernameOrEmail: oldState.username,
+          password: oldState.password,
+      }));
       const res = await fetch(backUrl, {
           method: 'post',
           body: JSON.stringify({
-              username: oldState.username,
+              usernameOrEmail: oldState.username,
               password: oldState.password,
           }),
           headers: new Headers({ 'Content-Type': 'application/json' }),
       });
 
-      const answ = await res;
-      const info = await answ.json();
-      if (answ.status === 200) {
+      const info = await res.json();
+      if (res.status === 200) {
           this.setState({ loading: false });
 
           this.props.updateLogin();
@@ -58,7 +62,7 @@ class Login extends Component {
           localStorage.setItem('stored_token', info.token);
           localStorage.setItem('stored_refresh', info.refresh);
           localStorage.setItem('stored_auth', 1);
-      } else if (answ.status === 400) {
+      } else if (res.status === 400) {
           this.setState({
               loading: false,
               hasError: true,
