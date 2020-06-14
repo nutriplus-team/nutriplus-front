@@ -27,7 +27,7 @@
   margin-top: 65px;
 }
 
-@supports (-webkit-marquee-repetition:infinite) and (object-fit:fill) { .NotToolbar { margin-top: 210px; } }
+@supports (-webkit-hyphens:none) { .NotToolbar { margin-top: 210px; } }
 
 @keyframes App-logo-spin {
   from {
