@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { Button, Form, Segment, Message, Checkbox } from 'semantic-ui-react';
 
@@ -63,7 +63,7 @@ const FoodsForm = (props) => {
         setMealSet(update);
     };
 
-    const validateInputs = () => {
+    const validateInputs = useCallback(() => {
         let valid = true;
 
         if (!numberValidator(totalGrams, 4, true, 1))
@@ -88,13 +88,13 @@ const FoodsForm = (props) => {
         }
 
         return valid;
-    };
-    useEffect(() => {
-        validateInputs();
-    }, []);
-    useEffect(() => {
-        validateInputs();
     }, [totalGrams, amount, nutritionFacts]);
+    useEffect(() => {
+        validateInputs();
+    }, [validateInputs]);
+    useEffect(() => {
+        validateInputs();
+    }, [totalGrams, amount, nutritionFacts, validateInputs]);
 
     const submit = async () => {
         setIsLoading(true);
