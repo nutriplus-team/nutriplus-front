@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Button, Form, Segment, Message, Checkbox } from 'semantic-ui-react';
 
@@ -63,6 +63,39 @@ const FoodsForm = (props) => {
         setMealSet(update);
     };
 
+    const validateInputs = () => {
+        let valid = true;
+
+        if (!numberValidator(totalGrams, 4, true, 1))
+            valid = false;
+
+        if (!numberValidator(amount, 4, true, 1))
+            valid = false;
+
+        valid &= Object.keys(nutritionFacts).map((key) => numberValidator(nutritionFacts[key], 4, true, 1))
+            .reduce((prev, curr) => prev && curr);
+
+        if (!valid) {
+            setError({
+                header: 'Dados Inválidos',
+                content: 'Alguns valores precisam ser numéricos.'
+            });
+        } else {
+            setError({
+                header: '',
+                content: ''
+            });
+        }
+
+        return valid;
+    };
+    useEffect(() => {
+        validateInputs();
+    }, []);
+    useEffect(() => {
+        validateInputs();
+    }, [totalGrams, amount, nutritionFacts]);
+
     const submit = async () => {
         setIsLoading(true);
 
@@ -80,19 +113,9 @@ const FoodsForm = (props) => {
             'meal_set': mealSet.join('&')
         };
 
-        let valid = 
-          ['measure_total_grams', 'measure_amount']
-              .map((key) => numberValidator(updatedFood[key], 4, true, 1))
-              .reduce((prev, curr) => prev && curr);
-
-        if (!valid) {
-            setError({
-                header: 'Dados Inválidos',
-                content: 'Alguns valores precisam ser numéricos.'
-            });
-            setIsLoading(false);
+        let valid = validateInputs();
+        if (!valid)
             return;
-        }
 
         let url;
         if (isEditing)
