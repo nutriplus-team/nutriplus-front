@@ -24,10 +24,8 @@
 }
 
 .NotToolbar {
-  margin-top: 65px;
+  padding-top: 10px;
 }
-
-@supports (-webkit-hyphens:none) { .NotToolbar { margin-top: 210px; } }
 
 @keyframes App-logo-spin {
   from {
