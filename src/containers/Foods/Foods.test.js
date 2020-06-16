@@ -32,18 +32,18 @@ const validInitialFoods = [
     }
 ];
 
+const mock = (func) => {
+    func({
+        count: 1,
+        next: 'SOME_URL/page=2',
+        previous: null,
+        results: validInitialFoods}); 
+};
+const mockFun = jest.fn().mockImplementation((...args) => mock(args[3]));
+httpHelper.sendAuthenticatedRequest = mockFun;
+
 describe('<Foods />', () => {
     it('should render properly', () => {
-        const mock = (func) => {
-            func({
-                count: 1,
-                next: 'SOME_URL/page=2',
-                previous: null,
-                results: validInitialFoods}); 
-        };
-        const mockFun = jest.fn().mockImplementation((...args) => mock(args[3]));
-        httpHelper.sendAuthenticatedRequest = mockFun;
-
         const wrapper = mount(
             <Foods />
         );
@@ -61,5 +61,56 @@ describe('<Foods />', () => {
         expect(wrapper.find(FoodsTable).prop('loaded')).toBe(true);
         expect(wrapper.find(FoodsTable).prop('error')).toBe(null);
         expect(wrapper.find(FoodsTable).prop('hasNext')).toBe(true);
+    });
+
+    it('should execute buttonAdd and handleCloseModal correctly', () => {
+        const wrapper = mount(
+            <Foods />
+        );
+
+        const buttonAdd = wrapper.find(FoodsTable).prop('handleAdd');
+        act(() => {
+            buttonAdd();
+        });
+        act(() => {
+            wrapper.update();
+        });
+
+        let modal = wrapper.find(FoodsModal);
+        expect(modal.prop('open')).toBe(true);
+        expect(modal.prop('selectedFood')).not.toBeDefined();
+
+        const handleCloseModal = wrapper.find(FoodsModal).prop('handleClose');
+        act(() => {
+            handleCloseModal();
+        });
+        act(() => {
+            wrapper.update();
+        });
+
+        modal = wrapper.find(FoodsModal);
+        const search = wrapper.find(FoodsSearchInput);
+        const table = wrapper.find(FoodsTable);
+        expect(modal.prop('open')).toBe(false);
+        expect(search.prop('foodName')).toBe('');
+        expect(table.prop('loaded')).toBe(true);
+    });
+
+    it('should execute clickEdition correctly', () => {
+        const wrapper = mount(
+            <Foods />
+        );
+
+        const clickEdition = wrapper.find(FoodsTable).prop('handleClick');
+        act(() => {
+            clickEdition(validInitialFoods[0].id, 0);
+        });
+        act(() => {
+            wrapper.update();
+        });
+
+        const modal = wrapper.find(FoodsModal);
+        expect(modal.prop('open')).toBe(true);
+        expect(modal.prop('selectedFood')).toMatchObject(validInitialFoods[0]);
     });
 });
