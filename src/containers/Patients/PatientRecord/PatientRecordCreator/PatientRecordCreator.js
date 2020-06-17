@@ -130,8 +130,8 @@ class PatientRecordCreator extends Component {
           });
           return;
       }
-      let url; let
-          setStateFunction;
+      let url; 
+      let setStateFunction;
       if (!this.state.editing) {
           url = `/patients/add-record/${params.id}/`;
           setStateFunction = () => this.setState({
@@ -196,7 +196,7 @@ class PatientRecordCreator extends Component {
         corporal_mass: (+this.state.weight).toFixed(2),
         height: (+this.state.height).toFixed(2),
         BMI: BMI.toFixed(2),
-        is_athlete: this.state.is_athlete === "Atleta",
+        is_athlete: this.state.athlete === "Atleta",
         physical_activity_level: this.mapPhysicalActivityOptionToNumber(
           this.state.physicalActivity
         ),
@@ -235,7 +235,7 @@ class PatientRecordCreator extends Component {
               corporal_mass: (+this.state.weight).toFixed(2),
               height: (+this.state.height).toFixed(2),
               BMI: BMI.toFixed(2),
-              is_athlete: this.state.is_athlete === 'Atleta',
+              is_athlete: this.state.athlete === 'Atleta',
               physical_activity_level: this.mapPhysicalActivityOptionToNumber(
                   this.state.physicalActivity,
               ),

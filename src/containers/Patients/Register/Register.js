@@ -8,6 +8,7 @@ import {
     Segment,
     Input,
     Dropdown,
+    Table,
 } from 'semantic-ui-react';
 import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 import Paginator from '../../../utility/paginator';
@@ -289,13 +290,14 @@ const Register = (props) => {
                       (state_food) => state_food.food_name === food.food_name,
                   ) }
                   listElementMap={ (obj) => (
+                        <Table.Row key={ obj.id }><Table.Cell>
                         <p
-                          key={ obj.id }
                           className={ classes.Food }
                           onClick={ () => handlefoodClick(obj) }
                         >
                             {obj.food_name}
                         </p>
+                        </Table.Cell></Table.Row>
                   ) }
                   setResults={ setQueryResults }
                   setHasNext={ setHasNext }
