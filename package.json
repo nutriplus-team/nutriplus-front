@@ -23,8 +23,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "coverage": "react-scripts test --watchAll=false --coverage",
-    "integration": "npm start && cypress run --record --parallel",
-    "cypress": "cypress open",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run --record --parallel",
+    "integration": "start-server-and-test start http://localhost:3000 cy:run",
     "eject": "react-scripts eject",
     "lint": "eslint ."
   },
@@ -52,6 +53,7 @@
     "eslint-config-airbnb": "^18.1.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-cypress": "^2.11.1",
-    "react-dev-utils": "^9.0.4"
+    "react-dev-utils": "^9.0.4",
+    "start-server-and-test": "^1.11.0"
   }
 }
