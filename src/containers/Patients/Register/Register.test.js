@@ -275,8 +275,8 @@ describe('<Register />', () => {
         for (let i = 0; i < 2; i++)
             expect(wrapper.find(Dropdown).at(i).props().value).toBe('');
         expect(wrapper.find(Input).at(2).props().value).toBe('');
-        expect(wrapper.find(Button).at(0).props().children).toBe('Voltar');
-        expect(wrapper.find(Button).at(1).props().children).toBe('Registrar paciente');
+        expect(wrapper.find(Button).at(1).props().children).toBe('Voltar');
+        expect(wrapper.find(Button).at(0).props().children).toBe('Registrar paciente');
     });
 
     it('should render properly on edit', async () => {
@@ -311,8 +311,8 @@ describe('<Register />', () => {
         expect(wrapper.find(Dropdown).at(0).props().value).toBe('Feminino');
         expect(wrapper.find(Dropdown).at(1).props().value).toBe('Branco/Hispânico');
         expect(wrapper.find(Input).at(2).props().value).toBe('');
-        expect(wrapper.find(Button).at(0).props().children).toBe('Voltar');
-        expect(wrapper.find(Button).at(1).props().children).toBe('Editar paciente');
+        expect(wrapper.find(Button).at(1).props().children).toBe('Voltar');
+        expect(wrapper.find(Button).at(0).props().children).toBe('Editar paciente');
     });
 
     it('should search food correctly', async () => {
@@ -407,7 +407,7 @@ describe('<Register />', () => {
             wrapper.find(Dropdown).at(1).props().onChange('', {value: 'Afroamericano'});
         });
         act(() => {
-            wrapper.find(Button).at(1).simulate('click');
+            wrapper.find(Button).at(0).simulate('click');
         });
         expect(mockFun).toHaveBeenCalledTimes(1);
         expect(mockFun.mock.calls[0]).toContain('/patients/add-new/');
@@ -452,7 +452,7 @@ describe('<Register />', () => {
             wrapper.find(Dropdown).at(1).props().onChange('', {value: 'Afroamericano'});
         });
         act(() => {
-            wrapper.find(Button).at(1).simulate('click');
+            wrapper.find(Button).at(0).simulate('click');
         });
         expect(mockFun).toHaveBeenCalledTimes(2);
         expect(mockFun.mock.calls[1]).toContain(`/patients/edit/${5}/`);
