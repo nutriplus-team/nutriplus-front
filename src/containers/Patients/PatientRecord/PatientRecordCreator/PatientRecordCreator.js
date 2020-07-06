@@ -390,6 +390,8 @@ class PatientRecordCreator extends Component {
   };
 
   render() {
+      const { params } = this.props.match;
+
       return (
           <div>
               <h4>
@@ -660,9 +662,13 @@ Paciente:
                                     });
                                 } }
                                 value={ this.state.obs }
+                                style={ { marginBottom: '10px' } }
                               />
-                              <Button color="teal" fluid size="large" onClick={ this.sendForm }>
+                              <Button color="teal" size="large" onClick={ this.sendForm }>
                                   {this.state.editing ? 'Editar ficha' : 'Adicionar ficha'}
+                              </Button>
+                              <Button size='large' onClick={ () => this.props.history.push(`/pacientes/${params.id}`) }>
+                                Voltar
                               </Button>
                               {this.state.message && <p>{this.state.message}</p>}
                           </Segment>
