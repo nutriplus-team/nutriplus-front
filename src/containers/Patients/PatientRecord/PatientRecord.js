@@ -1,11 +1,19 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
+
 import { Button } from 'semantic-ui-react';
+
 import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
+
+import ConfirmationModal from '../../../components/ConfirmationModal/ConfirmationModal';
 
 class PatientRecord extends Component {
   state = {
-      record: null, error: null, patient: null, redirectUrl: null,
+      record: null, 
+      error: null, 
+      patient: null, 
+      redirectUrl: null,
+      confirmation: false
   };
 
   componentDidMount = async () => {
@@ -179,11 +187,21 @@ class PatientRecord extends Component {
       );
   };
 
+  deleteRecordPreparation = () => {
+      this.setState({ confirmation: true });
+  }
+
   render() {
       // console.log("patientRecord state", this.state);
       const { params } = this.props.match;
       return (
           <div>
+              <ConfirmationModal
+                message='Você quer mesmo excluir esta ficha?'
+                open={ this.state.confirmation }
+                handleConfirmation={ () => this.deleteRecord() }
+                handleRejection={ () => this.setState({ confirmation: false }) }
+              />
               {this.state.error ? <p>{this.state.error}</p> : null}
               {this.state.record ? (
                   <div>
@@ -210,7 +228,7 @@ class PatientRecord extends Component {
                 style={ { margin: '200px auto' } }
                 color="red"
                 size="small"
-                onClick={ this.deleteRecord }
+                onClick={ this.deleteRecordPreparation }
               >
           Excluir ficha
               </Button>

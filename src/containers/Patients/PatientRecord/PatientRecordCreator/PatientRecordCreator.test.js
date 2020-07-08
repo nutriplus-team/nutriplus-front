@@ -104,7 +104,7 @@ describe('<PatientRecordCreator />', () => {
         expect(wrapper.find(Form.Input).length).toBe(17);
         expect(wrapper.find(Form.Field).length).toBe(21);
         expect(wrapper.find(Dropdown).length).toBe(4);
-        expect(wrapper.find(Button).length).toBe(1);
+        expect(wrapper.find(Button).length).toBe(2);
         expect(wrapper.find('#redirectTestcfihb').length).toBe(0);
         expect(wrapper.find(TextArea).length).toBe(1);
         expect(wrapper.find('h4').length).toBe(1);
@@ -139,7 +139,7 @@ describe('<PatientRecordCreator />', () => {
         expect(wrapper.find(Form.Input).length).toBe(17);
         expect(wrapper.find(Form.Field).length).toBe(21);
         expect(wrapper.find(Dropdown).length).toBe(4);
-        expect(wrapper.find(Button).length).toBe(1);
+        expect(wrapper.find(Button).length).toBe(2);
         expect(wrapper.find('#redirectTestcfihb').length).toBe(0);
         expect(wrapper.find(TextArea).length).toBe(1);
         expect(wrapper.find('h4').length).toBe(1);
@@ -188,7 +188,7 @@ describe('<PatientRecordCreator />', () => {
             wrapper.find(TextArea).props().onChange({target: {value: '1'}});
         });
         act(() => {
-            wrapper.find(Button).simulate('click');
+            wrapper.find(Button).at(0).simulate('click');
         });
         expect(mockFun).toHaveBeenCalledTimes(2);
         expect(mockFun.mock.calls[1]).toContain(`/patients/add-record/${5}/`);
@@ -255,7 +255,7 @@ describe('<PatientRecordCreator />', () => {
             wrapper.find(TextArea).props().onChange({target: {value: '10'}});
         });
         act(() => {
-            wrapper.find(Button).simulate('click');
+            wrapper.find(Button).at(0).simulate('click');
         });
         expect(mockFun).toHaveBeenCalledTimes(3);
         expect(mockFun.mock.calls[2]).toContain(`/patients/edit-record/${6}/`);

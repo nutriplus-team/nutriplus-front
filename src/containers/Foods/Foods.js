@@ -3,13 +3,15 @@ import { Grid } from 'semantic-ui-react';
 
 import FoodsSearchInput from './FoodsSearchInput/FoodsSearchInput';
 
+import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import FoodsModal from '../../components/FoodsModal/FoodsModal';
 import FoodsTable from '../../components/FoodsTable/FoodsTable';
 
 import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 
 const FoodDatabaseEditor = () => {
-    const [openModal, setOpenModal] = useState(false);
+    const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
+    const [openFoodsModal, setOpenFoodsModal] = useState(false);
     const [selectedFood, setSelectedFood] = useState({});
     const [loaded, setLoaded] = useState(false);
     const [foodInfo, setFoodInfo] = useState(null);
@@ -64,16 +66,14 @@ const FoodDatabaseEditor = () => {
         if (food.id !== foodId)
             return;
         setSelectedFood(food);
-        setOpenModal(true);
+        setOpenFoodsModal(true);
     };
 
-    const buttonRemove = (foodId, foodIdx) => {
-        const food = foodInfo.results[foodIdx];
-        if (food.id !== foodId)
-            return;
-
+    const removeFood = () => {
+        const foodId = selectedFood.id;
         setFoodNameQuery('');
         setLoaded(false);
+        setOpenConfirmationModal(false);
         sendAuthenticatedRequest(
             `/foods/remove/${foodId}/`,
             'get',
@@ -84,23 +84,37 @@ const FoodDatabaseEditor = () => {
         );  
     };
 
-    const buttonAdd = () => {
-        setSelectedFood();
-        setOpenModal(true);
+    const removeFoodPreparation = (foodId, foodIdx) => {
+        const food = foodInfo.results[foodIdx];
+        if (food.id !== foodId)
+            return;
+        setSelectedFood(food);
+        setOpenConfirmationModal(true);
     };
 
-    const handleCloseModal = () => {
+    const buttonAdd = () => {
+        setSelectedFood();
+        setOpenFoodsModal(true);
+    };
+
+    const handleCloseFoodsModal = () => {
         setFoodNameQuery('');
-        setOpenModal(false);
+        setOpenFoodsModal(false);
         setLoaded(false);
         requestFoodInfo();
     };
 
     return (
         <>
+            <ConfirmationModal
+              message='Você quer mesmo excluir este alimento?'
+              open={ openConfirmationModal }
+              handleConfirmation={ () => removeFood() }
+              handleRejection={ () => setOpenConfirmationModal(false) }
+            />
             <FoodsModal 
-              open={ openModal } 
-              handleClose={ handleCloseModal } 
+              open={ openFoodsModal } 
+              handleClose={ handleCloseFoodsModal } 
               selectedFood={ selectedFood }
             />
             <Grid centered>
@@ -122,7 +136,7 @@ const FoodDatabaseEditor = () => {
                       setHasNext={ setHasNext }
                       handleAdd={ buttonAdd }
                       handleClick={ clickEdition }
-                      handleRemove={ buttonRemove }
+                      handleRemove={ removeFoodPreparation }
                     />
                 </Grid.Column>
             </Grid>
