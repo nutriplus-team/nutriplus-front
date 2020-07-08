@@ -65,7 +65,7 @@ const paginator = (props) => {
                             <Button
                               onClick={ () => result.props.onClick() } 
                             >
-                            Vizualizar
+                            Visualizar
                             </Button>
                         </Grid.Column>
                         <Grid.Column>

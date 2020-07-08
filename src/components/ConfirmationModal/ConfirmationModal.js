@@ -16,10 +16,10 @@ const confirmationModal = ( props ) => {
         <Modal.Header >{props.message}</Modal.Header>
         <Modal.Content>
             <Button color="teal" size="large" onClick={ props.handleConfirmation }>
-                Confirma
+                Confirmar
             </Button>
             <Button color="red" size='large' onClick={ props.handleRejection }>
-                Rejeita
+                Cancelar
             </Button>
         </Modal.Content>
     </Modal>
