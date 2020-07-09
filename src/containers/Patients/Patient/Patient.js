@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
+
 import { Button, Grid, Divider, Item, List, GridColumn } from 'semantic-ui-react';
+
 import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 import Paginator from '../../../utility/paginator';
+
+import ConfirmationModal from '../../../components/ConfirmationModal/ConfirmationModal';
 
 class Patient extends Component {
   state = {
@@ -13,6 +17,7 @@ class Patient extends Component {
       hasNext: false,
       hasPrevious: false,
       redirectUrl: null,
+      confirmation: false
   };
 
   componentDidUpdate = async () => {
@@ -93,10 +98,20 @@ class Patient extends Component {
       );
   };
 
+  deletePacientPreparation = () => {
+      this.setState({ confirmation: true });
+  }
+
   render() {
       const { params } = this.props.match;
       return (
           <div>
+              <ConfirmationModal
+                message='Você quer mesmo excluir este paciente?'
+                open={ this.state.confirmation }
+                handleConfirmation={ () => this.deletePacient() }
+                handleRejection={ () => this.setState({ confirmation: false }) }
+              />
               {this.state.error ? <p>{this.state.error}</p> : null}
               {this.state.info ? (
                   <div>
@@ -133,7 +148,7 @@ class Patient extends Component {
                                             <Button
                                               color="purple"
                                               size="mini"
-                                              onClick={ this.deletePacient }
+                                              onClick={ this.deletePacientPreparation }
                                             >
                                             Excluir
                                             </Button>
