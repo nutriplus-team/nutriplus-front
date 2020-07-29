@@ -59,7 +59,9 @@ const paginator = (props) => {
                             <h3>{ result.key }. {result.props.children[0].props.children}</h3>
                         </Grid.Column>
                         <Grid.Column>
-                            <h4>{result.props.children[1].props.children}; {result.props.children[2].props.children}</h4>
+                            <h4 style={ {'margin': '0'} }>{result.props.children[1].props.children}</h4>
+                            <h4 style={ {'margin': '0'} }>{result.props.children[2].props.children}</h4>
+                            <h4 style={ {'margin': '0'} }>{result.props.children[3].props.children}</h4>
                         </Grid.Column>
                         <Grid.Column>
                             <Button

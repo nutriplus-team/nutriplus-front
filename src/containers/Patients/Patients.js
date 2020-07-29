@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Header } from 'semantic-ui-react';
+import { Button, Header, Placeholder } from 'semantic-ui-react';
 import {
     Route, Switch, NavLink, Redirect,
 } from 'react-router-dom';
@@ -10,6 +10,27 @@ import PatientRecord from './PatientRecord/PatientRecord';
 import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 import Paginator from '../../utility/paginator';
 import classes from './Patients.module.css';
+
+const placeholder = (
+  <Paginator
+    queryResults={ {results: [...Array(10).keys()]} }
+    filter={ () => true }
+    listElementMap={ (elem) => (
+        <li key={ elem }>
+            <Placeholder>
+                <Placeholder.Line />
+            </Placeholder>
+        </li>
+    ) }
+    setResults={ () => {} }
+    setHasNext={ () => {} }
+    setHasPrevious={ () => {} }
+    setMessage={ () => {} }
+    hasPrevious={ false }
+    hasNext={ false }
+    isList
+  />
+);
 
 class Patients extends Component {
   state = {
@@ -100,28 +121,31 @@ class Patients extends Component {
                     render={ () => (
                           <div className={ classes.patients }>
                           <Header size='huge' style = { {textAlign: 'left' } } >Meus Pacientes</Header>
-                              {this.state.patientsQueryInfo && (
-                                  <Paginator
-                                    queryResults={ this.state.patientsQueryInfo }
-                                    filter={ () => true }
-                                    listElementMap={ (patient) => (
-                                          <li key={ patient.id }>
-                                              <NavLink to={ `/pacientes/${patient.id}` }>
-                                                  {patient.name}
-                                              </NavLink>
-                                          </li>
-                                    ) }
-                                    setResults={ (patientInfo) => this.setState({ patientsQueryInfo: patientInfo }) }
-                                    setHasNext={ (value) => this.setState({ hasNext: value }) }
-                                    setHasPrevious={ (value) => this.setState({ hasPrevious: value }) }
-                                    setMessage={ (message) => this.setState({
-                                        error: message,
-                                    }) }
-                                    hasPrevious={ this.state.hasPrevious }
-                                    hasNext={ this.state.hasNext }
-                                    isList
-                                  />
-                              )}
+                              {this.state.patientsQueryInfo ? 
+                                  (
+                                    <Paginator
+                                      queryResults={ this.state.patientsQueryInfo }
+                                      filter={ () => true }
+                                      listElementMap={ (patient) => (
+                                            <li key={ patient.id }>
+                                                <NavLink to={ `/pacientes/${patient.id}` }>
+                                                    {patient.name}
+                                                </NavLink>
+                                            </li>
+                                      ) }
+                                      setResults={ (patientInfo) => this.setState({ patientsQueryInfo: patientInfo }) }
+                                      setHasNext={ (value) => this.setState({ hasNext: value }) }
+                                      setHasPrevious={ (value) => this.setState({ hasPrevious: value }) }
+                                      setMessage={ (message) => this.setState({
+                                          error: message,
+                                      }) }
+                                      hasPrevious={ this.state.hasPrevious }
+                                      hasNext={ this.state.hasNext }
+                                      isList
+                                    /> 
+                                  )
+                                  : placeholder
+                              }
                               {this.state.error && <p>{this.state.error}</p>}
                               {this.state.redirect && <Redirect to="/pacientes" />}
                         <Button

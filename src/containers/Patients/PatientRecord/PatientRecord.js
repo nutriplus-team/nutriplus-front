@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 
-import { Button } from 'semantic-ui-react';
+import { Button, Placeholder } from 'semantic-ui-react';
 
 import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 
@@ -191,6 +191,18 @@ class PatientRecord extends Component {
       this.setState({ confirmation: true });
   }
 
+  _renderPlaceholder = () => (
+      <>
+        {
+        [...Array(31).keys()].map((elem) => (
+            <center key={ elem } style={ {'margin': '0 0 1em'} }>
+                <Placeholder><Placeholder.Line /></Placeholder>
+            </center>
+        ))
+        }
+      </>
+  )
+
   render() {
       // console.log("patientRecord state", this.state);
       const { params } = this.props.match;
@@ -209,7 +221,7 @@ class PatientRecord extends Component {
                           <p key={ key }>{this.processObjectKey(key)}</p>
                       ))}
                   </div>
-              ) : null}
+              ) : this._renderPlaceholder()}
               <Button
                 style={ { margin: '10px' } }
                 color="teal"
