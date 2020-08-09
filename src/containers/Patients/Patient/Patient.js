@@ -20,16 +20,15 @@ class Patient extends Component {
   state = {
       recordQueryInfo: null,
       menuInfo: null,
+      restrictions: [],
       info: null,
       error: null,
-      hasNext: false,
-      hasPrevious: false,
       redirectUrl: null,
       page: null
   };
 
   getAllRecords = async () => sendAuthenticatedRequest(
-      '/patients/get/',
+      '/graphql/get/',
       'post',
       (message) => this.setState({
           error: message,
@@ -38,7 +37,7 @@ class Patient extends Component {
           recordQueryInfo: info,
           page: 0
       }),
-      `{
+      `query {
           getPatientRecords(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${this.props.match.params.id}", indexPage: 0, sizePage: 1000000000)
       {
           dateModified
@@ -47,7 +46,7 @@ class Patient extends Component {
   );
 
   getRecords = async ({redirect}) => sendAuthenticatedRequest(
-      '/patients/get/',
+      '/graphql/get/',
       'post',
       (message) => this.setState({
           error: message,
@@ -56,7 +55,7 @@ class Patient extends Component {
           patientsQueryInfo: info,
           redirectUrl: redirect ? `/pacientes/${this.props.match.params.id}` : null
       }),
-      `{
+      `query {
           getPatientRecords(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${this.props.match.params.id}", indexPage: ${this.state.page}, sizePage: ${pageSize})
       {
           dateModified, uuid
@@ -68,6 +67,7 @@ class Patient extends Component {
       if (this.props.location.search.length > 0) {
           const query = new URLSearchParams(this.props.location.search);
           if (query.get('refresh')) {
+              await this.getAllRecords();
               this.getRecords({redirect: true});
           }
       }
@@ -76,18 +76,32 @@ class Patient extends Component {
   componentDidMount = async () => {
       const { params } = this.props.match;
       sendAuthenticatedRequest(
-          '/patients/get/',
+          '/graphql/get/',
           'post',
           (message) => this.setState({
               error: message,
           }),
           (info) => this.setState({info: info.data.getPatientInfo}),
-          `{
+          `query {
             getPatientInfo(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
             {
                 uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
             }
           }`
+      );
+      sendAuthenticatedRequest(
+          '/graphql/get/',
+          'post',
+          (message) => this.setState({error: message}),
+          (info) => {
+              this.setState({restrictions: info.data.getFoodRestrictions});
+          },
+          `{
+            getFoodRestrictions(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+        {
+            uuid, foodName
+        }
+        }`
       );
       await this.getAllRecords();
       this.getRecords({redirect: false});
@@ -108,7 +122,7 @@ class Patient extends Component {
   deletePatient = async () => {
       const { params } = this.props.match;
       sendAuthenticatedRequest(
-          '/patients/get/',
+          '/graphql/get/',
           'post',
           (message) => {
               this.setState({
@@ -170,15 +184,15 @@ E-mail:
                               : 'Afroamericano'}
                       </p>
                       <p>
-              Restrições alimentares: 
-                          {/*this.state.info.food_restrictions.length === 0
+              Restrições alimentares: {' '}
+                          {this.state.restrictions.length === 0
                               ? 'Não há'
-                              : this.state.info.food_restrictions.reduce(
+                              : this.state.restrictions.reduce(
                                   (bigString, elem, index, arr) => bigString
-                      + elem.food_name
+                      + elem.foodName
                       + (index === arr.length - 1 ? '' : ', '),
                                   '',
-                              )*/}
+                              )}
                       </p>
                   </div>
               )}

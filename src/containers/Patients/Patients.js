@@ -17,23 +17,22 @@ class Patients extends Component {
   state = {
       patientsQueryInfo: null,
       error: null,
-      hasNext: false,
-      hasPrevious: false,
+      totalPatients: null,
       redirect: false,
       page: null
   };
 
   getAllPatients = async () => sendAuthenticatedRequest(
-      '/patients/get/',
+      '/graphql/get/',
       'post',
       (message) => this.setState({
           error: message,
       }),
       (info) => this.setState({
-          patientsQueryInfo: info,
+          totalPatients: info.data['getAllPatients'].length,
           page: 0
       }),
-      `{
+      `query {
           getAllPatients(uuidUser: "${localStorage.getItem('uuid')}", indexPage: 0, sizePage: 1000000000)
       {
           name, uuid
@@ -42,7 +41,7 @@ class Patients extends Component {
   );
 
   getPatients = async ({redirect}) => sendAuthenticatedRequest(
-      '/patients/get/',
+      '/graphql/get/',
       'post',
       (message) => this.setState({
           error: message,
@@ -51,7 +50,7 @@ class Patients extends Component {
           patientsQueryInfo: info,
           redirect: redirect
       }),
-      `{
+      `query {
         getAllPatients(uuidUser: "${localStorage.getItem('uuid')}", indexPage: ${this.state.page}, sizePage: ${pageSize})
           {
             name, uuid
@@ -118,9 +117,10 @@ class Patients extends Component {
                               {this.state.patientsQueryInfo && (
                                   <Paginator
                                     queryResults={ this.state.patientsQueryInfo }
+                                    totalLength={ this.state.totalPatients }
                                     pageSize={ pageSize }
                                     page={ this.state.page }
-                                    changePage={ (pageNumber) => this.setState({page: pageNumber}) }
+                                    changePage={ (pageNumber) => this.setState({page: pageNumber}, () => this.getPatients({redirect: false})) }
                                     queryString={ 'getAllPatients' }
                                     filter={ () => true }
                                     listElementMap={ (patient) => (
@@ -130,7 +130,6 @@ class Patients extends Component {
                                               </NavLink>
                                           </li>
                                     ) }
-                                    setResults={ (patientInfo) => this.setState({ patientsQueryInfo: patientInfo }) }
                                     setMessage={ (message) => this.setState({
                                         error: message,
                                     }) }

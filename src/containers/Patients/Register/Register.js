@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Redirect } from 'react-router-dom';
 import {
     Button,
@@ -20,6 +20,8 @@ import {
 } from '../../../utility/validators';
 import classes from './Register.module.css';
 
+const pageSize = 10;
+
 const Register = (props) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -31,8 +33,8 @@ const Register = (props) => {
     const [restrictionQuery, setRestrictionQuery] = useState('');
     const [message, setMessage] = useState('');
     const [queryResults, setQueryResults] = useState(null);
-    const [hasNext, setHasNext] = useState(false);
-    const [hasPrevious, setHasPrevious] = useState(false);
+    const [queryTotal, setQueryTotal] = useState(null);
+    const [page, setPage] = useState(null);
     const [editing, setEditing] = useState(false);
     const [redirectUrl, setRedirectUrl] = useState(null);
 
@@ -40,10 +42,26 @@ const Register = (props) => {
 
     const { params } = props.match;
 
+    const searchFood = useCallback(() => sendAuthenticatedRequest(
+        '/graphql/get/',
+        'post',
+        (message) => setMessage(message),
+        (info) => {
+            setQueryResults(info);
+            setPage(0);
+        },
+        `query {
+          searchFood(uuidUser: "${localStorage.getItem('uuid')}", partialFoodName: "${restrictionQuery}") {
+            uuid,
+            foodName
+          }
+      }`
+    ), [restrictionQuery]);
+
     useEffect(() => {
         if (params.id) {
             sendAuthenticatedRequest(
-                '/patients/get/',
+                '/graphql/get/',
                 'post',
                 (message) => setMessage(message),
                 (info) => {
@@ -65,24 +83,42 @@ const Register = (props) => {
               }
               }`
             );
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                (message) => setMessage(message),
+                (info) => {
+                    setRestrictions(info.data.getFoodRestrictions);
+                },
+                `{
+                  getFoodRestrictions(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+              {
+                  uuid, foodName
+              }
+              }`
+            );
             setEditing(true);
         }
     }, [params]);
 
-    useEffect(() => { // needs correction
+    useEffect(() => {
         const timer = setTimeout(() => {
             if (restrictionQuery === searchRef.current.inputRef.current.value) {
                 if (restrictionQuery !== '') {
                     sendAuthenticatedRequest(
-                        `/foods/search/${restrictionQuery}/`,
-                        'get',
+                        '/graphql/get/',
+                        'post',
                         (message) => setMessage(message),
                         (info) => {
-                            setQueryResults(info);
-                            setHasNext(info.next !== null);
-                            setHasPrevious(false);
+                            setQueryTotal(info.data['searchFood'].length);
                         },
+                        `query {
+                          searchFood(uuidUser: "${localStorage.getItem('uuid')}", partialFoodName: "${restrictionQuery}") {
+                              uuid
+                          }
+                      }`
                     );
+                    searchFood();
                 } else {
                     setQueryResults(null);
                 }
@@ -91,7 +127,7 @@ const Register = (props) => {
         return () => {
             clearTimeout(timer);
         };
-    }, [restrictionQuery, searchRef]);
+    }, [restrictionQuery, searchRef, searchFood]);
 
     const clearFields = () => {
         setName('');
@@ -139,12 +175,11 @@ const Register = (props) => {
         }
         if (!editing) {
             sendAuthenticatedRequest(
-                '/patients/get/',
+                '/graphql/get/',
                 'post',
                 (message) => setMessage(message),
                 () => {
                     setMessage('Cadastro realizado com sucesso!');
-                    clearFields();
                     setRedirectUrl('/pacientes');
                 },
                 `mutation{
@@ -153,6 +188,7 @@ const Register = (props) => {
     dateOfBirth: "${dob}",
     biologicalSex: ${mapSex(sex)},
     ethnicGroup: ${mapEthnicity(ethnicity)},
+    nutritionist: "${localStorage.getItem('nutritionist_name')}",
     email: "${email}",
     cpf: "${cpf}"
 })
@@ -160,16 +196,15 @@ const Register = (props) => {
             );
         } else {
             sendAuthenticatedRequest(
-                '/patients/get/',
+                '/graphql/get/',
                 'post',
                 (message) => setMessage(message),
                 () => {
                     setMessage('Paciente editado com sucesso!');
-                    clearFields();
                     setRedirectUrl(`/pacientes/${params.id}`);
                 },
                 `mutation{
-                  updatePatient(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}", input: {
+                  updatePatient(uuidPatient: "${params.id}", input: {
   name: "${name}",
   dateOfBirth: "${dob}",
   biologicalSex: ${mapSex(sex)},
@@ -180,6 +215,18 @@ const Register = (props) => {
               }`,
             );
         }
+        sendAuthenticatedRequest(
+            '/graphql/get/',
+            'post',
+            (message) => setMessage(message),
+            () => {
+                clearFields();
+            },
+            `mutation{
+              updateFoodRestrictions(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}", \
+uuidFoods: [${restrictions.map(res => `"${res.uuid}"`)}])
+          }`,
+        );
     };
 
     const handlefoodClick = (food) => {
@@ -340,10 +387,10 @@ const Register = (props) => {
                                 {restrictions.map((food) => (
                                     <li
                                       className={ classes.Food }
-                                      key={ food.id }
+                                      key={ food.uuid }
                                       onClick={ () => removeRestriction(food) }
                                     >
-                                        {food.food_name}
+                                        {food.foodName}
                                     </li>
                                 ))}
                             </ul>
@@ -353,26 +400,25 @@ const Register = (props) => {
                 <hr />
                 <Paginator
                   queryResults={ queryResults }
+                  totalLength={ queryTotal }
+                  pageSize={ pageSize }
+                  page={ page }
+                  changePage={ (pageNumber) => {setPage(pageNumber); searchFood();} }
+                  queryString={ 'searchFood' }
                   filter={ (food) => !restrictions.some(
-                      (state_food) => state_food.food_name === food.food_name,
+                      (state_food) => state_food.foodName === food.foodName,
                   ) }
                   listElementMap={ (obj) => (
                         <p
-                          key={ obj.id }
+                          key={ obj.uuid }
                           className={ classes.Food }
                           onClick={ () => handlefoodClick(obj) }
                         >
-                            {obj.food_name}
+                            {obj.foodName}
                         </p>
                   ) }
-                  setResults={ setQueryResults }
-                  setHasNext={ setHasNext }
-                  setHasPrevious={ setHasPrevious }
                   setMessage={ setMessage }
-                  hasPrevious={ hasPrevious }
-                  hasNext={ hasNext }
                   buttonSize="mini"
-                  isTable={ true }
                 />
                             </>
                         )}

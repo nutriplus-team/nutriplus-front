@@ -72,6 +72,7 @@ export const sendAuthenticatedRequest = async (
         }
     }
     else {
+        console.log('debug');
         setMessage('Houve algum problema com o servidor!');
     } 
 };

@@ -2,8 +2,6 @@ import React from 'react';
 import { Button, Icon, Table, List } from 'semantic-ui-react';
 
 const paginator = (props) => {
-    const totalLength = props.queryResults.data[props.queryString].length;
-
     let results = props.queryResults.data[props.queryString]
         .filter(props.filter)
         .map(props.listElementMap);
@@ -50,7 +48,7 @@ const paginator = (props) => {
           icon
           floated='right'
           size={ props.buttonSize || 'medium' }
-          disabled={ props.page + 1 >= (totalLength/props.pageSize) }
+          disabled={ props.page + 1 >= (props.totalLength/props.pageSize) }
         >
             <Icon name="angle double right" />
         </Button>
@@ -59,7 +57,7 @@ const paginator = (props) => {
     return (
         <>
       {results}
-      {(totalLength > props.pageSize) && (
+      {(props.totalLength > props.pageSize) && (
           <>
           {prevButton}
           {nextButton}
