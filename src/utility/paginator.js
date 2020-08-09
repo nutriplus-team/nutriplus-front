@@ -1,26 +1,10 @@
 import React from 'react';
 import { Button, Icon, Table, List } from 'semantic-ui-react';
 
-import { sendAuthenticatedRequest } from './httpHelper';
-
 const paginator = (props) => {
-    // use as handleChangePage("next") or handleChangePage("previous")
-    const handleChangePage = async (str) => {
-        sendAuthenticatedRequest(
-            props.queryResults[str],
-            'get',
-            (message) => props.setMessage(message),
-            (info) => {
-                props.setResults(info);
-                props.setHasPrevious(info.previous !== null);
-                props.setHasNext(info.next != null);
-            },
-            null,
-            true,
-        );
-    };
+    const totalLength = props.queryResults.data[props.queryString].length;
 
-    let results = props.queryResults.results
+    let results = props.queryResults.data[props.queryString]
         .filter(props.filter)
         .map(props.listElementMap);
 
@@ -51,22 +35,22 @@ const paginator = (props) => {
 
     const prevButton = (
         <Button
-          onClick={ () => handleChangePage('previous') }
+          onClick={ () => props.changePage(props.page - 1) }
           icon
           floated='left'
           size={ props.buttonSize || 'medium' }
-          disabled={ !props.hasPrevious }
+          disabled={ props.page === 0 }
         >
             <Icon name="angle double left" />
         </Button>
     );
     const nextButton = (
         <Button
-          onClick={ () => handleChangePage('next') }
-          disabled={ !props.hasNext }
+          onClick={ () => props.changePage(props.page + 1) }
           icon
           floated='right'
           size={ props.buttonSize || 'medium' }
+          disabled={ props.page + 1 >= (totalLength/props.pageSize) }
         >
             <Icon name="angle double right" />
         </Button>
@@ -75,7 +59,7 @@ const paginator = (props) => {
     return (
         <>
       {results}
-      {(props.queryResults.next || props.queryResults.previous) && (
+      {(totalLength > props.pageSize) && (
           <>
           {prevButton}
           {nextButton}

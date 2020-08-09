@@ -11,6 +11,8 @@ import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 import Paginator from '../../utility/paginator';
 import classes from './Patients.module.css';
 
+const pageSize = 10;
+
 class Patients extends Component {
   state = {
       patientsQueryInfo: null,
@@ -18,7 +20,44 @@ class Patients extends Component {
       hasNext: false,
       hasPrevious: false,
       redirect: false,
+      page: null
   };
+
+  getAllPatients = async () => sendAuthenticatedRequest(
+      '/patients/get/',
+      'post',
+      (message) => this.setState({
+          error: message,
+      }),
+      (info) => this.setState({
+          patientsQueryInfo: info,
+          page: 0
+      }),
+      `{
+          getAllPatients(uuidUser: "${localStorage.getItem('uuid')}", indexPage: 0, sizePage: 1000000000)
+      {
+          name, uuid
+      }
+      }`
+  );
+
+  getPatients = async ({redirect}) => sendAuthenticatedRequest(
+      '/patients/get/',
+      'post',
+      (message) => this.setState({
+          error: message,
+      }),
+      (info) => this.setState({
+          patientsQueryInfo: info,
+          redirect: redirect
+      }),
+      `{
+        getAllPatients(uuidUser: "${localStorage.getItem('uuid')}", indexPage: ${this.state.page}, sizePage: ${pageSize})
+          {
+            name, uuid
+          }
+      }`
+  );
 
   componentDidUpdate = async () => {
       if (this.props.location.search.length > 0) {
@@ -28,38 +67,14 @@ class Patients extends Component {
               query.get('refresh')
         && this.props.location.pathname === '/pacientes'
           ) {
-              sendAuthenticatedRequest(
-                  '/patients/get-all-patients/',
-                  'get',
-                  (message) => this.setState({
-                      error: message,
-                  }),
-                  (info) => this.setState({
-                      patientsQueryInfo: info,
-                      error: null,
-                      hasPrevious: false,
-                      hasNext: info.next !== null,
-                      redirect: true,
-                  }),
-              );
+              this.getPatients({redirect: true});
           }
       }
   };
 
   componentDidMount = async () => {
-      sendAuthenticatedRequest(
-          '/patients/get-all-patients/',
-          'get',
-          (message) => this.setState({
-              error: message,
-          }),
-          (info) => this.setState({
-              patientsQueryInfo: info,
-              error: null,
-              hasPrevious: false,
-              hasNext: info.next !== null,
-          }),
-      );
+      await this.getAllPatients();
+      this.getPatients({redirect: false});
   };
 
   render() {
@@ -103,22 +118,22 @@ class Patients extends Component {
                               {this.state.patientsQueryInfo && (
                                   <Paginator
                                     queryResults={ this.state.patientsQueryInfo }
+                                    pageSize={ pageSize }
+                                    page={ this.state.page }
+                                    changePage={ (pageNumber) => this.setState({page: pageNumber}) }
+                                    queryString={ 'getAllPatients' }
                                     filter={ () => true }
                                     listElementMap={ (patient) => (
-                                          <li key={ patient.id }>
-                                              <NavLink to={ `/pacientes/${patient.id}` }>
+                                          <li key={ patient.uuid }>
+                                              <NavLink to={ `/pacientes/${patient.uuid}` }>
                                                   {patient.name}
                                               </NavLink>
                                           </li>
                                     ) }
                                     setResults={ (patientInfo) => this.setState({ patientsQueryInfo: patientInfo }) }
-                                    setHasNext={ (value) => this.setState({ hasNext: value }) }
-                                    setHasPrevious={ (value) => this.setState({ hasPrevious: value }) }
                                     setMessage={ (message) => this.setState({
                                         error: message,
                                     }) }
-                                    hasPrevious={ this.state.hasPrevious }
-                                    hasNext={ this.state.hasNext }
                                     isList
                                   />
                               )}

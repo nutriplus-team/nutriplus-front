@@ -14,12 +14,17 @@ import Paginator from '../../../utility/paginator';
 import {
     dateFormatValidator,
     dateValidator,
+    emailValidator,
+    cpfValidator,
+    cpfFormatValidator
 } from '../../../utility/validators';
 import classes from './Register.module.css';
 
 const Register = (props) => {
     const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
     const [dob, setDob] = useState('');
+    const [cpf, setCpf] = useState('');
     const [sex, setSex] = useState('');
     const [ethnicity, setEthnicity] = useState('');
     const [restrictions, setRestrictions] = useState([]);
@@ -38,24 +43,33 @@ const Register = (props) => {
     useEffect(() => {
         if (params.id) {
             sendAuthenticatedRequest(
-                `/patients/get-info/${params.id}/`,
-                'get',
+                '/patients/get/',
+                'post',
                 (message) => setMessage(message),
                 (info) => {
+                    info = info.data.getPatientInfo;
                     setName(info.name);
-                    setDob(info.date_of_birth);
-                    setSex(info.biological_sex === 0 ? 'Feminino' : 'Masculino');
+                    setEmail(info.email);
+                    setDob(info.dateOfBirth);
+                    setCpf(info.cpf);
+                    setSex(info.biologicalSex === 0 ? 'Feminino' : 'Masculino');
                     setEthnicity(
-                        info.ethnic_group === 0 ? 'Branco/Hispânico' : 'Afroamericano',
+                        info.ethnicGroup === 0 ? 'Branco/Hispânico' : 'Afroamericano',
                     );
-                    setRestrictions(info.food_restrictions);
+                    //setRestrictions(info.foodRestrictions); --> send another request for food restrictions
                 },
+                `{
+                  getPatientInfo(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+              {
+                  name, email, dateOfBirth, biologicalSex, ethnicGroup, cpf
+              }
+              }`
             );
             setEditing(true);
         }
     }, [params]);
 
-    useEffect(() => {
+    useEffect(() => { // needs correction
         const timer = setTimeout(() => {
             if (restrictionQuery === searchRef.current.inputRef.current.value) {
                 if (restrictionQuery !== '') {
@@ -81,6 +95,8 @@ const Register = (props) => {
 
     const clearFields = () => {
         setName('');
+        setEmail('');
+        setCpf('');
         setDob('');
         setRestrictionQuery('');
         setQueryResults(null);
@@ -92,13 +108,25 @@ const Register = (props) => {
     const mapEthnicity = (ethnicity) => (ethnicity === 'Branco/Hispânico' ? 0 : 1.1);
 
     const register = async () => {
-        const validatorResult = dateValidator(dob);
-        if (validatorResult !== 'Accepted') {
-            setMessage(validatorResult);
+        const dateValidatorResult = dateValidator(dob);
+        if (dateValidatorResult !== 'Accepted') {
+            setMessage(dateValidatorResult);
+            return;
+        }
+        if (!cpfValidator(cpf)) {
+            setMessage('CPF inválido!');
             return;
         }
         if (name.length === 0) {
             setMessage('Não há nome!');
+            return;
+        }
+        if (email.length === 0) {
+            setMessage('Não há email!');
+            return;
+        }
+        if (!emailValidator(email)) {
+            setMessage('Email inválido!');
             return;
         }
         if (sex.length === 0) {
@@ -111,7 +139,7 @@ const Register = (props) => {
         }
         if (!editing) {
             sendAuthenticatedRequest(
-                '/patients/add-new/',
+                '/patients/get/',
                 'post',
                 (message) => setMessage(message),
                 () => {
@@ -119,20 +147,20 @@ const Register = (props) => {
                     clearFields();
                     setRedirectUrl('/pacientes');
                 },
-                JSON.stringify({
-                    patient: name,
-                    date_of_birth: dob,
-                    biological_sex: mapSex(sex),
-                    ethnic_group: mapEthnicity(ethnicity),
-                    food_restrictions: restrictions.reduce(
-                        (total, actual, index, arr) => total + actual.id + (index === arr.length - 1 ? '' : '&'),
-                        '',
-                    ),
-                }),
+                `mutation{
+                  createPatient(uuidUser: "${localStorage.getItem('uuid')}", input: {
+    name: "${name}",
+    dateOfBirth: "${dob}",
+    biologicalSex: ${mapSex(sex)},
+    ethnicGroup: ${mapEthnicity(ethnicity)},
+    email: "${email}",
+    cpf: "${cpf}"
+})
+                }`,
             );
         } else {
             sendAuthenticatedRequest(
-                `/patients/edit/${props.match.params.id}/`,
+                '/patients/get/',
                 'post',
                 (message) => setMessage(message),
                 () => {
@@ -140,16 +168,16 @@ const Register = (props) => {
                     clearFields();
                     setRedirectUrl(`/pacientes/${params.id}`);
                 },
-                JSON.stringify({
-                    patient: name,
-                    date_of_birth: dob,
-                    biological_sex: mapSex(sex),
-                    ethnic_group: mapEthnicity(ethnicity),
-                    food_restrictions: restrictions.reduce(
-                        (total, actual, index, arr) => total + actual.id + (index === arr.length - 1 ? '' : '&'),
-                        '',
-                    ),
-                }),
+                `mutation{
+                  updatePatient(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}", input: {
+  name: "${name}",
+  dateOfBirth: "${dob}",
+  biologicalSex: ${mapSex(sex)},
+  ethnicGroup: ${mapEthnicity(ethnicity)},
+  email: "${email}",
+  cpf: "${cpf}"
+})
+              }`,
             );
         }
     };
@@ -209,9 +237,19 @@ const Register = (props) => {
                           value={ name }
                         />
                         <Form.Input
+                          icon="envelope outline"
+                          iconPosition="left"
+                          placeholder="Email do paciente"
+                          onChange={ (event) => {
+                              setEmail(event.target.value);
+                              setMessage('');
+                          } }
+                          value={ email }
+                        />
+                        <Form.Input
                           icon="calendar"
                           iconPosition="left"
-                          placeholder="DD/MM/YYYY"
+                          placeholder="Data de nascimento (DD/MM/YYYY)"
                           value={ dob }
                           onChange={ (event) => {
                               const result = dateFormatValidator(
@@ -225,6 +263,36 @@ const Register = (props) => {
                                   setDob(
                                       `${event.target.value.slice(0, -1)
                                       }/${
+                                          event.target.value.slice(-1)}`,
+                                  );
+                              } /* else if (result === 'rejected') {
+
+                              } */
+                          } }
+                        />
+                        <Form.Input
+                          icon="id badge outline"
+                          iconPosition="left"
+                          placeholder="CPF do paciente (XXX.XXX.XXX-XX)"
+                          value={ cpf }
+                          onChange={ (event) => {
+                              const result = cpfFormatValidator(
+                                  event.target.value,
+                                  event.target.value.length > cpf.length,
+                              );
+                              if (result === 'accepted') {
+                                  setCpf(event.target.value);
+                                  setMessage('');
+                              } else if (result === 'insertDot') {
+                                  setCpf(
+                                      `${event.target.value.slice(0, -1)
+                                      }.${
+                                          event.target.value.slice(-1)}`,
+                                  );
+                              } else if (result === 'insertHyphen') {
+                                  setCpf(
+                                      `${event.target.value.slice(0, -1)
+                                      }-${
                                           event.target.value.slice(-1)}`,
                                   );
                               } /* else if (result === 'rejected') {
@@ -309,6 +377,7 @@ const Register = (props) => {
                             </>
                         )}
                         <Button
+                          type="button"
                           size="medium"
                           onClick={ () => props.history.push(`/pacientes/${props.match.params.id === undefined ? '' : props.match.params.id }`) }
                         >

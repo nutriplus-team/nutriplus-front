@@ -14,12 +14,14 @@ export const sendAuthenticatedRequest = async (
         url = base_url + url;
     }
     if (body) {
+        console.log('url', url);
+        console.log('body', body);
         response = await fetch(url, {
             method: method,
             body: body,
             headers: new Headers({
                 Authorization: 'Port ' + localStorage.getItem('stored_token'),
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain',
             }),
         });
     } else {
@@ -31,17 +33,12 @@ export const sendAuthenticatedRequest = async (
         });
     }
 
-    if (response.status === 204) {
-        afterRequest();
-        return;
-    }
-
+    console.log('response', response);
     const responseJson = await response.json();
-    if (response.status === 400) {
-        setMessage('Houve algum problema na conexão com o servidor!');
-    } else if (response.status === 200) {
+    console.log('responseJson', responseJson);
+    if (response.status === 200 && responseJson.data) {
         afterRequest(responseJson);
-    } else if (response.status === 401) {
+    } else if (response.status === 403) {
         setMessage('A sua sessão expirou! Logando de novo...');
         const res2 = await fetch(`${base_url}/user/token/refresh/`, {
             method: 'post',
@@ -74,4 +71,7 @@ export const sendAuthenticatedRequest = async (
             );
         }
     }
+    else {
+        setMessage('Houve algum problema com o servidor!');
+    } 
 };

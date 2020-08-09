@@ -5,14 +5,16 @@ import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 import Paginator from '../../../utility/paginator';
 import classes from './Patient.module.css';
 
-const mealMap = {
+/*const mealMap = {
     0: 'Café da manhã',
     1: 'Lanche da manhã',
     2: 'Almoço',
     3: 'Lanche da tarde',
     4: 'Jantar',
     5: 'Lanche da noite',
-};
+};*/
+
+const pageSize = 10;
 
 class Patient extends Component {
   state = {
@@ -23,28 +25,50 @@ class Patient extends Component {
       hasNext: false,
       hasPrevious: false,
       redirectUrl: null,
+      page: null
   };
+
+  getAllRecords = async () => sendAuthenticatedRequest(
+      '/patients/get/',
+      'post',
+      (message) => this.setState({
+          error: message,
+      }),
+      (info) => this.setState({
+          recordQueryInfo: info,
+          page: 0
+      }),
+      `{
+          getPatientRecords(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${this.props.match.params.id}", indexPage: 0, sizePage: 1000000000)
+      {
+          dateModified
+      }
+      }`
+  );
+
+  getRecords = async ({redirect}) => sendAuthenticatedRequest(
+      '/patients/get/',
+      'post',
+      (message) => this.setState({
+          error: message,
+      }),
+      (info) => this.setState({
+          patientsQueryInfo: info,
+          redirectUrl: redirect ? `/pacientes/${this.props.match.params.id}` : null
+      }),
+      `{
+          getPatientRecords(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${this.props.match.params.id}", indexPage: ${this.state.page}, sizePage: ${pageSize})
+      {
+          dateModified, uuid
+      }
+      }`
+  );
 
   componentDidUpdate = async () => {
       if (this.props.location.search.length > 0) {
-          const { params } = this.props.match;
           const query = new URLSearchParams(this.props.location.search);
           if (query.get('refresh')) {
-              sendAuthenticatedRequest(
-                  `/patients/get-records/${params.id}/`,
-                  'get',
-                  (message) => {
-                      this.setState({
-                          error: message,
-                      });
-                  },
-                  (recordInfo) => this.setState({
-                      recordQueryInfo: recordInfo,
-                      hasPrevious: false,
-                      hasNext: recordInfo.next !== null,
-                      redirectUrl: `/pacientes/${params.id}`,
-                  }),
-              );
+              this.getRecords({redirect: true});
           }
       }
   };
@@ -52,28 +76,22 @@ class Patient extends Component {
   componentDidMount = async () => {
       const { params } = this.props.match;
       sendAuthenticatedRequest(
-          `/patients/get-info/${params.id}/`,
-          'get',
+          '/patients/get/',
+          'post',
           (message) => this.setState({
               error: message,
           }),
-          (info) => this.setState({ info }),
+          (info) => this.setState({info: info.data.getPatientInfo}),
+          `{
+            getPatientInfo(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+            {
+                uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
+            }
+          }`
       );
-      sendAuthenticatedRequest(
-          `/patients/get-records/${params.id}/`,
-          'get',
-          (message) => {
-              this.setState({
-                  error: message,
-              });
-          },
-          (recordInfo) => this.setState({
-              recordQueryInfo: recordInfo,
-              hasPrevious: false,
-              hasNext: recordInfo.next !== null,
-          }),
-      );
-      sendAuthenticatedRequest(
+      await this.getAllRecords();
+      this.getRecords({redirect: false});
+      /*sendAuthenticatedRequest(
           `/menu/get-all/${params.id}/`,
           'get',
           (message) => {
@@ -84,22 +102,27 @@ class Patient extends Component {
           (menuInfo) => this.setState({
               menuInfo: menuInfo
           })
-      );
+      );*/
   };
 
-  deletePacient = async () => {
+  deletePatient = async () => {
       const { params } = this.props.match;
       sendAuthenticatedRequest(
-          `/patients/remove-patient/${params.id}/`,
-          'get',
+          '/patients/get/',
+          'post',
           (message) => {
               this.setState({
                   error: message,
               });
           },
-          () => {
+          (response) => {
+              console.log('deletePatient response', response);
               this.setState({ redirectUrl: '/pacientes?refresh=true' });
           },
+          `mutation{
+            removePatient(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+        }
+        `
       );
   };
 
@@ -107,8 +130,8 @@ class Patient extends Component {
       const { params } = this.props.match;
       return (
           <div>
-              {this.state.error ? <p>{this.state.error}</p> : null}
-              {this.state.info ? (
+              {this.state.error && <p>{this.state.error}</p>}
+              {this.state.info && (
                   <div>
                       <h3>{this.state.info.name}</h3>
                       <Button
@@ -117,38 +140,48 @@ class Patient extends Component {
                         size="small"
                         onClick={ () => this.props.history.push(`/pacientes/${params.id}/edit`) }
                       >
-              Editar dados do paciente
+Editar dados do paciente
                       </Button>
                       <p>
 Data de nascimento:
-                          {this.state.info.date_of_birth}
+{' '}
+                          {this.state.info.dateOfBirth}
+                      </p>
+                      <p>
+CPF:
+{' '}
+                          {this.state.info.cpf}
+                      </p>
+                      <p>
+E-mail:
+{' '}
+                          {this.state.info.email}
                       </p>
                       <p>
               Sexo:
                           {' '}
-                          {this.state.info.biological_sex === 0 ? 'Feminino' : 'Masculino'}
+                          {this.state.info.biologicalSex === 0 ? 'Feminino' : 'Masculino'}
                       </p>
                       <p>
               Etnia:
                           {' '}
-                          {this.state.info.ethnic_group === 0
+                          {this.state.info.ethnicGroup === 0
                               ? 'Branco/Hispânico'
                               : 'Afroamericano'}
                       </p>
                       <p>
-              Restrições alimentares:
-                          {' '}
-                          {this.state.info.food_restrictions.length === 0
+              Restrições alimentares: 
+                          {/*this.state.info.food_restrictions.length === 0
                               ? 'Não há'
                               : this.state.info.food_restrictions.reduce(
                                   (bigString, elem, index, arr) => bigString
                       + elem.food_name
                       + (index === arr.length - 1 ? '' : ', '),
                                   '',
-                              )}
+                              )*/}
                       </p>
                   </div>
-              ) : null}
+              )}
               <Button
                 style={ { margin: '10px' } }
                 color="teal"
@@ -167,53 +200,38 @@ Data de nascimento:
               >
           Criar cardápio para o paciente
               </Button>
-              {this.state.menuInfo && this.state.menuInfo.map(menu => 
+              {/*this.state.menuInfo && this.state.menuInfo.map(menu => 
                   (<div key={ menu.id } style={ {margin: 'auto', width: '20%', border: '1px solid black'} }>
                       <h4>{ mealMap[menu.meal_type] }</h4>
                 <p>{menu.portions.reduce((prev, curr)=> prev+` ${curr.quantity} ${curr.food.food_name}`, '')}</p></div>))
-              }
+              */}
               <br />
               {this.state.recordQueryInfo ? (
                   <div className={ classes.records }>
                       <Paginator
                         queryResults={ this.state.recordQueryInfo }
+                        pageSize={ pageSize }
+                        page={ this.state.page }
+                        changePage={ (pageNumber) => this.setState({page: pageNumber}) }
+                        queryString={ 'getPatientRecords' }
                         filter={ () => true }
                         listElementMap={ (record) => (
                               <div
-                                key={ record.id }
+                                key={ record.uuid }
                                 onClick={ () => this.props.history.push(
-                                    `/pacientes/${params.id}/ficha/${record.id}`,
+                                    `/pacientes/${params.id}/ficha/${record.uuid}`,
                                 ) }
                                 className={ classes.record }
                               >
                                   <p>
-                                      <span>
-Modificado em:
-                                          {record.date_modified}
-                                      </span>
-                                      <span>
-Peso:
-                                          {record.corporal_mass}
-                                      </span>
-                                      <span>
-Altura:
-                                          {record.height}
-                                      </span>
-                                      <span>
-IMC:
-                                          {record.BMI}
-                                      </span>
+                                      Consulta de {record.dateModified}
                                   </p>
                               </div>
                         ) }
                         setResults={ (recordInfo) => this.setState({ recordQueryInfo: recordInfo }) }
-                        setHasNext={ (value) => this.setState({ hasNext: value }) }
-                        setHasPrevious={ (value) => this.setState({ hasPrevious: value }) }
                         setMessage={ (message) => this.setState({
                             error: message,
                         }) }
-                        hasPrevious={ this.state.hasPrevious }
-                        hasNext={ this.state.hasNext }
                         buttonSize="large"
                       />
                   </div>
@@ -232,7 +250,7 @@ IMC:
                 style={ { margin: '200px auto' } }
                 color="red"
                 size="small"
-                onClick={ this.deletePacient }
+                onClick={ this.deletePatient }
               >
           Excluir paciente
               </Button>
