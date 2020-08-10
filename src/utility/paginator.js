@@ -49,17 +49,34 @@ const paginator = (props) => {
         );
     }
 
+    const sortByDate = (resultA, resultB) => {
+        if(resultA.props.children[0].props.children[1] === undefined)
+            return 0;
+
+        const dateA = new Date(
+            resultA.props.children[0].props.children[1]
+                .split('/').reverse().join('-')
+        );
+
+        const dateB = new Date(
+            resultB.props.children[0].props.children[1]
+                .split('/').reverse().join('-')
+        );
+        return dateB - dateA;
+    };
     if (props.isConsultList) {
         results = (
             <Grid>
-                {results.map((result) => {
+                {results.sort(sortByDate).map((result, idx) => {
                     return (
                     <Grid.Row key={ result.key } style = { {textAlign: 'left' } } columns="equal">
                         <Grid.Column>
-                            <h3>{ result.key }. {result.props.children[0].props.children}</h3>
+                            <h3>{ results.length - idx }. {result.props.children[0].props.children}</h3>
                         </Grid.Column>
                         <Grid.Column>
-                            <h4>{result.props.children[1].props.children}; {result.props.children[2].props.children}</h4>
+                            <h4 style={ {'margin': '0'} }>{result.props.children[1].props.children}</h4>
+                            <h4 style={ {'margin': '0'} }>{result.props.children[2].props.children}</h4>
+                            <h4 style={ {'margin': '0'} }>{result.props.children[3].props.children}</h4>
                         </Grid.Column>
                         <Grid.Column>
                             <Button

@@ -31,6 +31,7 @@ const Register = (props) => {
     const [hasPrevious, setHasPrevious] = useState(false);
     const [editing, setEditing] = useState(false);
     const [redirectUrl, setRedirectUrl] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const searchRef = useRef();
 
@@ -38,6 +39,7 @@ const Register = (props) => {
 
     useEffect(() => {
         if (params.id) {
+            setLoading(true);
             sendAuthenticatedRequest(
                 `/patients/get-info/${params.id}/`,
                 'get',
@@ -50,6 +52,7 @@ const Register = (props) => {
                         info.ethnic_group === 0 ? 'Branco/Hispânico' : 'Afroamericano',
                     );
                     setRestrictions(info.food_restrictions);
+                    setLoading(false);
                 },
             );
             setEditing(true);
@@ -60,6 +63,7 @@ const Register = (props) => {
         const timer = setTimeout(() => {
             if (restrictionQuery === searchRef.current.inputRef.current.value) {
                 if (restrictionQuery !== '') {
+                    setLoading(true);
                     sendAuthenticatedRequest(
                         `/foods/search/${restrictionQuery}/`,
                         'get',
@@ -68,6 +72,7 @@ const Register = (props) => {
                             setQueryResults(info);
                             setHasNext(info.next !== null);
                             setHasPrevious(false);
+                            setLoading(false);
                         },
                     );
                 } else {
@@ -111,6 +116,7 @@ const Register = (props) => {
             return;
         }
         if (!editing) {
+            setLoading(true);
             sendAuthenticatedRequest(
                 '/patients/add-new/',
                 'post',
@@ -119,6 +125,7 @@ const Register = (props) => {
                     setMessage('Cadastro realizado com sucesso!');
                     clearFields();
                     setRedirectUrl('/pacientes');
+                    setLoading(false);
                 },
                 JSON.stringify({
                     patient: name,
@@ -132,6 +139,7 @@ const Register = (props) => {
                 }),
             );
         } else {
+            setLoading(true);
             sendAuthenticatedRequest(
                 `/patients/edit/${props.match.params.id}/`,
                 'post',
@@ -140,6 +148,7 @@ const Register = (props) => {
                     setMessage('Paciente editado com sucesso!');
                     clearFields();
                     setRedirectUrl(`/pacientes/${params.id}`);
+                    setLoading(false);
                 },
                 JSON.stringify({
                     patient: name,
@@ -197,7 +206,7 @@ const Register = (props) => {
                 <Header as="h2" color="teal" textAlign="center">
           Insira as informações do paciente abaixo
                 </Header>
-                <Form size="large">
+                <Form size="large" loading={ loading }>
                     <Segment stacked>
                         <Form.Input
                           icon="id card outline"
@@ -283,44 +292,44 @@ const Register = (props) => {
                         )}
                         {queryResults && (
                             <>
-                <hr />
-                <Paginator
-                  queryResults={ queryResults }
-                  filter={ (food) => !restrictions.some(
-                      (state_food) => state_food.food_name === food.food_name,
-                  ) }
-                  listElementMap={ (obj) => (
-                        <Table.Row key={ obj.id }><Table.Cell>
-                        <p
-                          className={ classes.Food }
-                          onClick={ () => handlefoodClick(obj) }
-                        >
-                            {obj.food_name}
-                        </p>
-                        </Table.Cell></Table.Row>
-                  ) }
-                  setResults={ setQueryResults }
-                  setHasNext={ setHasNext }
-                  setHasPrevious={ setHasPrevious }
-                  setMessage={ setMessage }
-                  hasPrevious={ hasPrevious }
-                  hasNext={ hasNext }
-                  buttonSize="mini"
-                  isTable={ true }
-                />
+                    <hr />
+                    <Paginator
+                      queryResults={ queryResults }
+                      filter={ (food) => !restrictions.some(
+                          (state_food) => state_food.food_name === food.food_name,
+                      ) }
+                      listElementMap={ (obj) => (
+                            <Table.Row key={ obj.id }><Table.Cell>
+                            <p
+                              className={ classes.Food }
+                              onClick={ () => handlefoodClick(obj) }
+                            >
+                                {obj.food_name}
+                            </p>
+                            </Table.Cell></Table.Row>
+                      ) }
+                      setResults={ setQueryResults }
+                      setHasNext={ setHasNext }
+                      setHasPrevious={ setHasPrevious }
+                      setMessage={ setMessage }
+                      hasPrevious={ hasPrevious }
+                      hasNext={ hasNext }
+                      buttonSize="mini"
+                      isTable={ true }
+                    />
                             </>
                         )}
-                        <Button color="teal" onClick={ register }>
-                            {editing ? 'Editar paciente' : 'Registrar paciente'}
-                        </Button>
-                        <Button
-                          size="medium"
-                          onClick={ () => props.history.push(`/pacientes/${props.match.params.id === undefined ? '' : props.match.params.id }`) }
-                        >
-                        Voltar
-                        </Button>
-                        <p>{message}</p>
-                    </Segment>
+                            <Button color="teal" onClick={ register }>
+                                {editing ? 'Editar paciente' : 'Registrar paciente'}
+                            </Button>
+                            <Button
+                              size="medium"
+                              onClick={ () => props.history.push(`/pacientes/${props.match.params.id === undefined ? '' : props.match.params.id }`) }
+                            >
+                            Voltar
+                            </Button>
+                            <p>{message}</p>
+                        </Segment>
                 </Form>
             </Grid.Column>
             {redirectUrl && <Redirect to={ `${redirectUrl}?refresh=true` } />}
