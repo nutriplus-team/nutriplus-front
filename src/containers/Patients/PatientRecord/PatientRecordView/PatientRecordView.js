@@ -3,6 +3,14 @@ import { Grid, Header, Segment} from 'semantic-ui-react';
 
 const patientRecordView = (props) => {
 
+    /*{this.state.record ? (
+        <div>
+            {Object.keys(this.state.record).map((key) => (
+                <p key={ key }>{this.processObjectKey(key)}</p>
+            ))}
+        </div>
+    ) : null}*/
+
     return (
         <Grid
             textAlign="center"
@@ -40,7 +48,7 @@ const patientRecordView = (props) => {
                 </Segment>
 
                 <Segment textAlign="left">
-                    <h3>Taxa de gordura:</h3>
+                    <h3>Taxa de gordurda:</h3>
                     <Segment.Group>
                         <Segment>
                             <Grid columns="equal">
@@ -88,6 +96,21 @@ const patientRecordView = (props) => {
                         </Grid.Column>
                         <Grid.Column>
                             <Segment><h4>IMC:</h4></Segment>
+                        </Grid.Column>
+                    </Grid>
+
+                    <Grid
+                      columns="equal"
+                      textAlign="left"
+                    >
+                        <Grid.Column>
+                            <Segment><h4>Massa muscular:</h4> </Segment>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <Segment><h4>Necessidades energéticas:</h4> </Segment>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <Segment><h4>Densidade corporal:</h4></Segment>
                         </Grid.Column>
                     </Grid>
 

@@ -204,17 +204,11 @@ class PatientRecord extends Component {
                 handleRejection={ () => this.setState({ confirmation: false }) }
               />
               {this.state.error ? <p>{this.state.error}</p> : null}
-              <PatientRecordView
-                record={this.state.record}
-                patient={this.state.patient}
-              />
-              {this.state.record ? (
-                  <div>
-                      {Object.keys(this.state.record).map((key) => (
-                          <p key={ key }>{this.processObjectKey(key)}</p>
-                      ))}
-                  </div>
-              ) : null}
+                <PatientRecordView
+                    record={this.state.record}
+                    patient={this.state.patient}
+                />
+              
               <Button
                 style={ { margin: '10px' } }
                 color="teal"
