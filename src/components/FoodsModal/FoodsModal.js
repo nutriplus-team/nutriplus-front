@@ -12,13 +12,14 @@ const FoodsModal = (props) => (
       closeOnDimmerClick
       dimmer='blurring'
       centered={ false }
-      size='tiny'
+      size='large'
     >
         <Modal.Header >Insira/Altere informações do alimento.</Modal.Header>
         <Modal.Content>
             <FoodsForm
               food={ props.selectedFood }
               afterSubmit={ props.handleClose }
+              afterCancel={ props.handleClose }
             />
         </Modal.Content>
     </Modal>

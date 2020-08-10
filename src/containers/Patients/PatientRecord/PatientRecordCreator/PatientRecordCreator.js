@@ -14,9 +14,12 @@ import { numberValidator } from '../../../../utility/validators';
 
 class PatientRecordCreator extends Component {
   state = {
+      anamnese: '',
+      exames: '',
       patient: null,
       weight: '',
       height: '',
+      imc: '',
       athlete: '',
       physicalActivity: '',
       methabolicAuthor: '',
@@ -208,7 +211,7 @@ class PatientRecordCreator extends Component {
         corporal_mass: (+this.state.weight).toFixed(2),
         height: (+this.state.height).toFixed(2),
         BMI: BMI.toFixed(2),
-        is_athlete: this.state.is_athlete === "Atleta",
+        is_athlete: this.state.athlete === "Atleta",
         physical_activity_level: this.mapPhysicalActivityOptionToNumber(
           this.state.physicalActivity
         ),
@@ -247,30 +250,30 @@ class PatientRecordCreator extends Component {
             ${this.state.editing ?
               `updatePatientRecord(uuidPatientRecord: ${params.ficha_id}"`
               : `createPatientRecord(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}"`},
-                                input: {
-                                    methodBodyFat: "${this.state.methabolicAuthor}",
-                                    methodMethabolicRate: "${this.state.energyRequirements}",
-                                    corporalMass: ${(+this.state.weight).toFixed(2)},
-                                    height: ${(+this.state.height).toFixed(2)},
-                                    isAthlete: ${this.state.athlete === 'Atleta'},
-                                    physicalActivityLevel: ${this.mapPhysicalActivityOptionToNumber(this.state.physicalActivity)},
-                                    observations: "${this.state.obs}",
-                                    subscapular: ${this.state.subscapular},
-                                    triceps: ${this.state.triceps},
-                                    biceps: ${this.state.biceps},
-                                    chest: ${this.state.chest},
-                                    axillary: ${this.state.axillary},
-                                    abdominal: ${this.state.abdominal},
-                                    supriailiac: ${this.state.supriailiac},
-                                    thigh: ${this.state.thigh},
-                                    calf: ${this.state.calf},
-                                    waistCirc: ${this.state.waistCirc},
-                                    abdominalCirc: ${this.state.abdominalCirc},
-                                    hipsCirc:   ${this.state.hipsCirc},
-                                    rightArmCirc: ${this.state.rightArmCirc},
-                                    thighCirc:  ${this.state.thighCirc},
-                                    calfCirc:   ${this.state.calfCirc},
-                                })
+                input: {
+                    methodBodyFat: "${this.state.methabolicAuthor}",
+                    methodMethabolicRate: "${this.state.energyRequirements}",
+                    corporalMass: ${(+this.state.weight).toFixed(2)},
+                    height: ${(+this.state.height).toFixed(2)},
+                    isAthlete: ${this.state.athlete === 'Atleta'},
+                    physicalActivityLevel: ${this.mapPhysicalActivityOptionToNumber(this.state.physicalActivity)},
+                    observations: "${this.state.obs}",
+                    subscapular: ${this.state.subscapular},
+                    triceps: ${this.state.triceps},
+                    biceps: ${this.state.biceps},
+                    chest: ${this.state.chest},
+                    axillary: ${this.state.axillary},
+                    abdominal: ${this.state.abdominal},
+                    supriailiac: ${this.state.supriailiac},
+                    thigh: ${this.state.thigh},
+                    calf: ${this.state.calf},
+                    waistCirc: ${this.state.waistCirc},
+                    abdominalCirc: ${this.state.abdominalCirc},
+                    hipsCirc:   ${this.state.hipsCirc},
+                    rightArmCirc: ${this.state.rightArmCirc},
+                    thighCirc:  ${this.state.thighCirc},
+                    calfCirc:   ${this.state.calfCirc},
+                })
           }`
       );
   };
@@ -402,6 +405,8 @@ class PatientRecordCreator extends Component {
   };
 
   render() {
+      const { params } = this.props.match;
+
       return (
           <div>
               <h4>
@@ -411,81 +416,112 @@ Paciente:
               <Grid
                 textAlign="center"
                 style={ { height: '10vh' } }
-                verticalAlign="middle"
+                //verticalAlign="middle"
               >
-                  <Grid.Column style={ { maxWidth: 450 } }>
+                  <Grid.Column style={ { maxWidth: 900 }}>
                       <Header as="h2" color="teal" textAlign="center">
               Insira as informações do paciente abaixo
                       </Header>
                       <Form size="large">
                           <Segment stacked>
-                              <Form.Input
-                                icon="weight"
-                                iconPosition="left"
-                                placeholder="Peso (em kg). Ex: 51.53"
+                              <Form.TextArea
+                                label='Anamnese'
                                 onChange={ (event) => {
-                                    if (!numberValidator(event.target.value, 3, true, 2)) return;
-                                    this.setState({ weight: event.target.value, message: '' });
+                                    this.setState({
+                                        anamnese: event.target.value,
+                                        message: '',
+                                    });
                                 } }
-                                value={ this.state.weight }
+                                value={ this.state.anamnese }
                               />
-                              <Form.Input
-                                icon="long arrow alternate up"
-                                iconPosition="left"
-                                placeholder="Altura(em m). Ex: 1.81"
-                                value={ this.state.height }
+                              <Form.TextArea
+                                label='Exames'
                                 onChange={ (event) => {
-                                    if (!numberValidator(event.target.value, 1, true, 2)) return;
-                                    this.setState({ height: event.target.value, message: '' });
+                                    this.setState({
+                                        exame: event.target.value,
+                                        message: '',
+                                    });
                                 } }
+                                value={ this.state.exame }
                               />
-                              <Form.Field>
-                                  <Dropdown
-                                    placeholder="Atleta"
-                                    selection
-                                    value={ this.state.athlete }
-                                    onChange={ (event, data) => {
-                                        this.setState({ athlete: data.value });
+                               <Form.Group widths='equal'>
+                                <Form.Input
+                                    icon="weight"
+                                    label='Peso'
+                                    iconPosition="left"
+                                    placeholder="Peso (em kg). Ex: 51.53"
+                                    onChange={ (event) => {
+                                        if (!numberValidator(event.target.value, 3, true, 2)) return;
+                                        this.setState({ weight: event.target.value, message: '' });
                                     } }
-                                    options={ this.athleteOptions }
-                                  />
-                              </Form.Field>
-                              <Form.Field>
-                                  <Dropdown
-                                    placeholder="Nível de atividade física"
-                                    selection
-                                    value={ this.state.physicalActivity }
-                                    onChange={ (event, data) => {
-                                        this.setState({ physicalActivity: data.value });
+                                    value={ this.state.weight }
+                                />
+                                <Form.Input
+                                    icon="long arrow alternate up"
+                                    iconPosition="left"
+                                    label='Altura'
+                                    placeholder="Altura(em m). Ex: 1.81"
+                                    value={ this.state.height }
+                                    onChange={ (event) => {
+                                        if (!numberValidator(event.target.value, 1, true, 2)) return;
+                                        this.setState({ height: event.target.value, message: '' });
                                     } }
-                                    options={ this.physicalActivityOptions }
-                                  />
-                              </Form.Field>
-                              <Form.Field>
-                                  <Dropdown
-                                    placeholder="Autor para taxa metabólica"
-                                    selection
-                                    value={ this.state.methabolicAuthor }
-                                    onChange={ (event, data) => {
-                                        this.setState({ methabolicAuthor: data.value });
-                                    } }
-                                    options={ this.methabolicAuthorOptions }
-                                  />
-                              </Form.Field>
-                              <Form.Field>
-                                  <Dropdown
-                                    placeholder="Método para calcular as necessidades energéticas"
-                                    selection
-                                    value={ this.state.energyRequirements }
-                                    onChange={ (event, data) => {
-                                        this.setState({ energyRequirements: data.value });
-                                    } }
-                                    options={ this.energyRequirementsOptions }
-                                  />
-                              </Form.Field>
+                                />
+                               </Form.Group>
+                               <Form.Group widths='equal'>
+                                    <Form.Field>
+                                        <Dropdown
+                                            placeholder="Atleta"
+                                            selection
+                                            value={ this.state.athlete }
+                                            onChange={ (event, data) => {
+                                                this.setState({ athlete: data.value });
+                                            } }
+                                            options={ this.athleteOptions }
+                                        />
+                                    </Form.Field>
+                                    <Form.Field>
+                                        <Dropdown
+                                            placeholder="Nível de atividade física"
+                                            selection
+                                            value={ this.state.physicalActivity }
+                                            onChange={ (event, data) => {
+                                                this.setState({ physicalActivity: data.value });
+                                            } }
+                                            options={ this.physicalActivityOptions }
+                                        />
+                                    </Form.Field>
+                               </Form.Group>
+                               <Form.Group widths='equal'>
+                                    <Form.Field>
+                                        <Dropdown
+                                            placeholder="Autor para taxa metabólica"
+                                            selection
+                                            value={ this.state.methabolicAuthor }
+                                            onChange={ (event, data) => {
+                                                this.setState({ methabolicAuthor: data.value });
+                                            } }
+                                            options={ this.methabolicAuthorOptions }
+                                        />
+                                    </Form.Field>
+                                    <Form.Field>
+                                        <Dropdown
+                                            placeholder="Método para calcular as necessidades energéticas"
+                                            selection
+                                            value={ this.state.energyRequirements }
+                                            onChange={ (event, data) => {
+                                                this.setState({ energyRequirements: data.value });
+                                            } }
+                                            options={ this.energyRequirementsOptions }
+                                        />
+                                    </Form.Field>
+                              </Form.Group>
+                              <Segment> <h3>Medidas de gordura</h3>
+                              <Form.Group widths='equal'>
                               <Form.Input
                                 icon="male"
                                 iconPosition="left"
+                                label='Subscapular'
                                 placeholder="Subscapular (em mm)"
                                 value={ this.state.subscapular }
                                 onChange={ (event) => {
@@ -499,6 +535,7 @@ Paciente:
                               <Form.Input
                                 icon="male"
                                 iconPosition="left"
+                                label='Triceps'
                                 placeholder="Triceps (em mm)"
                                 value={ this.state.triceps }
                                 onChange={ (event) => {
@@ -509,6 +546,7 @@ Paciente:
                               <Form.Input
                                 icon="male"
                                 iconPosition="left"
+                                label='Biceps'
                                 placeholder="Biceps (em mm)"
                                 value={ this.state.biceps }
                                 onChange={ (event) => {
@@ -516,9 +554,12 @@ Paciente:
                                     this.setState({ biceps: event.target.value, message: '' });
                                 } }
                               />
+                              </Form.Group>
+                              <Form.Group widths='equal'>
                               <Form.Input
                                 icon="male"
                                 iconPosition="left"
+                                label='Peitoral'
                                 placeholder="Peitoral (em mm)"
                                 value={ this.state.chest }
                                 onChange={ (event) => {
@@ -529,6 +570,7 @@ Paciente:
                               <Form.Input
                                 icon="male"
                                 iconPosition="left"
+                                label='Axilar média'
                                 placeholder="Axilar média (em mm)"
                                 value={ this.state.axillary }
                                 onChange={ (event) => {
@@ -542,6 +584,7 @@ Paciente:
                               <Form.Input
                                 icon="male"
                                 iconPosition="left"
+                                label='Suprailíaca'
                                 placeholder="Suprailíaca (em mm)"
                                 value={ this.state.supriailiac }
                                 onChange={ (event) => {
@@ -552,8 +595,11 @@ Paciente:
                                     });
                                 } }
                               />
+                              </Form.Group>
+                              <Form.Group widths='equal'>
                               <Form.Input
                                 icon="male"
+                                label='Abdominal'
                                 iconPosition="left"
                                 placeholder="Abdominal (em mm)"
                                 value={ this.state.abdominal }
@@ -568,6 +614,7 @@ Paciente:
                               <Form.Input
                                 icon="male"
                                 iconPosition="left"
+                                label='Coxa'
                                 placeholder="Coxa (em mm)"
                                 value={ this.state.thigh }
                                 onChange={ (event) => {
@@ -578,6 +625,7 @@ Paciente:
                               <Form.Input
                                 icon="male"
                                 iconPosition="left"
+                                label='Panturrilha'
                                 placeholder="Panturrilha (em mm)"
                                 value={ this.state.calf }
                                 onChange={ (event) => {
@@ -585,9 +633,14 @@ Paciente:
                                     this.setState({ calf: event.target.value, message: '' });
                                 } }
                               />
+                              </Form.Group>
+                              </Segment>
+                              <Segment> <h3>Circunferências</h3>
+                              <Form.Group widths='equal'>
                               <Form.Input
                                 icon="arrows alternate horizontal"
                                 iconPosition="left"
+                                label='Cintura'
                                 placeholder="Circunferência da cintura (em cm)"
                                 value={ this.state.waistCirc }
                                 onChange={ (event) => {
@@ -601,6 +654,7 @@ Paciente:
                               <Form.Input
                                 icon="arrows alternate horizontal"
                                 iconPosition="left"
+                                label='Abdominal'
                                 placeholder="Circunferência abdominal (em cm)"
                                 value={ this.state.abdominalCirc }
                                 onChange={ (event) => {
@@ -614,6 +668,7 @@ Paciente:
                               <Form.Input
                                 icon="arrows alternate horizontal"
                                 iconPosition="left"
+                                label='Quadril'
                                 placeholder="Circunferência do quadril (em cm)"
                                 value={ this.state.hipsCirc }
                                 onChange={ (event) => {
@@ -624,9 +679,12 @@ Paciente:
                                     });
                                 } }
                               />
+                              </Form.Group>
+                              <Form.Group widths='equal'>
                               <Form.Input
                                 icon="arrows alternate horizontal"
                                 iconPosition="left"
+                                label='Braço direito'
                                 placeholder="Circunferência do braço direito (em cm)"
                                 value={ this.state.rightArmCirc }
                                 onChange={ (event) => {
@@ -640,6 +698,7 @@ Paciente:
                               <Form.Input
                                 icon="arrows alternate horizontal"
                                 iconPosition="left"
+                                label='Coxa média'
                                 placeholder="Circunferência da coxa média (em cm)"
                                 value={ this.state.thighCirc }
                                 onChange={ (event) => {
@@ -653,6 +712,7 @@ Paciente:
                               <Form.Input
                                 icon="arrows alternate horizontal"
                                 iconPosition="left"
+                                label='Panturrilha'
                                 placeholder="Circunferência da panturrilha (em cm)"
                                 value={ this.state.calfCirc }
                                 onChange={ (event) => {
@@ -663,6 +723,8 @@ Paciente:
                                     });
                                 } }
                               />
+                              </Form.Group>
+                              </Segment>
                               <TextArea
                                 placeholder="Observações"
                                 onChange={ (event) => {
@@ -672,8 +734,12 @@ Paciente:
                                     });
                                 } }
                                 value={ this.state.obs }
+                                style={ { marginBottom: '10px' } }
                               />
-                              <Button color="teal" fluid size="large" onClick={ this.sendForm }>
+                              {this.state.editing ? <Button size='large' onClick={ () => this.props.history.push(`/pacientes/${params.id}`) }>
+                                Voltar
+                              </Button> : ''}
+                              <Button color="teal" size="large" onClick={ this.sendForm }>
                                   {this.state.editing ? 'Editar ficha' : 'Adicionar ficha'}
                               </Button>
                               {this.state.message && <p>{this.state.message}</p>}

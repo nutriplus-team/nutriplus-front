@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { Button, Form, Segment, Message, Checkbox } from 'semantic-ui-react';
 
@@ -63,6 +63,39 @@ const FoodsForm = (props) => {
         setMealSet(update);
     };
 
+    const validateInputs = useCallback(() => {
+        let valid = true;
+
+        if (!numberValidator(totalGrams, 4, true, 1))
+            valid = false;
+
+        if (!numberValidator(amount, 4, true, 1))
+            valid = false;
+
+        valid &= Object.keys(nutritionFacts).map((key) => numberValidator(nutritionFacts[key], 4, true, 1))
+            .reduce((prev, curr) => prev && curr);
+
+        if (!valid) {
+            setError({
+                header: 'Dados Inválidos',
+                content: 'Alguns valores precisam ser numéricos.'
+            });
+        } else {
+            setError({
+                header: '',
+                content: ''
+            });
+        }
+
+        return valid;
+    }, [totalGrams, amount, nutritionFacts]);
+    useEffect(() => {
+        validateInputs();
+    }, [validateInputs]);
+    useEffect(() => {
+        validateInputs();
+    }, [totalGrams, amount, nutritionFacts, validateInputs]);
+
     const submit = async () => {
         setIsLoading(true);
 
@@ -80,19 +113,9 @@ const FoodsForm = (props) => {
             'meal_set': mealSet.join('&')
         };
 
-        let valid = 
-          ['measure_total_grams', 'measure_amount']
-              .map((key) => numberValidator(updatedFood[key], 4, true, 1))
-              .reduce((prev, curr) => prev && curr);
-
-        if (!valid) {
-            setError({
-                header: 'Dados Inválidos',
-                content: 'Alguns valores precisam ser numéricos.'
-            });
-            setIsLoading(false);
+        let valid = validateInputs();
+        if (!valid)
             return;
-        }
 
         let url;
         if (isEditing)
@@ -128,86 +151,92 @@ const FoodsForm = (props) => {
       >
         <Segment stacked>
           <Message error header={ error.header } content={ error.content }/>
-          <Form.Field>
-              <label>Nome do Alimento</label>
-              <Form.Input 
-                fluid
-                value={ name }
-                onChange={ (event) => setName(event.target.value) }
-              />
-          </Form.Field>
-          <Form.Field>
-              <label>Grupo do Alimento</label>
-              <Form.Input 
-                fluid
-                value={ group }
-                onChange={ (event) => setGroup(event.target.value) }
-              />
-          </Form.Field>
-          <Form.Field>
-              <label>Peso da Porção (em gramas)</label>
-              <Form.Input 
-                fluid
-                value={ totalGrams }
-                onChange={ (event) => setTotalGrams(event.target.value) }
-              />
-          </Form.Field>
-          <Form.Field>
-              <label>Unidade da Medida</label>
-              <Form.Input 
-                fluid
-                value={ type }
-                onChange={ (event) => setType(event.target.value) }
-              />
-          </Form.Field>
-          <Form.Field>
-              <label>Quantidade da Medida</label>
-              <Form.Input 
-                fluid
-                value={ amount }
-                onChange={ (event) => setAmount(event.target.value) }
-              />
-          </Form.Field>
-          <Form.Field>
-              <label>Valor Energético (kcal)</label>
-              <Form.Input 
-                fluid
-                value={ nutritionFacts['calories'] }
-                onChange={ (event) => handleNutritionFactsChange('calories', event.target.value) }
-              />
-          </Form.Field>
-          <Form.Field>
-              <label>Proteínas (g)</label>
-              <Form.Input 
-                fluid
-                value={ nutritionFacts['proteins'] }
-                onChange={ (event) => handleNutritionFactsChange('proteins', event.target.value) }
-              />
-          </Form.Field>
-          <Form.Field>
-              <label>Carboidratos (g)</label>
-              <Form.Input 
-                fluid
-                value={ nutritionFacts['carbohydrates'] }
-                onChange={ (event) => handleNutritionFactsChange('carbohydrates', event.target.value) }
-              />
-          </Form.Field>
-          <Form.Field>
-              <label>Lipídios (g)</label>
-              <Form.Input 
-                fluid
-                value={ nutritionFacts['lipids'] }
-                onChange={ (event) => handleNutritionFactsChange('lipids', event.target.value) }
-              />
-          </Form.Field>
-          <Form.Field>
-              <label>Fibra Alimentar (g)</label>
-              <Form.Input 
-                fluid
-                value={ nutritionFacts['fiber'] }
-                onChange={ (event) => handleNutritionFactsChange('fiber', event.target.value) }
-              />
-          </Form.Field>
+          <Form.Group widths='equal'>
+            <Form.Field>
+                <label>Nome do Alimento</label>
+                <Form.Input 
+                  fluid
+                  value={ name }
+                  onChange={ (event) => setName(event.target.value) }
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Grupo do Alimento</label>
+                <Form.Input 
+                  fluid
+                  value={ group }
+                  onChange={ (event) => setGroup(event.target.value) }
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Peso da Porção (em gramas)</label>
+                <Form.Input 
+                  fluid
+                  value={ totalGrams }
+                  onChange={ (event) => setTotalGrams(event.target.value) }
+                />
+            </Form.Field>
+          </Form.Group>
+          <Form.Group widths='equal'>
+            <Form.Field>
+                <label>Unidade da Medida</label>
+                <Form.Input 
+                  fluid
+                  value={ type }
+                  onChange={ (event) => setType(event.target.value) }
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Quantidade da Medida</label>
+                <Form.Input 
+                  fluid
+                  value={ amount }
+                  onChange={ (event) => setAmount(event.target.value) }
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Valor Energético (kcal)</label>
+                <Form.Input 
+                  fluid
+                  value={ nutritionFacts['calories'] }
+                  onChange={ (event) => handleNutritionFactsChange('calories', event.target.value) }
+                />
+            </Form.Field>
+          </Form.Group>
+          <Form.Group widths='equal'>
+            <Form.Field>
+                <label>Proteínas (g)</label>
+                <Form.Input 
+                  fluid
+                  value={ nutritionFacts['proteins'] }
+                  onChange={ (event) => handleNutritionFactsChange('proteins', event.target.value) }
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Carboidratos (g)</label>
+                <Form.Input 
+                  fluid
+                  value={ nutritionFacts['carbohydrates'] }
+                  onChange={ (event) => handleNutritionFactsChange('carbohydrates', event.target.value) }
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Lipídios (g)</label>
+                <Form.Input 
+                  fluid
+                  value={ nutritionFacts['lipids'] }
+                  onChange={ (event) => handleNutritionFactsChange('lipids', event.target.value) }
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Fibra Alimentar (g)</label>
+                <Form.Input 
+                  fluid
+                  value={ nutritionFacts['fiber'] }
+                  onChange={ (event) => handleNutritionFactsChange('fiber', event.target.value) }
+                />
+            </Form.Field>
+          </Form.Group>
           <Form.Field>
             <Checkbox
               label='Café da manhã'
@@ -250,8 +279,11 @@ const FoodsForm = (props) => {
               checked={ mealSet.includes(6) }
             />
           </Form.Field>
-          <Button color='teal' fluid size='large'>
+          <Button type='submit' color='teal' size='large'>
             Salvar
+          </Button>
+          <Button onClick={ props.afterCancel } size='large'>
+            Voltar
           </Button>
         </Segment>
       </Form>

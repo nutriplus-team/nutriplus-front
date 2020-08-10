@@ -1,0 +1,7 @@
+{
+  "projectId": "752kwm",
+  "baseUrl": "http://localhost:3000",
+  "env": {
+    "backUrl": "https://nutriplusback.herokuapp.com"
+  }
+}

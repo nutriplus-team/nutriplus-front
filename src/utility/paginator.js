@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Icon, Table, List } from 'semantic-ui-react';
+import { Button, Icon, Table, List, Grid } from 'semantic-ui-react';
 
 const paginator = (props) => {
     let results = props.queryResults.data[props.queryString]
@@ -28,6 +28,34 @@ const paginator = (props) => {
                 {props.tableHeader}
                 <Table.Body>{results}</Table.Body>
             </Table>
+        );
+    }
+
+    if (props.isConsultList) {
+        results = (
+            <Grid>
+                {results.map((result) => {
+                    return (
+                    <Grid.Row key={ result.key } style = { {textAlign: 'left' } } columns="equal">
+                        <Grid.Column>
+                            <h3>{ result.key }. {result.props.children[0].props.children}</h3>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <h4>{result.props.children[1].props.children}; {result.props.children[2].props.children}</h4>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <Button
+                              onClick={ () => result.props.onClick() } 
+                            >
+                            Visualizar
+                            </Button>
+                        </Grid.Column>
+                        <Grid.Column>
+
+                        </Grid.Column>
+                    </Grid.Row>);
+                })}
+            </Grid>
         );
     }
 

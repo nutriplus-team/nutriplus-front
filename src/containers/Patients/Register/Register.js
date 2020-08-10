@@ -8,6 +8,7 @@ import {
     Segment,
     Input,
     Dropdown,
+    Table,
 } from 'semantic-ui-react';
 import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 import Paginator from '../../../utility/paginator';
@@ -409,6 +410,7 @@ uuidFoods: [${restrictions.map(res => `"${res.uuid}"`)}])
                       (state_food) => state_food.foodName === food.foodName,
                   ) }
                   listElementMap={ (obj) => (
+                        <Table.Row key={ obj.id }><Table.Cell>
                         <p
                           key={ obj.uuid }
                           className={ classes.Food }
@@ -416,21 +418,22 @@ uuidFoods: [${restrictions.map(res => `"${res.uuid}"`)}])
                         >
                             {obj.foodName}
                         </p>
+                        </Table.Cell></Table.Row>
                   ) }
                   setMessage={ setMessage }
                   buttonSize="mini"
                 />
                             </>
                         )}
+                        <Button color="teal" onClick={ register }>
+                            {editing ? 'Editar paciente' : 'Registrar paciente'}
+                        </Button>
                         <Button
                           type="button"
                           size="medium"
                           onClick={ () => props.history.push(`/pacientes/${props.match.params.id === undefined ? '' : props.match.params.id }`) }
                         >
                         Voltar
-                        </Button>
-                        <Button color="teal" onClick={ register }>
-                            {editing ? 'Editar paciente' : 'Registrar paciente'}
                         </Button>
                         <p>{message}</p>
                     </Segment>

@@ -10,6 +10,7 @@ import PatientRecord from './PatientRecord/PatientRecord';
 import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 import Paginator from '../../utility/paginator';
 import classes from './Patients.module.css';
+import PatientAppoiment from './PatientAppointment/PatientAppointment';
 
 const pageSize = 10;
 
@@ -87,7 +88,8 @@ class Patients extends Component {
                   <Route
                     exact
                     path="/pacientes/:id/criar-ficha"
-                    render={ (props) => <PatientRecordCreator { ...props } /> }
+                    // render={ (props) => <PatientRecordCreator { ...props } /> }
+                    render={ (props) => <PatientAppoiment { ...props } /> }
                   />
                   <Route
                     exact
