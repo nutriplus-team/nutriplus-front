@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Message, Table, Button, Icon, Placeholder } from 'semantic-ui-react';
 
-import Paginator from '../../utility/paginator';
+import Paginator from '../../../utility/paginator';
 
 import FoodsTableRow from './FoodsTableRow/FoodsTableRow';
 
@@ -32,7 +32,12 @@ const foodsTable = (props) => {
 
     const placeholder = (
         <Paginator
-          queryResults={ {results: [...Array(10).keys()]} }
+          queryResults={ {data: {'placeholder': [...Array(10).keys()]}} }
+          totalLength={ 10 }
+          pageSize={ 10 }
+          page={ 0 }
+          changePage={ () => {} }
+          queryString={ 'placeholder' }
           filter={ () => true }
           listElementMap={ (elem) => (
                 <Table.Row key={ elem }>
@@ -47,12 +52,6 @@ const foodsTable = (props) => {
                     }
                 </Table.Row>
           ) }
-          setResults={ () => {} }
-          setHasNext={ () => {} }
-          setHasPrevious={ () => {} }
-          setMessage={ () => {} }
-          hasPrevious={ false }
-          hasNext={ false }
           buttonSize="huge"
           isTable
           tableHeader={ header }
@@ -71,21 +70,22 @@ const foodsTable = (props) => {
                     placeholder :
                     <Paginator
                       queryResults={ props.foodInfo }
+                      totalLength={ props.totalLength }
+                      pageSize={ props.pageSize }
+                      page={ props.page }
+                      changePage={ props.changePage }
+                      queryString={ props.queryString }
                       filter={ () => true }
                       listElementMap={ (food, idx) => (
                         <FoodsTableRow 
+                          setError={ props.setError }
                           food={ food } 
-                          key={ food.id } 
-                          handleClick={ () => props.handleClick(food.id, idx) }
-                          handleButton={ () => props.handleRemove(food.id, idx) }
+                          key={ food['uuid'] } 
+                          handleClick={ () => props.handleClick(food['uuid'], idx) }
+                          handleButton={ () => props.handleRemove(food['uuid'], idx) }
                         />
                       ) }
-                      setResults={ (foodInfo) => props.setFoodInfo(foodInfo) }
-                      setHasNext={ (value) => props.setHasNext(value) }
-                      setHasPrevious={ (value) => props.setHasPrevious(value) }
                       setMessage={ (message) => props.setError(message) }
-                      hasPrevious={ props.hasPrevious }
-                      hasNext={ props.hasNext }
                       buttonSize="huge"
                       isTable
                       tableHeader={ header }

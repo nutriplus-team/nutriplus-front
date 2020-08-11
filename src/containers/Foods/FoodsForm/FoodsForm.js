@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 import { Button, Form, Segment, Message, Checkbox } from 'semantic-ui-react';
 
@@ -19,29 +19,51 @@ const FoodsForm = (props) => {
     const [error, setError] = useState({content: '', header: ''});
     const [isLoading, setIsLoading] = useState(false);
   
-    const [name, setName] = useState(food['food_name'] || '');
-    const [group, setGroup] = useState(food['food_group'] || '');
-    const [totalGrams, setTotalGrams] = useState(food['measure_total_grams'] || 0);
-    const [type, setType] = useState(food['measure_type'] || '');
-    const [amount, setAmount] = useState(food['measure_amount'] || 0);
+    const [name, setName] = useState(food['foodName'] || '');
+    const [group, setGroup] = useState(food['foodGroup'] || '');
+    const [totalGrams, setTotalGrams] = useState(food['measureTotalGrams'] || 0);
+    const [type, setType] = useState(food['measureType'] || '');
+    const [amount, setAmount] = useState(food['measureAmount'] || 0);
     
     const [nutritionFacts, setNutritionFacts] = useState(
-        isEditing
-            ? props.food['nutrition_facts']
-            : {            
-                'calories': 0,
-                'proteins': 0,
-                'carbohydrates': 0,
-                'lipids': 0,
-                'fiber': 0,
-            }
+        {            
+            'calories': 0,
+            'proteins': 0,
+            'carbohydrates': 0,
+            'lipids': 0,
+            'fiber': 0,
+        }
     );
+    const [mealSet, setMealSet] = useState([]);
+    const [mealSetAdd, setMealSetAdd] = useState([]);
+    const [mealSetSub, setMealSetSub] = useState([]);
 
-    const [mealSet, setMealSet] = useState(
-        isEditing
-            ? props.food['meal_set']
-            : []
-    );
+    const getMoreInfo = () => {
+        if(isEditing) {
+            setIsLoading(true);
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                (message) => props.setError(message),
+                (info) => {
+                    setNutritionFacts(info.data['getUnits']);
+                    setMealSet(info.data['listMealsThatAFoodBelongsTo']);
+                    setIsLoading(false);
+                },
+                `query {
+                  getUnits(uuidFood: "${food['uuid']}") {
+                      calories,
+                      proteins,
+                      carbohydrates,
+                      lipids,
+                      fiber,
+                  },
+                  listMealsThatAFoodBelongsTo(uuidFood: "${food['uuid']}")
+                }`
+            );
+        }
+    };
+    useEffect(getMoreInfo, []);
 
     const handleNutritionFactsChange = (name, newValue) => {
         const update = {...nutritionFacts};
@@ -50,14 +72,33 @@ const FoodsForm = (props) => {
     };
 
     const handleToggle = (number) => {
+        // for updating setMeal
         const previous = [...mealSet];
-
         let update = [];
-        if (previous.includes(number))
+        if (previous.includes(number)) {
+            // removing from a meal
+
+            // updating state
             update = previous.filter((num) => num !== number);
+
+            // updating modifications
+            if (mealSetAdd.includes(number))
+                setMealSetAdd([...mealSetAdd].filter((num) => num !== number));
+            else
+                setMealSetSub([...mealSetSub, number]);
+        }
         else {
+            // including in a meal
+
+            // updating state
             previous.push(number);
             update = previous;
+
+            // updating modifications
+            if (mealSetSub.includes(number))
+                setMealSetSub([...mealSetSub].filter((num) => num !== number));
+            else
+                setMealSetAdd([...mealSetAdd, number]);
         }
 
         setMealSet(update);
@@ -67,21 +108,21 @@ const FoodsForm = (props) => {
         setIsLoading(true);
 
         const updatedFood = {
-            'food_name': name,
-            'food_group': group,
-            'measure_total_grams': totalGrams,
-            'measure_type': type,
-            'measure_amount': amount,
+            'foodName': name,
+            'foodGroup': group,
+            'measureTotalGrams': totalGrams,
+            'measureType': type,
+            'measureAmountValue': amount,
             'calories': nutritionFacts['calories'],
             'proteins': nutritionFacts['proteins'],
             'carbohydrates': nutritionFacts['carbohydrates'],
             'lipids': nutritionFacts['lipids'],
             'fiber': nutritionFacts['fiber'],
-            'meal_set': mealSet.join('&')
+            'mealSet': mealSet
         };
 
         let valid = 
-          ['measure_total_grams', 'measure_amount']
+          ['measureTotalGrams', 'measureAmountValue']
               .map((key) => numberValidator(updatedFood[key], 4, true, 1))
               .reduce((prev, curr) => prev && curr);
 
@@ -94,29 +135,117 @@ const FoodsForm = (props) => {
             return;
         }
 
-        let url;
-        if (isEditing)
-            url = `/foods/edit-food/${food.id}/`;
-        else
-            url = '/foods/add-new/';
+        const updateMealSet = () => {
+            if (mealSetAdd.length !== 0 || mealSetSub.length !== 0) {
+                mealSetAdd
+                    .forEach((meal) => 
+                        sendAuthenticatedRequest(
+                            '/graphql/get/',
+                            'post',
+                            () => {
+                                setError({
+                                    header: 'Erro ao se comunicar com o serviço.',
+                                    content: 'Por favor, tente mais tarde.'
+                                });
+                                setIsLoading(false);
+                            },
+                            () => {},
+                            `mutation {
+                              addFoodToMeal(uuidFood: "${food['uuid']}",mealType: ${meal}),
+                            }`
+                        )
+                    );
 
-        sendAuthenticatedRequest(
-            url,
-            'post',
-            () => {
-                setError({
-                    header: 'Erro ao se comunicar com o serviço.',
-                    content: 'Por favor, tente mais tarde.'
-                });
-                setIsLoading(false);
-            },
-            () => {
-                setError({content: '', header: ''});
-                setIsLoading(false);
-                props.afterSubmit();
-            },
-            JSON.stringify(updatedFood)
-        );
+                mealSetSub
+                    .forEach((meal) => 
+                        sendAuthenticatedRequest(
+                            '/graphql/get/',
+                            'post',
+                            () => {
+                                setError({
+                                    header: 'Erro ao se comunicar com o serviço.',
+                                    content: 'Por favor, tente mais tarde.'
+                                });
+                                setIsLoading(false);
+                            },
+                            () => {},
+                            `mutation {
+                              removeFoodFromMeal(uuidFood: "${food['uuid']}",mealType: ${meal}),
+                            }`
+                        )
+                    );
+            }
+
+            setError({content: '', header: ''});
+            setIsLoading(false);
+            props.afterSubmit();
+        };
+
+        console.log(mealSetAdd, mealSetSub);
+        if (isEditing)
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                () => {
+                    setError({
+                        header: 'Erro ao se comunicar com o serviço.',
+                        content: 'Por favor, tente mais tarde.'
+                    });
+                    setIsLoading(false);
+                },
+                () => {
+                    updateMealSet();
+                },
+                `mutation {
+                  customizeFood( 
+                    uuidFood: "${food['uuid']}", 
+                    customInput: {
+                        measureTotalGrams: ${updatedFood.measureTotalGrams},
+                        measureType: "${updatedFood.measureType}",
+                        measureAmountValue: ${updatedFood.measureAmountValue}
+                    },
+                    nutritionInput: {
+                        calories: ${updatedFood.calories},
+                        proteins: ${updatedFood.proteins},
+                        carbohydrates: ${updatedFood.carbohydrates},
+                        lipids: ${updatedFood.lipids},
+                        fiber: ${updatedFood.fiber}    
+                    })
+              }`
+            );
+        else
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                () => {
+                    setError({
+                        header: 'Erro ao se comunicar com o serviço.',
+                        content: 'Por favor, tente mais tarde.'
+                    });
+                    setIsLoading(false);
+                },
+                () => {
+                    updateMealSet();
+                },
+                `mutation {
+                    createFood(
+                      foodInput: {
+                            foodName: "${updatedFood.foodName}", 
+                            foodGroup: "${updatedFood.foodGroup}",
+                            measureTotalGrams: ${updatedFood.measureTotalGrams},
+                            measureType: "${updatedFood.measureType}",
+                            measureAmountValue: ${updatedFood.measureAmountValue}
+                      },
+                      nutritionInput: {
+                          calories: ${updatedFood.calories},
+                          proteins: ${updatedFood.proteins},
+                          carbohydrates: ${updatedFood.carbohydrates},
+                          lipids: ${updatedFood.lipids},
+                          fiber: ${updatedFood.fiber}    
+                      }
+                    )
+                }`
+            );
     };
 
     return (
@@ -211,27 +340,34 @@ const FoodsForm = (props) => {
           <Form.Field>
             <Checkbox
               label='Café da manhã'
+              onChange={ () => handleToggle(0) }
+              checked={ mealSet.includes(0) }
+            />
+          </Form.Field>
+          <Form.Field>
+            <Checkbox
+              label='Lanche da manhã'
               onChange={ () => handleToggle(1) }
               checked={ mealSet.includes(1) }
             />
           </Form.Field>
           <Form.Field>
             <Checkbox
-              label='Lanche da manhã'
+              label='Almoço'
               onChange={ () => handleToggle(2) }
               checked={ mealSet.includes(2) }
             />
           </Form.Field>
           <Form.Field>
             <Checkbox
-              label='Almoço'
+              label='Lanche da tarde'
               onChange={ () => handleToggle(3) }
               checked={ mealSet.includes(3) }
             />
           </Form.Field>
           <Form.Field>
             <Checkbox
-              label='Lanche da tarde'
+              label='Pré-Treino'
               onChange={ () => handleToggle(4) }
               checked={ mealSet.includes(4) }
             />
@@ -241,13 +377,6 @@ const FoodsForm = (props) => {
               label='Jantar'
               onChange={ () => handleToggle(5) }
               checked={ mealSet.includes(5) }
-            />
-          </Form.Field>
-          <Form.Field>
-            <Checkbox
-              label='Lanche da noite'
-              onChange={ () => handleToggle(6) }
-              checked={ mealSet.includes(6) }
             />
           </Form.Field>
           <Button color='teal' fluid size='large'>
