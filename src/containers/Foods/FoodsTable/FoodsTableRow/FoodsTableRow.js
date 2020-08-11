@@ -136,6 +136,7 @@ const FoodsTableRow = (props) => {
                 <Button
                   size='big'
                   icon='remove' 
+                  disabled={ !food['custom'] && !food['created'] }
                   onClick={ () => props.handleButton() }
                 />
             </Table.Cell>

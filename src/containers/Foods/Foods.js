@@ -43,6 +43,8 @@ const FoodDatabaseEditor = () => {
                     uuid,
                     foodName,
                     foodGroup,
+                    custom,
+                    created,
                     measureTotalGrams,
                     measureType,
                     measureAmount
@@ -59,11 +61,9 @@ const FoodDatabaseEditor = () => {
         setLoaded(false);
 
         if (foodName === ''){
-            console.log('been here', page);
             requestFoodInfo(page);
         }
         else {
-            console.log('or here');
             sendAuthenticatedRequest(
                 '/graphql/get/',
                 'post',
@@ -85,6 +85,8 @@ const FoodDatabaseEditor = () => {
                         uuid,
                         foodName,
                         foodGroup,
+                        custom,
+                        created,
                         measureTotalGrams,
                         measureType,
                         measureAmount,
@@ -95,7 +97,6 @@ const FoodDatabaseEditor = () => {
     };
 
     const clickEdition = (foodId, foodIdx) => {
-        console.log('clicked');
         const food = foodInfo.data[queryString][foodIdx];
         if (food.uuid !== foodId)
             return;
@@ -108,10 +109,9 @@ const FoodDatabaseEditor = () => {
         if (food.uuid !== foodId)
             return;
 
-        console.log('Tentando remover ', foodId);
         setFoodNameQuery('');
         setLoaded(false);
-        console.log(foodId);
+        
         sendAuthenticatedRequest(
             '/graphql/get/',
             'post',
