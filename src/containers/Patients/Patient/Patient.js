@@ -24,7 +24,8 @@ class Patient extends Component {
       info: null,
       error: null,
       redirectUrl: null,
-      page: null
+      page: null,
+      totalRecords: null
   };
 
   getAllRecords = async () => sendAuthenticatedRequest(
@@ -34,13 +35,13 @@ class Patient extends Component {
           error: message,
       }),
       (info) => this.setState({
-          recordQueryInfo: info,
+          totalRecords: info.data['getPatientRecords'].length,
           page: 0
       }),
       `query {
           getPatientRecords(uuidPatient: "${this.props.match.params.id}", indexPage: 0, sizePage: 1000000000)
       {
-          dateModified
+          dateModified, uuid
       }
       }`
   );
@@ -52,7 +53,7 @@ class Patient extends Component {
           error: message,
       }),
       (info) => this.setState({
-          patientsQueryInfo: info,
+          recordQueryInfo: info,
           redirectUrl: redirect ? `/pacientes/${this.props.match.params.id}` : null
       }),
       `query {
@@ -224,9 +225,10 @@ E-mail:
                   <div className={ classes.records }>
                       <Paginator
                         queryResults={ this.state.recordQueryInfo }
+                        totalLength={ this.state.totalRecords }
                         pageSize={ pageSize }
                         page={ this.state.page }
-                        changePage={ (pageNumber) => this.setState({page: pageNumber}) }
+                        changePage={ (pageNumber) => this.setState({page: pageNumber}, () => this.getRecords({redirect: false})) }
                         queryString={ 'getPatientRecords' }
                         filter={ () => true }
                         listElementMap={ (record) => (

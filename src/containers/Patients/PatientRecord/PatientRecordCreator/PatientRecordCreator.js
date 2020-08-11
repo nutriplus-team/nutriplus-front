@@ -74,6 +74,8 @@ class PatientRecordCreator extends Component {
                       physicalActivity: this.mapNumberToPhysicalActivityOption(
                           info.physicalActivityLevel,
                       ),
+                      methabolicAuthor: info.methodBodyFat,
+                      energyRequirements: info.methodMethabolicRate,
                       subscapular: info.subscapular,
                       triceps: info.triceps,
                       biceps: info.biceps,
@@ -96,7 +98,8 @@ class PatientRecordCreator extends Component {
                 getSingleRecord(uuidRecord: "${params.ficha_id}")
                 {
                     corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
-                    supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations
+                    supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
+                    methodBodyFat, methodMethabolicRate
                 }
               }`
           );
@@ -245,7 +248,7 @@ class PatientRecordCreator extends Component {
           setStateFunction,
           `mutation {
             ${this.state.editing ?
-              `updatePatientRecord(uuidPatientRecord: ${params.ficha_id}"`
+              `updatePatientRecord(uuidPatient: "${params.id}", uuidPatientRecord: "${params.ficha_id}"`
               : `createPatientRecord(uuidPatient: "${params.id}"`},
                                 input: {
                                     methodBodyFat: "${this.state.methabolicAuthor}",
@@ -254,7 +257,7 @@ class PatientRecordCreator extends Component {
                                     height: ${(+this.state.height).toFixed(2)},
                                     isAthlete: ${this.state.athlete === 'Atleta'},
                                     physicalActivityLevel: ${this.mapPhysicalActivityOptionToNumber(this.state.physicalActivity)},
-                                    observations: "${this.state.obs}",
+                                    observations: "${this.state.obs.replace(/\r?\n|\r/g, '\\n')}",
                                     subscapular: ${this.state.subscapular},
                                     triceps: ${this.state.triceps},
                                     biceps: ${this.state.biceps},
