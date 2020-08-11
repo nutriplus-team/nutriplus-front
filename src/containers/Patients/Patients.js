@@ -33,7 +33,7 @@ class Patients extends Component {
           page: 0
       }),
       `query {
-          getAllPatients(uuidUser: "${localStorage.getItem('uuid')}", indexPage: 0, sizePage: 1000000000)
+          getAllPatients(indexPage: 0, sizePage: 1000000000)
       {
           name, uuid
       }
@@ -51,7 +51,7 @@ class Patients extends Component {
           redirect: redirect
       }),
       `query {
-        getAllPatients(uuidUser: "${localStorage.getItem('uuid')}", indexPage: ${this.state.page}, sizePage: ${pageSize})
+        getAllPatients(indexPage: ${this.state.page}, sizePage: ${pageSize})
           {
             name, uuid
           }

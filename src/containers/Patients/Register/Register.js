@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
 import {
     Button,
@@ -42,21 +42,23 @@ const Register = (props) => {
 
     const { params } = props.match;
 
-    const searchFood = useCallback(() => sendAuthenticatedRequest(
-        '/graphql/get/',
-        'post',
-        (message) => setMessage(message),
-        (info) => {
-            setQueryResults(info);
-            setPage(0);
-        },
-        `query {
-          searchFood(uuidUser: "${localStorage.getItem('uuid')}", partialFoodName: "${restrictionQuery}") {
-            uuid,
-            foodName
-          }
-      }`
-    ), [restrictionQuery]);
+    const searchFood = useEffect(() => {
+        if (page != null)
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                (message) => setMessage(message),
+                (info) => {
+                    setQueryResults(info);
+                },
+                `query {
+                  searchFood(partialFoodName: "${restrictionQuery}", indexPage: ${page}, sizePage: ${pageSize}) {
+                    uuid,
+                    foodName
+                  }
+              }`
+            );
+    }, [restrictionQuery, page]);
 
     useEffect(() => {
         if (params.id) {
@@ -77,7 +79,7 @@ const Register = (props) => {
                     //setRestrictions(info.foodRestrictions); --> send another request for food restrictions
                 },
                 `{
-                  getPatientInfo(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+                  getPatientInfo(uuidPatient: "${params.id}")
               {
                   name, email, dateOfBirth, biologicalSex, ethnicGroup, cpf
               }
@@ -91,7 +93,7 @@ const Register = (props) => {
                     setRestrictions(info.data.getFoodRestrictions);
                 },
                 `{
-                  getFoodRestrictions(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+                  getFoodRestrictions(uuidPatient: "${params.id}")
               {
                   uuid, foodName
               }
@@ -111,14 +113,14 @@ const Register = (props) => {
                         (message) => setMessage(message),
                         (info) => {
                             setQueryTotal(info.data['searchFood'].length);
+                            setPage(0);
                         },
                         `query {
-                          searchFood(uuidUser: "${localStorage.getItem('uuid')}", partialFoodName: "${restrictionQuery}") {
+                          searchFood(partialFoodName: "${restrictionQuery}", indexPage: 0, sizePage: 1000000000) {
                               uuid
                           }
                       }`
                     );
-                    searchFood();
                 } else {
                     setQueryResults(null);
                 }
@@ -127,7 +129,7 @@ const Register = (props) => {
         return () => {
             clearTimeout(timer);
         };
-    }, [restrictionQuery, searchRef, searchFood]);
+    }, [restrictionQuery, searchRef]);
 
     const clearFields = () => {
         setName('');
@@ -183,7 +185,7 @@ const Register = (props) => {
                     setRedirectUrl('/pacientes');
                 },
                 `mutation{
-                  createPatient(uuidUser: "${localStorage.getItem('uuid')}", input: {
+                  createPatient(input: {
     name: "${name}",
     dateOfBirth: "${dob}",
     biologicalSex: ${mapSex(sex)},
@@ -223,7 +225,7 @@ const Register = (props) => {
                 clearFields();
             },
             `mutation{
-              updateFoodRestrictions(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}", \
+              updateFoodRestrictions(uuidPatient: "${params.id}", \
 uuidFoods: [${restrictions.map(res => `"${res.uuid}"`)}])
           }`,
         );

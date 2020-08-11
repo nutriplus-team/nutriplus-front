@@ -38,7 +38,7 @@ class Patient extends Component {
           page: 0
       }),
       `query {
-          getPatientRecords(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${this.props.match.params.id}", indexPage: 0, sizePage: 1000000000)
+          getPatientRecords(uuidPatient: "${this.props.match.params.id}", indexPage: 0, sizePage: 1000000000)
       {
           dateModified
       }
@@ -56,7 +56,7 @@ class Patient extends Component {
           redirectUrl: redirect ? `/pacientes/${this.props.match.params.id}` : null
       }),
       `query {
-          getPatientRecords(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${this.props.match.params.id}", indexPage: ${this.state.page}, sizePage: ${pageSize})
+          getPatientRecords(uuidPatient: "${this.props.match.params.id}", indexPage: ${this.state.page}, sizePage: ${pageSize})
       {
           dateModified, uuid
       }
@@ -83,7 +83,7 @@ class Patient extends Component {
           }),
           (info) => this.setState({info: info.data.getPatientInfo}),
           `query {
-            getPatientInfo(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+            getPatientInfo(uuidPatient: "${params.id}")
             {
                 uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
             }
@@ -97,7 +97,7 @@ class Patient extends Component {
               this.setState({restrictions: info.data.getFoodRestrictions});
           },
           `{
-            getFoodRestrictions(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+            getFoodRestrictions(uuidPatient: "${params.id}")
         {
             uuid, foodName
         }
@@ -134,7 +134,7 @@ class Patient extends Component {
               this.setState({ redirectUrl: '/pacientes?refresh=true' });
           },
           `mutation{
-            removePatient(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+            removePatient(uuidPatient: "${params.id}")
         }
         `
       );

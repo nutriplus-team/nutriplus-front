@@ -52,7 +52,7 @@ class PatientRecordCreator extends Component {
           }),
           (info) => this.setState({patient: info.data.getPatientInfo}),
           `query {
-            getPatientInfo(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}")
+            getPatientInfo(uuidPatient: "${params.id}")
             {
                 uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
             }
@@ -246,7 +246,7 @@ class PatientRecordCreator extends Component {
           `mutation {
             ${this.state.editing ?
               `updatePatientRecord(uuidPatientRecord: ${params.ficha_id}"`
-              : `createPatientRecord(uuidUser: "${localStorage.getItem('uuid')}", uuidPatient: "${params.id}"`},
+              : `createPatientRecord(uuidPatient: "${params.id}"`},
                                 input: {
                                     methodBodyFat: "${this.state.methabolicAuthor}",
                                     methodMethabolicRate: "${this.state.energyRequirements}",
