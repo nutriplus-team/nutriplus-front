@@ -45,25 +45,34 @@ class PatientRecordCreator extends Component {
   componentDidMount = async () => {
       const { params } = this.props.match;
       sendAuthenticatedRequest(
-          `/patients/get-info/${params.id}/`,
-          'get',
+          '/graphql/get/',
+          'post',
           (message) => this.setState({
-              message,
+              message: message,
           }),
-          (info) => this.setState({ patient: info, message: null }),
+          (info) => this.setState({patient: info.data.getPatientInfo}),
+          `query {
+            getPatientInfo(uuidPatient: "${params.id}")
+            {
+                uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
+            }
+          }`
       );
       if (params.ficha_id) {
           sendAuthenticatedRequest(
-              `/patients/get-single-record/${params.ficha_id}/`,
-              'get',
-              (message) => this.setState({ message }),
+              '/graphql/get/',
+              'post',
+              (message) => this.setState({
+                  message: message,
+              }),
               (info) => {
+                  info = info.data.getSingleRecord;
                   this.setState({
-                      weight: info.corporal_mass,
+                      weight: info.corporalMass,
                       height: info.height,
-                      athlete: info.is_athlete === true ? 'Atleta' : 'Não atleta',
+                      athlete: info.isAthlete === true ? 'Atleta' : 'Não atleta',
                       physicalActivity: this.mapNumberToPhysicalActivityOption(
-                          info.physical_activity_level,
+                          info.physicalActivityLevel,
                       ),
                       subscapular: info.subscapular,
                       triceps: info.triceps,
@@ -74,15 +83,22 @@ class PatientRecordCreator extends Component {
                       abdominal: info.abdominal,
                       thigh: info.thigh,
                       calf: info.calf,
-                      waistCirc: info.waist_circ,
-                      abdominalCirc: info.abdominal_circ,
-                      hipsCirc: info.hips_circ,
-                      rightArmCirc: info.right_arm_circ,
-                      thighCirc: info.thigh_circ,
-                      calfCirc: info.calf_circ,
+                      waistCirc: info.waistCirc,
+                      abdominalCirc: info.abdominalCirc,
+                      hipsCirc: info.hipsCirc,
+                      rightArmCirc: info.rightArmCirc,
+                      thighCirc: info.thighCirc,
+                      calfCirc: info.calfCirc,
                       obs: info.observations,
                   });
               },
+              `query {
+                getSingleRecord(uuidRecord: "${params.ficha_id}")
+                {
+                    corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
+                    supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations
+                }
+              }`
           );
           this.setState({ editing: true });
       }
@@ -90,7 +106,6 @@ class PatientRecordCreator extends Component {
 
   sendForm = async () => {
       const { params } = this.props.match;
-      const BMI = +this.state.weight / (+this.state.height * +this.state.height);
       if (
           !(
               +this.state.weight > 0.1
@@ -130,10 +145,8 @@ class PatientRecordCreator extends Component {
           });
           return;
       }
-      let url; 
       let setStateFunction;
       if (!this.state.editing) {
-          url = `/patients/add-record/${params.id}/`;
           setStateFunction = () => this.setState({
               message: 'Ficha salva com sucesso!',
               weight: '',
@@ -161,7 +174,6 @@ class PatientRecordCreator extends Component {
               redirectUrl: `/pacientes/${params.id}?refresh=true`,
           });
       } else {
-          url = `/patients/edit-record/${params.ficha_id}/`;
           setStateFunction = () => this.setState({
               message: 'Ficha editada com sucesso!',
               weight: '',
@@ -223,43 +235,43 @@ class PatientRecordCreator extends Component {
       })
     ); */
       sendAuthenticatedRequest(
-          url,
+          '/graphql/get/',
           'post',
           (message) => {
               this.setState({
-                  message,
+                  message: message,
               });
           },
           setStateFunction,
-          JSON.stringify({
-              corporal_mass: (+this.state.weight).toFixed(2),
-              height: (+this.state.height).toFixed(2),
-              BMI: BMI.toFixed(2),
-              is_athlete: this.state.athlete === 'Atleta',
-              physical_activity_level: this.mapPhysicalActivityOptionToNumber(
-                  this.state.physicalActivity,
-              ),
-              methabolic_author: this.state.methabolicAuthor,
-              energy_method: this.mapEnergyRequirementsOptionToNumber(
-                  this.state.energyRequirements,
-              ),
-              subscapular: this.state.subscapular,
-              triceps: this.state.triceps,
-              biceps: this.state.biceps,
-              chest: this.state.chest,
-              supriailiac: this.state.supriailiac,
-              axillary: this.state.axillary,
-              abdominal: this.state.abdominal,
-              thigh: this.state.thigh,
-              calf: this.state.calf,
-              waist_circ: this.state.waistCirc,
-              abdominal_circ: this.state.abdominalCirc,
-              hips_circ: this.state.hipsCirc,
-              right_arm_circ: this.state.rightArmCirc,
-              thigh_circ: this.state.thighCirc,
-              calf_circ: this.state.calfCirc,
-              observations: this.state.obs,
-          }),
+          `mutation {
+            ${this.state.editing ?
+              `updatePatientRecord(uuidPatientRecord: ${params.ficha_id}"`
+              : `createPatientRecord(uuidPatient: "${params.id}"`},
+                                input: {
+                                    methodBodyFat: "${this.state.methabolicAuthor}",
+                                    methodMethabolicRate: "${this.state.energyRequirements}",
+                                    corporalMass: ${(+this.state.weight).toFixed(2)},
+                                    height: ${(+this.state.height).toFixed(2)},
+                                    isAthlete: ${this.state.athlete === 'Atleta'},
+                                    physicalActivityLevel: ${this.mapPhysicalActivityOptionToNumber(this.state.physicalActivity)},
+                                    observations: "${this.state.obs}",
+                                    subscapular: ${this.state.subscapular},
+                                    triceps: ${this.state.triceps},
+                                    biceps: ${this.state.biceps},
+                                    chest: ${this.state.chest},
+                                    axillary: ${this.state.axillary},
+                                    abdominal: ${this.state.abdominal},
+                                    supriailiac: ${this.state.supriailiac},
+                                    thigh: ${this.state.thigh},
+                                    calf: ${this.state.calf},
+                                    waistCirc: ${this.state.waistCirc},
+                                    abdominalCirc: ${this.state.abdominalCirc},
+                                    hipsCirc:   ${this.state.hipsCirc},
+                                    rightArmCirc: ${this.state.rightArmCirc},
+                                    thighCirc:  ${this.state.thighCirc},
+                                    calfCirc:   ${this.state.calfCirc},
+                                })
+          }`
       );
   };
 
@@ -308,12 +320,12 @@ class PatientRecordCreator extends Component {
       {
           key: 'Pollok',
           text: 'Pollok',
-          value: 'Pollok',
+          value: 'pollok',
       },
       {
           key: 'Faulkner',
           text: 'Faulkner',
-          value: 'Faulkner',
+          value: 'faulkner',
       },
   ];
 
@@ -321,22 +333,22 @@ class PatientRecordCreator extends Component {
       {
           key: 'Tinsley com peso total',
           text: 'Tinsley com peso total',
-          value: 'Tinsley com peso total',
+          value: 'tinsley',
       },
       {
           key: 'Tinsley com peso livre de gordura',
           text: 'Tinsley com peso livre de gordura',
-          value: 'Tinsley com peso livre de gordura',
+          value: 'tinsley_no_fat',
       },
       {
           key: 'Cunningham com peso livre de gordura',
           text: 'Cunningham com peso livre de gordura',
-          value: 'Cunningham com peso livre de gordura',
+          value: 'cunningham',
       },
       {
           key: 'Mifflin (não atletas)',
           text: 'Mifflin (não atletas)',
-          value: 'Mifflin (não atletas)',
+          value: 'mifflin',
       },
   ];
 

@@ -48,21 +48,21 @@ const patientCard = (props) => (
                     <Item.Description>
                         <List horizontal>
                             <List.Item >
-                                <List.Header>Data de nascimento</List.Header>{props.info.date_of_birth}
+                                <List.Header>Data de nascimento</List.Header>{props.info.dateOfBirth}
                             </List.Item>
                             <List.Item >
-                                <List.Header>Sexo</List.Header>{props.info.biological_sex === 0 ? 'Feminino' : 'Masculino'}
+                                <List.Header>Sexo</List.Header>{props.info.biologicalSex === 0 ? 'Feminino' : 'Masculino'}
                             </List.Item>
                             <List.Item >
-                                <List.Header>Etnia</List.Header>{props.info.ethnic_group === 0 ? 'Branco/Hispânico' : 'Afroamericano'}
+                                <List.Header>Etnia</List.Header>{props.info.ethnicGroup === 0 ? 'Branco/Hispânico' : 'Afroamericano'}
                             </List.Item>
                             <List.Item >
                                 <List.Header>Restrições alimentares</List.Header>
-                                {props.info.food_restrictions.length === 0
+                                {props.restrictions.length === 0
                                     ? 'Não há'
-                                    : props.info.food_restrictions.reduce(
+                                    : props.restrictions.reduce(
                                         (bigString, elem, index, arr) => bigString
-                            + elem.food_name
+                            + elem.foodName
                             + (index === arr.length - 1 ? '' : ', '),
                                         '',
                                     )}

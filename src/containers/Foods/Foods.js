@@ -5,9 +5,11 @@ import FoodsSearchInput from './FoodsSearchInput/FoodsSearchInput';
 
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import FoodsModal from '../../components/FoodsModal/FoodsModal';
-import FoodsTable from '../../components/FoodsTable/FoodsTable';
+import FoodsTable from './FoodsTable/FoodsTable';
 
 import { sendAuthenticatedRequest } from '../../utility/httpHelper';
+
+const pageSize = 10;
 
 const FoodDatabaseEditor = () => {
     const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
@@ -17,71 +19,108 @@ const FoodDatabaseEditor = () => {
     const [foodInfo, setFoodInfo] = useState(null);
     const [foodNameQuery, setFoodNameQuery] = useState('');
     const [error, setError] = useState(null);
-    const [hasPrevious, setHasPrevious] = useState(false);
-    const [hasNext, setHasNext] = useState(false);
 
-    const requestFoodInfo = () => {
+    const [queryString, setQueryString] = useState('');
+    const [totalLength, setTotalLength] = useState(0);
+    const [page, setPage] = useState(0);
+
+    const requestFoodInfo = (currPage) => {
         sendAuthenticatedRequest(
-            '/foods/list-foods-pagination/',
-            'get',
+            '/graphql/get/',
+            'post',
             (message) => setError(message),
             (info) => {
+                const newTotalLength = (currPage * pageSize) + info.data['listFoodPaginated'].length + 1;
+                console.log(currPage, pageSize, info.data['listFoodPaginated'].length, newTotalLength);
+                setTotalLength(newTotalLength);
+
+                setQueryString('listFoodPaginated');
                 setFoodInfo(info);
+
                 setError(null);
-                setHasPrevious(false);
-                setHasNext(info.next !== null);
                 setLoaded(true);
-                setError(null);
             },
+            `query {
+                listFoodPaginated(indexPage: ${currPage}, sizePage: ${pageSize}) {
+                    uuid,
+                    foodName,
+                    foodGroup,
+                    measureTotalGrams,
+                    measureType,
+                    measureAmount
+                }
+            }`
         );
     };
     useEffect(() => {
-        requestFoodInfo();
-    }, []);
+        requestFoodInfo(page);
+    }, [page]);
 
     const makeQuery = (foodName) => {
         setFoodNameQuery(foodName);
         setLoaded(false);
 
-        if (foodName === '')
-            requestFoodInfo();
-        else
+        if (foodName === ''){
+            console.log('been here', page);
+            requestFoodInfo(page);
+        }
+        else {
+            console.log('or here');
             sendAuthenticatedRequest(
-                `/foods/search/${foodName}/`,
-                'get',
+                '/graphql/get/',
+                'post',
                 (message) => setError(message),
                 (info) => {
+                    setTotalLength(info.data['searchFood'] === null ? 0 : info.data['searchFood'].length);
+
+                    setQueryString('searchFood');
+                    if (info.data.searchFood === null)
+                        info.data.searchFood = [];
                     setFoodInfo(info);
                     setError(null);
-                    setHasPrevious(false);
-                    setHasNext(info.next !== null);
+                    
                     setLoaded(true);
                     setError(null);
                 },
-            );      
+                `query {
+                    searchFood(partialFoodName: "${foodName}", indexPage: ${0}, sizePage: ${pageSize}) {
+                        uuid,
+                        foodName,
+                        foodGroup,
+                        measureTotalGrams,
+                        measureType,
+                        measureAmount,
+                    }
+                }`
+            );     
+        } 
     };
 
     const clickEdition = (foodId, foodIdx) => {
-        const food = foodInfo.results[foodIdx];
-        if (food.id !== foodId)
+        console.log('clicked');
+        const food = foodInfo.data[queryString][foodIdx];
+        if (food.uuid !== foodId)
             return;
         setSelectedFood(food);
         setOpenFoodsModal(true);
     };
 
     const removeFood = () => {
-        const foodId = selectedFood.id;
+        const foodId = selectedFood.uuid;
         setFoodNameQuery('');
         setLoaded(false);
         setOpenConfirmationModal(false);
         sendAuthenticatedRequest(
-            `/foods/remove/${foodId}/`,
-            'get',
+            '/graphql/get/',
+            'post',
             (message) => setError(message),
             () => {
-                requestFoodInfo();
+                requestFoodInfo(page);
             },
-        );  
+            `mutation {
+                removeFood(uuidFood: "${foodId}")
+            }`
+        );    
     };
 
     const removeFoodPreparation = (foodId, foodIdx) => {
@@ -101,7 +140,13 @@ const FoodDatabaseEditor = () => {
         setFoodNameQuery('');
         setOpenFoodsModal(false);
         setLoaded(false);
-        requestFoodInfo();
+        requestFoodInfo(page);
+    };
+
+    const changePage = (page) => {
+        console.log(page);
+        setLoaded(false);
+        setPage(page);
     };
 
     return (
@@ -129,11 +174,12 @@ const FoodDatabaseEditor = () => {
                       error={ error }
                       setError={ setError }
                       foodInfo={ foodInfo }
+                      queryString={ queryString }
+                      totalLength={ totalLength }
+                      pageSize={ pageSize }
+                      page={ page }
+                      changePage={ changePage }
                       setFoodInfo={ setFoodInfo }
-                      hasPrevious={ hasPrevious }
-                      setHasPrevious={ setHasPrevious }
-                      hasNext={ hasNext }
-                      setHasNext={ setHasNext }
                       handleAdd={ buttonAdd }
                       handleClick={ clickEdition }
                       handleRemove={ removeFoodPreparation }
