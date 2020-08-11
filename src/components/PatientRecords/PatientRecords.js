@@ -45,7 +45,7 @@ const patientRecords = (props) => { console.log(props.recordQueryInfo); return (
                           <span>Data: {record.dateModified}</span>
                           <span>Peso:{record.corporalMass}</span>
                           <span>Altura:{record.height}</span>
-                          <span>IMC:{Number(record.corporalMass / (record.height ^2)).toFixed(1)}</span>
+                          <span>IMC:{Number(record.corporalMass / (record.height * record.height)).toFixed(1)}</span>
                           </div>
                         ) }
                         setMessage={ props.setMessage }
