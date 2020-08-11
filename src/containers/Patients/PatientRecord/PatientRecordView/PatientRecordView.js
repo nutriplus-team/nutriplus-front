@@ -3,13 +3,22 @@ import { Grid, Header, Segment, Button} from 'semantic-ui-react';
 
 const patientRecordView = (props) => {
 
-    /*{this.state.record ? (
-        <div>
-            {Object.keys(this.state.record).map((key) => (
-                <p key={ key }>{this.processObjectKey(key)}</p>
-            ))}
-        </div>
-    ) : null}*/
+    const mapNumberToPhysicalActivityOption = (number) => {
+        switch (+number) {
+        case 1:
+            return 'Não faz atividade física';
+        case 1.2:
+            return 'Sedentário';
+        case 1.3:
+            return 'Atividade física leve';
+        case 1.5:
+            return 'Atividade física moderada';
+        case 1.7:
+            return 'Atividade física intensa';
+        default:
+            return 'Wrong function usage';
+        }
+    };
 
     return (
         <>
@@ -17,61 +26,29 @@ const patientRecordView = (props) => {
             textAlign="center"
             style={ { height: '10vh' } }
         >
+            {console.log(props)}
             <Grid.Column style={ { maxWidth: 900 }}>
                 <Header as="h2" color="teal" textAlign="center">
                     Resumo
                 </Header>
 
-                <Segment textAlign="left">
-                    <h3>Taxas metabólicas:</h3>
-                    <Segment.Group>
-                        <Segment>
-                            <Grid columns="equal">
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <Segment><h4>Tinsley com peso total:</h4> </Segment>
-                                    </Grid.Column>
-                                    <Grid.Column>
-                                        <Segment><h4>Tinsley livre de gordura:</h4> </Segment>
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <Segment><h4>Cunninghan:</h4> </Segment>
-                                    </Grid.Column>
-                                    <Grid.Column>
-                                        <Segment><h4>Miffin:</h4> </Segment>
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid>
-                        </Segment>
-                    </Segment.Group>
-                </Segment>
-
-                <Segment textAlign="left">
-                    <h3>Taxa de gordurda:</h3>
-                    <Segment.Group>
-                        <Segment>
-                            <Grid columns="equal">
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <Segment><h4>Pollok:</h4> </Segment>
-                                    </Grid.Column>
-                                    <Grid.Column>
-                                        <Segment><h4>Foulkner:</h4> </Segment>
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid>
-                        </Segment>
-                    </Segment.Group>
-                </Segment>
+                <Grid columns="equal">
+                    <Grid.Row>
+                        <Grid.Column>
+                            <Segment><h4>Taxa de gordura por {props.record.methodBodyFat}:</h4> {props.record.bodyFat.toFixed(2)} </Segment>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <Segment><h4>Taxa metabólica por {props.record.methodMethabolicRate}:</h4> {props.record.methabolicRate.toFixed(2)} </Segment>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
 
                 <Segment>
                     <Segment textAlign="left">
                         <h4>Anamnese:</h4>
                         <Segment.Group>
                             <Segment>
-                                asojdasijd
+                                TODO
                             </Segment>
                         </Segment.Group>
                     </Segment>
@@ -80,50 +57,51 @@ const patientRecordView = (props) => {
                         <h4>Exame:</h4>
                         <Segment.Group>
                             <Segment>
-                                asojdasijd
+                                TODO
                             </Segment>
                         </Segment.Group>
                     </Segment>
 
                     <Grid
                       columns="equal"
-                      textAlign="left"
+                      textAlign="center"
                     >
                         <Grid.Column>
-                            <Segment><h4>Peso:</h4> </Segment>
+                            <Segment><h4>Peso:</h4> {props.record.corporalMass} Kg</Segment>
                         </Grid.Column>
                         <Grid.Column>
-                            <Segment><h4>Altura:</h4> </Segment>
+                            <Segment><h4>Altura:</h4> {props.record.height} m</Segment>
                         </Grid.Column>
                         <Grid.Column>
-                            <Segment><h4>IMC:</h4></Segment>
+                            <Segment><h4>IMC:</h4> {(props.record.corporalMass/(props.record.height*props.record.height)).toFixed(2)}</Segment>
                         </Grid.Column>
                     </Grid>
 
                     <Grid
                       columns="equal"
-                      textAlign="left"
+                      textAlign="center"
                     >
                         <Grid.Column>
-                            <Segment><h4>Massa muscular:</h4> </Segment>
+                            <Segment><h4>Massa muscular:</h4> {props.record.muscularMass.toFixed(3)} </Segment>
                         </Grid.Column>
                         <Grid.Column>
-                            <Segment><h4>Necessidades energéticas:</h4> </Segment>
+                            <Segment><h4>Necessidades energéticas:</h4> {props.record.energyRequirements.toFixed(2)} </Segment>
                         </Grid.Column>
                         <Grid.Column>
-                            <Segment><h4>Densidade corporal:</h4></Segment>
+                            <Segment><h4>Densidade corporal:</h4> {props.record.corporalDensity.toFixed(3)} </Segment>
                         </Grid.Column>
                     </Grid>
 
                     <Grid
                       columns="equal"
-                      textAlign="left"
+                      textAlign="center"
                     >
                         <Grid.Column>
-                            <Segment><h4>Atleta:</h4> </Segment>
+                            <Segment><h4>Atleta:</h4> {props.record.isAthlete ? 'Sim' : 'Não'} </Segment>
                         </Grid.Column>
                         <Grid.Column>
-                            <Segment><h4>Nível de atividade física:</h4> </Segment>
+                            <Segment><h4>Nível de atividade física:</h4> 
+                            {mapNumberToPhysicalActivityOption(props.record.physicalActivityLevel)} </Segment>
                         </Grid.Column>
                     </Grid>
 
@@ -134,35 +112,35 @@ const patientRecordView = (props) => {
                                 <Grid columns="equal">
                                     <Grid.Row>
                                         <Grid.Column>
-                                            <Segment>Subscapula: mm</Segment>
+                                            <Segment>Subscapula: {props.record.subscapular} mm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Triceps: mm</Segment>
+                                            <Segment>Triceps: {props.record.triceps} mm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Biceps: mm</Segment>
-                                        </Grid.Column>
-                                    </Grid.Row>
-                                    <Grid.Row>
-                                        <Grid.Column>
-                                            <Segment>Peitoral: mm</Segment>
-                                        </Grid.Column>
-                                        <Grid.Column>
-                                            <Segment>Axiola média: mm</Segment>
-                                        </Grid.Column>
-                                        <Grid.Column>
-                                            <Segment>Suproilíaca: mm</Segment>
+                                            <Segment>Biceps: {props.record.biceps} mm</Segment>
                                         </Grid.Column>
                                     </Grid.Row>
                                     <Grid.Row>
                                         <Grid.Column>
-                                            <Segment>Abdominal: mm</Segment>
+                                            <Segment>Peitoral: {props.record.chest} mm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Coxa: mm</Segment>
+                                            <Segment>Axiola média: {props.record.axillary} mm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Panturrilha: mm</Segment>
+                                            <Segment>Suproilíaca: {props.record.supriailiac} mm</Segment>
+                                        </Grid.Column>
+                                    </Grid.Row>
+                                    <Grid.Row>
+                                        <Grid.Column>
+                                            <Segment>Abdominal: {props.record.abdominal} mm</Segment>
+                                        </Grid.Column>
+                                        <Grid.Column>
+                                            <Segment>Coxa: {props.record.thigh} mm</Segment>
+                                        </Grid.Column>
+                                        <Grid.Column>
+                                            <Segment>Panturrilha: {props.record.calf} mm</Segment>
                                         </Grid.Column>
                                     </Grid.Row>
                                 </Grid>
@@ -177,24 +155,24 @@ const patientRecordView = (props) => {
                                 <Grid columns="equal">
                                     <Grid.Row>
                                         <Grid.Column>
-                                            <Segment>Cintura: cm</Segment>
+                                            <Segment>Cintura: {props.record.waistCirc} cm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Abdominal: cm</Segment>
+                                            <Segment>Abdominal: {props.record.abdominalCirc} cm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Quadril: cm</Segment>
+                                            <Segment>Quadril: {props.record.hipsCirc} cm</Segment>
                                         </Grid.Column>
                                     </Grid.Row>
                                     <Grid.Row>
                                         <Grid.Column>
-                                            <Segment>Braço direito: cm</Segment>
+                                            <Segment>Braço direito: {props.record.rightArmCirc} cm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Coxa média: cm</Segment>
+                                            <Segment>Coxa média: {props.record.thighCirc} cm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Panturrilha: cm</Segment>
+                                            <Segment>Panturrilha: {props.record.calfCirc} cm</Segment>
                                         </Grid.Column>
                                     </Grid.Row>
                                 </Grid>
@@ -206,7 +184,7 @@ const patientRecordView = (props) => {
                         <h4>Observações:</h4>
                         <Segment.Group>
                             <Segment>
-                                asojdasijd
+                            {props.record.observations}
                             </Segment>
                         </Segment.Group>
                     </Segment>

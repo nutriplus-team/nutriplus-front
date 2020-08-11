@@ -744,7 +744,7 @@ Paciente:
                                 value={ this.state.obs }
                                 style={ { marginBottom: '10px' } }
                               />
-                              {this.state.editing ? <Button size='large' onClick={ () => this.props.history.push(`/pacientes/${params.id}`) }>
+                              {this.state.editing ? <Button size='large' onClick={ () => this.props.history.push(`/pacientes/${params.id}/ficha/${params.ficha_id}`) }>
                                 Voltar
                               </Button> : ''}
                               <Button color="teal" size="large" onClick={ this.sendForm }>
