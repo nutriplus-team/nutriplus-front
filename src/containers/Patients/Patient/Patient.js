@@ -43,7 +43,7 @@ class Patient extends Component {
       `query {
           getPatientRecords(uuidPatient: "${this.props.match.params.id}", indexPage: 0, sizePage: 1000000000)
       {
-          dateModified, uuid, corporalMass, height
+          dateModified, uuid
       }
       }`
   );

@@ -19,6 +19,7 @@ class Subscribe extends Component {
       password2: '',
       loading: false,
       hasError: false,
+      displayMessage: false,
       errorMsg: {
           header: '',
           content: '',
@@ -69,6 +70,7 @@ class Subscribe extends Component {
       if (this.state.name.length === 0 || this.state.username.length === 0 || this.state.surname.length === 0 || 
         this.state.email.length === 0 || this.state.password.length === 0 || this.state.password2.length === 0){
           this.setState({
+              displayMessage: true,
               hasError: true,
               errorMsg: {
                   header: 'Campos não preenchidos.',
@@ -80,6 +82,7 @@ class Subscribe extends Component {
 
       if (this.state.password !== this.state.password2){
           this.setState({
+              displayMessage: true,
               hasError: true,
               errorMsg: {
                   header: 'As senhas são são iguais!',
@@ -91,6 +94,7 @@ class Subscribe extends Component {
 
       if (!emailValidator(this.state.email)) {
           this.setState({
+              displayMessage: true,
               hasError: true,
               errorMsg: {
                   header: 'Email inválido.',
@@ -136,21 +140,34 @@ class Subscribe extends Component {
               password: '',
               password2: '',
               loading: false,
-              hasError: true,
+              hasError: false,
+              displayMessage: true,
               errorMsg: {
                   header: 'Cadastro realizado.',
                   content: 'Complete o cadastro verificando o seu e-mail.',
               }
           });
       } else {
-          this.setState({
-              loading: false,
-              hasError: true,
-              errorMsg: {
-                  header: 'Erro ao se comunicar com o serviço.',
-                  content: 'Por favor, tente mais tarde.',
-              },
-          });
+          if (info.message.substr(0, 8) === 'Password')
+              this.setState({
+                  loading: false,
+                  hasError: true,
+                  displayMessage: true,
+                  errorMsg: {
+                      header: 'Senha fraca.',
+                      content: 'Use uma senha mais forte.',
+                  },
+              });
+          else
+              this.setState({
+                  loading: false,
+                  hasError: true,
+                  displayMessage: true,
+                  errorMsg: {
+                      header: 'Erro ao se comunicar com o serviço.',
+                      content: 'Por favor, tente mais tarde.',
+                  },
+              });
       }
   };
 
@@ -168,11 +185,11 @@ class Subscribe extends Component {
           <Form
             size='large'
             onSubmit={ this.register }
-            error={ this.state.hasError }
+            error={ this.state.displayMessage }
             loading={ this.state.loading }
           >
             <Segment stacked>
-              <Message error header={ this.state.errorMsg.header } content={ this.state.errorMsg.content }/>
+              <Message hidden={ !this.state.displayMessage } error={ this.state.hasError } header={ this.state.errorMsg.header } content={ this.state.errorMsg.content }/>
 
               <Form.Input
                 fluid
