@@ -27,7 +27,8 @@ class Patient extends Component {
       error: null,
       redirectUrl: null,
       confirmation: false,
-      page: null
+      page: null,
+      totalRecords: null
   };
 
   getAllRecords = async () => sendAuthenticatedRequest(
@@ -37,7 +38,7 @@ class Patient extends Component {
           error: message,
       }),
       (info) => this.setState({
-          recordQueryInfo: info,
+          totalRecords: info.data['getPatientRecords'].length,
           page: 0
       }),
       `query {
@@ -55,7 +56,7 @@ class Patient extends Component {
           error: message,
       }),
       (info) => this.setState({
-          patientsQueryInfo: info,
+          recordQueryInfo: info,
           redirectUrl: redirect ? `/pacientes/${this.props.match.params.id}` : null
       }),
       `query {

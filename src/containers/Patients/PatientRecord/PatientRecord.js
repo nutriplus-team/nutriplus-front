@@ -34,8 +34,9 @@ class PatientRecord extends Component {
           `query {
             getSingleRecord(uuidRecord: "${params.ficha_id}")
             {
-                corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
-                supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations
+                dateModified, corporalMass, height, age, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
+                supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
+                muscularMass, corporalDensity, bodyFat, methabolicRate, energyRequirements, methodBodyFat, methodMethabolicRate
             }
           }`
       );
@@ -88,9 +89,6 @@ class PatientRecord extends Component {
       }
       if (key === 'height') {
           return `Altura: ${this.state.record[key].toFixed(2)} m`;
-      }
-      if (key === 'BMI') {
-          return `IMC: ${this.state.record[key].toFixed(2)}`;
       }
       if (key === 'observations') {
           return `Observações: ${this.state.record[key]}`;
@@ -149,20 +147,17 @@ class PatientRecord extends Component {
               `Circunferência da panturrilha: ${this.state.record[key].toFixed(2)}`
           );
       }
-      if (key === 'bodyFatFaulkner') {
+      if (key === 'bodyFat') {
           return (
-              `Taxa de gordura por Faulkner: ${this.state.record[key].toFixed(2)}`
+              `Taxa de gordura: ${this.state.record[key].toFixed(2)} (${this.state.record['methodBodyFat']})`
           );
-      }
-      if (key === 'bodyFatPollok') {
-          return `Taxa de gordura por Pollok: ${this.state.record[key].toFixed(2)}`;
       }
       if (key === 'corporalDensity') {
           return `Densidade corporal: ${this.state.record[key].toFixed(2)}`;
       }
-      if (key === 'cunninghamAthlete') {
+      if (key === 'methabolicRate') {
           return (
-              `Taxa metabólica por Cunningham: ${this.state.record[key].toFixed(2)}`
+              `Taxa metabólica: ${this.state.record[key].toFixed(2)} (${this.state.record['methodMethabolicRate']})`
           );
       }
       if (key === 'energyRequirements') {
@@ -180,24 +175,14 @@ class PatientRecord extends Component {
                   this.mapNumberToPhysicalActivityOption(this.state.record[key])}`
           );
       }
-      if (key === 'tinsleyAthleteNonFat') {
-          return (
-              `Taxa metabólica por Tinsley: ${this.state.record[key].toFixed(2)}`
-          );
-      }
-      if (key === 'totalWeightMethabolicRate') {
-          return (
-              `Taxa metabólica com peso total: ${this.state.record[key].toFixed(2)}`
-          );
-      }
       return null;
   };
 
   deleteRecord = async () => {
       const { params } = this.props.match;
       sendAuthenticatedRequest(
-          `/patients/remove-record/${params.ficha_id}/`,
-          'get',
+          '/graphql/get/',
+          'post',
           (message) => {
               this.setState({
                   error: message,
@@ -208,6 +193,9 @@ class PatientRecord extends Component {
                   redirectUrl: `/pacientes/${params.id}/?refresh=true`,
               });
           },
+          `mutation {
+              removePatientRecord(uuidPatientRecord: "${params.ficha_id}")
+          }`
       );
   };
 
