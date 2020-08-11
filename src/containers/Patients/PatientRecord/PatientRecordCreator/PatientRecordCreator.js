@@ -245,7 +245,7 @@ class PatientRecordCreator extends Component {
           setStateFunction,
           `mutation {
             ${this.state.editing ?
-              `updatePatientRecord(uuidPatientRecord: ${params.ficha_id}"`
+              `updatePatientRecord(uuidPatient: "${params.id}", uuidPatientRecord: "${params.ficha_id}"`
               : `createPatientRecord(uuidPatient: "${params.id}"`},
                                 input: {
                                     methodBodyFat: "${this.state.methabolicAuthor}",

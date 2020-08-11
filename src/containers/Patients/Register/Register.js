@@ -42,8 +42,8 @@ const Register = (props) => {
 
     const { params } = props.match;
 
-    const searchFood = useEffect(() => {
-        if (page != null)
+    useEffect(() => {
+        if (page != null && restrictionQuery !== '')
             sendAuthenticatedRequest(
                 '/graphql/get/',
                 'post',
@@ -192,7 +192,8 @@ const Register = (props) => {
     ethnicGroup: ${mapEthnicity(ethnicity)},
     nutritionist: "${localStorage.getItem('nutritionist_name')}",
     email: "${email}",
-    cpf: "${cpf}"
+    cpf: "${cpf}",
+    foodRestrictions: [${restrictions.map(res => `"${res.uuid}"`)}]
 })
                 }`,
             );
@@ -204,6 +205,7 @@ const Register = (props) => {
                 () => {
                     setMessage('Paciente editado com sucesso!');
                     setRedirectUrl(`/pacientes/${params.id}`);
+                    clearFields();
                 },
                 `mutation{
                   updatePatient(uuidPatient: "${params.id}", input: {
@@ -212,23 +214,13 @@ const Register = (props) => {
   biologicalSex: ${mapSex(sex)},
   ethnicGroup: ${mapEthnicity(ethnicity)},
   email: "${email}",
-  cpf: "${cpf}"
+  cpf: "${cpf}",
+  foodRestrictions: [${restrictions.map(res => `"${res.uuid}"`)}]
 })
               }`,
             );
         }
-        sendAuthenticatedRequest(
-            '/graphql/get/',
-            'post',
-            (message) => setMessage(message),
-            () => {
-                clearFields();
-            },
-            `mutation{
-              updateFoodRestrictions(uuidPatient: "${params.id}", \
-uuidFoods: [${restrictions.map(res => `"${res.uuid}"`)}])
-          }`,
-        );
+        
     };
 
     const handlefoodClick = (food) => {
@@ -405,7 +397,7 @@ uuidFoods: [${restrictions.map(res => `"${res.uuid}"`)}])
                   totalLength={ queryTotal }
                   pageSize={ pageSize }
                   page={ page }
-                  changePage={ (pageNumber) => {setPage(pageNumber); searchFood();} }
+                  changePage={ (pageNumber) => setPage(pageNumber) }
                   queryString={ 'searchFood' }
                   filter={ (food) => !restrictions.some(
                       (state_food) => state_food.foodName === food.foodName,
