@@ -6,98 +6,34 @@ import PatientRecordCreator from '../PatientRecord/PatientRecordCreator/PatientR
 
 class PatientAppoiment extends Component {
   state = {
-      recordQueryInfo: null,
-      menuInfo: null,
       info: null,
       error: null,
-      hasNext: false,
-      hasPrevious: false,
       redirectUrl: null,
   };
 
-  componentDidUpdate = async () => {
-      if (this.props.location.search.length > 0) {
-          const { params } = this.props.match;
-          const query = new URLSearchParams(this.props.location.search);
-          if (query.get('refresh')) {
-              sendAuthenticatedRequest(
-                  `/patients/get-records/${params.id}/`,
-                  'get',
-                  (message) => {
-                      this.setState({
-                          error: message,
-                      });
-                  },
-                  (recordInfo) => this.setState({
-                      recordQueryInfo: recordInfo,
-                      hasPrevious: false,
-                      hasNext: recordInfo.next !== null,
-                      redirectUrl: `/pacientes/${params.id}`,
-                  }),
-              );
-          }
-      }
-  };
-
   componentDidMount = async () => {
-      const { params } = this.props.match;
-      sendAuthenticatedRequest(
-          `/patients/get-info/${params.id}/`,
-          'get',
-          (message) => this.setState({
-              error: message,
-          }),
-          (info) => this.setState({ info }),
-      );
-      sendAuthenticatedRequest(
-          `/patients/get-records/${params.id}/`,
-          'get',
-          (message) => {
-              this.setState({
-                  error: message,
-              });
-          },
-          (recordInfo) => this.setState({
-              recordQueryInfo: recordInfo,
-              hasPrevious: false,
-              hasNext: recordInfo.next !== null,
-          }),
-      );
-      sendAuthenticatedRequest(
-          `/menu/get-all/${params.id}/`,
-          'get',
-          (message) => {
-              this.setState({
-                  error: message
-              });
-          },
-          (menuInfo) => this.setState({
-              menuInfo: menuInfo
-          })
-      );
-  };
-
-  deletePacient = async () => {
-      const { params } = this.props.match;
-      sendAuthenticatedRequest(
-          `/patients/remove-patient/${params.id}/`,
-          'get',
-          (message) => {
-              this.setState({
-                  error: message,
-              });
-          },
-          () => {
-              this.setState({ redirectUrl: '/pacientes?refresh=true' });
-          },
-      );
+    const { params } = this.props.match;
+    sendAuthenticatedRequest(
+        '/graphql/get/',
+        'post',
+        (message) => this.setState({
+            message: message,
+        }),
+        (info) => this.setState({info: info.data.getPatientInfo}),
+        `query {
+          getPatientInfo(uuidPatient: "${params.id}")
+          {
+              uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
+          }
+        }`
+    );
   };
 
   render() {
       const { params } = this.props.match;
       return (
           <div>
-              {this.state.error ? <p>{this.state.error}</p> : null}
+              {console.log(this.props)}
               {this.state.info ? (
                   <div>
                   <Grid style={ { margin: '20px' } }>

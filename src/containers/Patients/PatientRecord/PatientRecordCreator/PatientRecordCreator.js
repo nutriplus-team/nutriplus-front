@@ -11,6 +11,7 @@ import {
 } from 'semantic-ui-react';
 import { sendAuthenticatedRequest } from '../../../../utility/httpHelper';
 import { numberValidator } from '../../../../utility/validators';
+import PatientRecord from '../PatientRecord';
 
 class PatientRecordCreator extends Component {
   state = {
@@ -43,6 +44,7 @@ class PatientRecordCreator extends Component {
       editing: false,
       obs: '',
       redirectUrl: null,
+      createrecord: true
   };
 
   componentDidMount = async () => {
@@ -159,7 +161,7 @@ class PatientRecordCreator extends Component {
               methabolicAuthor: '',
               energyRequirements: '',
               subscapular: '',
-              triceps: '',
+              triceps: '',  
               biceps: '',
               chest: '',
               supriailiac: '',
@@ -174,7 +176,8 @@ class PatientRecordCreator extends Component {
               thighCirc: '',
               calfCirc: '',
               obs: '',
-              redirectUrl: `/pacientes/${params.id}?refresh=true`,
+              //redirectUrl: `/pacientes/${params.id}?refresh=true`,
+              createrecord: false,
           });
       } else {
           setStateFunction = () => this.setState({
@@ -201,8 +204,8 @@ class PatientRecordCreator extends Component {
               thighCirc: '',
               calfCirc: '',
               obs: '',
-              redirectUrl:
-            `/pacientes/${params.id}/ficha/${params.ficha_id}`,
+              //redirectUrl:
+            //`/pacientes/${params.id}/ficha/${params.ficha_id}`,
           });
       }
       /* console.log(
@@ -408,7 +411,9 @@ class PatientRecordCreator extends Component {
       const { params } = this.props.match;
 
       return (
-          <div>
+          <>
+          {this.state.createrecord ? 
+          (<div>
               <h4>
 Paciente:
                   {this.state.patient ? this.state.patient.name : null}
@@ -748,7 +753,9 @@ Paciente:
                   </Grid.Column>
               </Grid>
               {this.state.redirectUrl && <Redirect to={ this.state.redirectUrl } />}
-          </div>
+          </div>)
+          : <PatientRecord {...this.props} />}
+          </>
       );
   }
 }
