@@ -62,7 +62,6 @@ class Login extends Component {
 
           localStorage.setItem('stored_token', info.token);
           localStorage.setItem('stored_refresh', info.refresh);
-          localStorage.setItem('uuid', info.user.id);
           localStorage.setItem('stored_auth', 1);
           localStorage.setItem('nutritionist_name', `${info.user.firstName} ${info.user.lastName}`);
       } else if (res.status === 400) {

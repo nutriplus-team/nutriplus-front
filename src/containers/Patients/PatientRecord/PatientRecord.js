@@ -43,7 +43,7 @@ class PatientRecord extends Component {
               });
           },
           `query {
-            getPatientInfo(uuidUser: "${localStorage.getItem('uuid')}",uuidPatient: "${params.id}")
+            getPatientInfo(uuidPatient: "${params.id}")
             {
                 name
             }
