@@ -6,6 +6,7 @@ import { Button, Placeholder } from 'semantic-ui-react';
 import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 
 import ConfirmationModal from '../../../components/ConfirmationModal/ConfirmationModal';
+import PatientRecordView from '../PatientRecord/PatientRecordView/PatientRecordView';
 
 class PatientRecord extends Component {
   state = {
@@ -227,7 +228,7 @@ class PatientRecord extends Component {
   )
 
   render() {
-      // console.log("patientRecord state", this.state);
+       console.log("patientRecord state", this.state);
       const { params } = this.props.match;
       return (
           <div>
@@ -238,6 +239,7 @@ class PatientRecord extends Component {
                 handleRejection={ () => this.setState({ confirmation: false }) }
               />
               {this.state.error ? <p>{this.state.error}</p> : null}
+<<<<<<< HEAD
               {this.state.record ? (
                   <div>
                       {Object.keys(this.state.record).map((key) => (
@@ -245,6 +247,13 @@ class PatientRecord extends Component {
                       ))}
                   </div>
               ) : this._renderPlaceholder()}
+=======
+                <PatientRecordView
+                    record={this.state.record}
+                    patient={this.state.patient}
+                />
+              
+>>>>>>> b48ecb3e7c03271460ded08bd7c1293d23f93018
               <Button
                 style={ { margin: '10px' } }
                 color="teal"
