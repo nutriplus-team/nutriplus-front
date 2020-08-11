@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 
-import { Button, Placeholder } from 'semantic-ui-react';
+import { Placeholder } from 'semantic-ui-react';
 
 import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 
@@ -216,47 +216,18 @@ class PatientRecord extends Component {
                 handleRejection={ () => this.setState({ confirmation: false }) }
               />
               {this.state.error ? <p>{this.state.error}</p> : null}
+                
+              {this.state.record ? (
                 <PatientRecordView
                     record={this.state.record}
                     patient={this.state.patient}
+                    onlyView
+                    editButton={ () => this.props.history.push(`/pacientes/${params.id
+                    }/ficha/${params.ficha_id}/edit`,)}
+                    deleteButton={ this.deleteRecordPreparation }
+                    returnButton={ () => this.props.history.push(`/pacientes/${params.id}`) }
                 />
-              {this.state.record ? (
-                  <div>
-                      {Object.keys(this.state.record).map((key) => (
-                          <p key={ key }>{this.processObjectKey(key)}</p>
-                      ))}
-                  </div>
               ) : this._renderPlaceholder()}
-              <Button
-                style={ { margin: '10px' } }
-                color="teal"
-                size="small"
-                onClick={ () => this.props.history.push(
-                    `/pacientes/${
-                        params.id
-                    }/ficha/${
-                        params.ficha_id
-                    }/edit`,
-                ) }
-              >
-          Editar ficha do paciente
-              </Button>
-              <Button
-                style={ { margin: '200px auto' } }
-                color="red"
-                size="small"
-                onClick={ this.deleteRecordPreparation }
-              >
-          Excluir ficha
-              </Button>
-              <Button
-                style={ { margin: '10px' } }
-                color="teal"
-                size="medium"
-                onClick={ () => this.props.history.push(`/pacientes/${params.id}`) }
-              >
-          Voltar à página do paciente
-              </Button>
               {this.state.redirectUrl && <Redirect to={ this.state.redirectUrl } />}
           </div>
       );

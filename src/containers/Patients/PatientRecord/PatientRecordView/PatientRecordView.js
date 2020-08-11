@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Header, Segment} from 'semantic-ui-react';
+import { Grid, Header, Segment, Button} from 'semantic-ui-react';
 
 const patientRecordView = (props) => {
 
@@ -12,6 +12,7 @@ const patientRecordView = (props) => {
     ) : null}*/
 
     return (
+        <>
         <Grid
             textAlign="center"
             style={ { height: '10vh' } }
@@ -209,10 +210,36 @@ const patientRecordView = (props) => {
                             </Segment>
                         </Segment.Group>
                     </Segment>
-
                 </Segment>
+            <Grid.Row>
+                <Button
+                   style={ { margin: '10px' } }
+                   color="teal"
+                   size="small"
+                   onClick={ props.editButton }
+                >Editar ficha do paciente</Button>
+                <Button
+                   style={ { margin: '200px auto' } }
+                   color="red"
+                   size="small"
+                   onClick={ props.deleteButton }
+                >Excluir ficha</Button>
+            { props.onlyView ? 
+            (<Button
+                    style={ { margin: '10px' } }
+                    color="teal"
+                    size="medium"
+                    onClick={ props.returnButton }
+                >
+            Voltar à página do paciente
+                </Button>) 
+            : null
+            }
+            </Grid.Row>
+            
             </Grid.Column>
         </Grid>
+        </>
     );
 };
 
