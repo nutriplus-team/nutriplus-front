@@ -111,13 +111,13 @@ const patientRecordView = (props) => {
                                 <Grid columns="equal">
                                     <Grid.Row>
                                         <Grid.Column>
-                                            <Segment>Subscapula: {props.record.subscapular} mm</Segment>
+                                            <Segment>Subscápula: {props.record.subscapular} mm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Triceps: {props.record.triceps} mm</Segment>
+                                            <Segment>Tríceps: {props.record.triceps} mm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Biceps: {props.record.biceps} mm</Segment>
+                                            <Segment>Bíceps: {props.record.biceps} mm</Segment>
                                         </Grid.Column>
                                     </Grid.Row>
                                     <Grid.Row>
@@ -128,7 +128,7 @@ const patientRecordView = (props) => {
                                             <Segment>Axila média: {props.record.axillary} mm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Suproilíaca: {props.record.supriailiac} mm</Segment>
+                                            <Segment>Suprailíaca: {props.record.supriailiac} mm</Segment>
                                         </Grid.Column>
                                     </Grid.Row>
                                     <Grid.Row>

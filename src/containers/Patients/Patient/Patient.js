@@ -7,15 +7,6 @@ import ConfirmationModal from '../../../components/ConfirmationModal/Confirmatio
 import PatientCard, { patientCardPlaceholder } from '../../../components/PatientCard/PatientCard';
 import PatientRecords, { patientRecordsPlaceholder } from '../../../components/PatientRecords/PatientRecords';
 
-/*const mealMap = {
-    0: 'Café da manhã',
-    1: 'Lanche da manhã',
-    2: 'Almoço',
-    3: 'Lanche da tarde',
-    4: 'Jantar',
-    5: 'Lanche da noite',
-};*/
-
 const pageSize = 10;
 
 class Patient extends Component {

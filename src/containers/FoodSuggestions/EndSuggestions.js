@@ -7,8 +7,8 @@ const mealMap = {
     1: 'Lanche da manhã',
     2: 'Almoço',
     3: 'Lanche da tarde',
-    4: 'Jantar',
-    5: 'Lanche da noite',
+    4: 'Pré-Treino',
+    5: 'Jantar',
 };
 
 const attributesMap = {
