@@ -16,11 +16,11 @@ const FoodDatabaseEditor = () => {
     const [openFoodsModal, setOpenFoodsModal] = useState(false);
     const [selectedFood, setSelectedFood] = useState({});
     const [loaded, setLoaded] = useState(false);
-    const [foodInfo, setFoodInfo] = useState(null);
+    const [foodInfo, setFoodInfo] = useState({info: null, queryString:''});
     const [foodNameQuery, setFoodNameQuery] = useState('');
     const [error, setError] = useState(null);
 
-    const [queryString, setQueryString] = useState('');
+    //const [queryString, setQueryString] = useState('');
     const [totalLength, setTotalLength] = useState(0);
     const [page, setPage] = useState(0);
 
@@ -34,8 +34,8 @@ const FoodDatabaseEditor = () => {
                 console.log(currPage, pageSize, info.data['listFoodPaginated'].length, newTotalLength);
                 setTotalLength(newTotalLength);
 
-                setQueryString('listFoodPaginated');
-                setFoodInfo(info);
+                //setQueryString('listFoodPaginated');
+                setFoodInfo({info, queryString: 'listFoodPaginated'});
 
                 setError(null);
                 setLoaded(true);
@@ -73,10 +73,10 @@ const FoodDatabaseEditor = () => {
                 (info) => {
                     setTotalLength(info.data['searchFood'] === null ? 0 : info.data['searchFood'].length);
 
-                    setQueryString('searchFood');
+                    //setQueryString('searchFood');
                     if (info.data.searchFood === null)
                         info.data.searchFood = [];
-                    setFoodInfo(info);
+                    setFoodInfo({info, queryString: 'searchFood'});
                     setError(null);
                     
                     setLoaded(true);
@@ -99,7 +99,7 @@ const FoodDatabaseEditor = () => {
     };
 
     const clickEdition = (foodId, foodIdx) => {
-        const food = foodInfo.data[queryString][foodIdx];
+        const food = foodInfo.info.data[foodInfo.queryString][foodIdx];
         if (food.uuid !== foodId)
             return;
         setSelectedFood(food);
@@ -126,7 +126,7 @@ const FoodDatabaseEditor = () => {
     };
 
     const removeFoodPreparation = (foodId, foodIdx) => {
-        const food = foodInfo.data[queryString][foodIdx];
+        const food = foodInfo.info.data[foodInfo.queryString][foodIdx];
         if (food.uuid !== foodId)
             return;
         setSelectedFood(food);
@@ -175,13 +175,12 @@ const FoodDatabaseEditor = () => {
                       loaded={ loaded }
                       error={ error }
                       setError={ setError }
-                      foodInfo={ foodInfo }
-                      queryString={ queryString }
+                      foodInfo={ foodInfo.info }
+                      queryString={ foodInfo.queryString }
                       totalLength={ totalLength }
                       pageSize={ pageSize }
                       page={ page }
                       changePage={ changePage }
-                      setFoodInfo={ setFoodInfo }
                       handleAdd={ buttonAdd }
                       handleClick={ clickEdition }
                       handleRemove={ removeFoodPreparation }
