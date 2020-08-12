@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 
 import { Button, Modal, Input } from 'semantic-ui-react';
 
@@ -20,9 +20,9 @@ class AppointmentModal extends Component {
           centered={ false }
           size='large'
         >
-        <Modal.Header >Você deseja enviar o cardápio por menu?</Modal.Header>
+        <Modal.Header >Você deseja enviar o cardápio por email?</Modal.Header>
         <Modal.Content>
-            <Input value/>
+            <Input value={ this.state.email } onChange={ e => this.setState({email: e.target.value}) }/>
             <Button color="teal" size="large" onClick={ this.props.handleConfirmation }>
                 Confirmar
             </Button>

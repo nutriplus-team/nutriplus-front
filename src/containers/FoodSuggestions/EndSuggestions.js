@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Table, Button, Grid } from 'semantic-ui-react';
+import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 
 const mealMap = {
@@ -9,6 +10,15 @@ const mealMap = {
     3: 'Lanche da tarde',
     4: 'Pré-Treino',
     5: 'Jantar',
+};
+
+const mealMapEnglish = {
+    0: 'breakfast',
+    1: 'morningSnack',
+    2: 'lunch',
+    3: 'afternoonSnack',
+    4: 'workoutSnack',
+    5: 'dinner',
 };
 
 const attributesMap = {
@@ -39,6 +49,7 @@ class EndCardapio extends Component {
       ],
       options: [[], [], [], [], [], []],
       mounted: 0,
+      modalOpen: false,
   };
 
   computeNF = (menu, meal) => {
@@ -326,15 +337,57 @@ class EndCardapio extends Component {
       this.props.history.push(`/pacientes/${this.props.match.params.id}/ficha/${this.props.match.params.ficha_id}/final`);
   };
 
+  sendMenuByEmail = () => {
+      console.log('state', this.state);
+      console.log('props', this.props);
+      let helper = {};
+      for (let i = 0; i < 6; i++){
+          helper[mealMapEnglish[i]] = [];
+          if (this.props.global.menus[i].length > 0){
+              helper[mealMapEnglish[i]].push(
+                  {
+                      portions: this.props.global.menus[i]
+                          .map(food => ( {foodId: food.uuid, portion: +this.props.global.factors[i][food.foodName]} ))
+                  }
+              );
+              for (let j = 0; j < 3; j++){
+                  helper[mealMapEnglish[i]].push(
+                      {
+                          portions: this.state.newMenus[i][j]
+                              .map(food => ( {foodId: food.uuid, portion: +this.state.newFactors[i][j][food.foodName]} ))
+                      }
+                  );
+              }
+          }
+      }
+      console.log('helper', helper);
+      sendAuthenticatedRequest(
+          `/diet/send-email-PDF/${this.props.match.params.id}/`,
+          'post',
+          () => {},
+          () => this.setState({modalOpen: false}),
+          JSON.stringify(helper),
+          false,
+          true
+      );
+  };
+
   render() {
       if (this.state.mounted === 1) {
           const content = this.generateContent();
           return (
               <div>
+                  <ConfirmationModal 
+                    message="Você deseja enviar o menu por e-mail?"
+                    open={ this.state.modalOpen }
+                    handleConfirmation={ this.sendMenuByEmail }
+                    handleRejection={ () => this.setState({modalOpen: false}) }
+                  />
                   <h1>Resumo do Cardapio</h1>
                   <center>{content}</center>
 
                   <Button onClick={ () => this.handleEndCardapio() }>Fim</Button>
+                  <Button onClick={ () => this.setState({modalOpen: true}) }>Enviar por email</Button>
               </div>
           );
       }
