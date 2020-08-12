@@ -38,7 +38,9 @@ class PatientAppoiment extends Component {
   };
 
   removeMenu = () => {
-      this.setState({menuRemoved: true});
+     const { params } = this.props.match;
+      let newUrl = `/pacientes/${this.props.match.params.id}/ficha/${this.state.fichaId}`;
+      this.setState({menuRemoved: true, redirectUrl: newUrl});
   }
 
   finishAppointment = () => {
