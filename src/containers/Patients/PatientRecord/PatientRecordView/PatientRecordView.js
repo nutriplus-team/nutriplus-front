@@ -188,7 +188,7 @@ const patientRecordView = (props) => {
                             </Segment>
                         </Segment.Group>
                     </Segment>
-                </Segment>
+                
             <Grid.Row>
                 <Button
                    style={ { margin: '10px' } }
@@ -202,19 +202,8 @@ const patientRecordView = (props) => {
                    size="small"
                    onClick={ props.deleteButton }
                 >Excluir ficha</Button>
-            { props.onlyView ? 
-            (<Button
-                    style={ { margin: '10px' } }
-                    color="teal"
-                    size="medium"
-                    onClick={ props.returnButton }
-                >
-            Voltar à página do paciente
-                </Button>) 
-            : null
-            }
             </Grid.Row>
-            
+            </Segment>
             </Grid.Column>
         </Grid>
         </>

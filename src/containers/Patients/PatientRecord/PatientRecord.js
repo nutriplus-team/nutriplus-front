@@ -87,6 +87,7 @@ class PatientRecord extends Component {
   deleteRecordPreparation = () => {
       this.setState({ confirmation: true });
       this.props.setCreating(true);
+      this.props.setEdit(false);
   }
 
   _renderPlaceholder = () => (
@@ -102,8 +103,7 @@ class PatientRecord extends Component {
   )
 
   render() {
-       console.log("patientRecord state", this.state);
-      const { params } = this.props.match;
+      console.log("patientRecord state", this.state);
       return (
           <div>
               <ConfirmationModal
@@ -119,8 +119,7 @@ class PatientRecord extends Component {
                     patient={this.state.patient}
                     onlyView
                     editButton={ (state) => this.props.setEdit(state) }
-                    deleteButton={ this.deleteRecordPreparation }
-                    returnButton={ () => this.props.history.push(`/pacientes/${params.id}`) }
+                    deleteButton={ () => this.deleteRecordPreparation() }
                 />
               ) : this._renderPlaceholder()}
               {this.state.redirectUrl && <Redirect to={ this.state.redirectUrl } />}

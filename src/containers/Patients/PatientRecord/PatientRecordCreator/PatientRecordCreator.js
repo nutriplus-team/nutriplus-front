@@ -48,13 +48,33 @@ class PatientRecordCreator extends Component {
       recordId: ''
   };
 
-  componentDidUpdate = async () => {
-    if (this.state.editing && !this.state.creating) {
-        // Pegar aqui o uuid da ficha
-        const { params } = this.props.match;
-        let uuidRecord = params.ficha_id ? params.ficha_id : this.state.recordId;
-        console.log("PARAMS",params);
-        console.log("RECORDID",this.state.recordId);
+  componentDidMount = async () => {
+      const { params } = this.props.match;
+      sendAuthenticatedRequest(
+          '/graphql/get/',
+          'post',
+          (message) => this.setState({
+              message: message,
+          }),
+          (info) => this.setState({patient: info.data.getPatientInfo}),
+          `query {
+            getPatientInfo(uuidPatient: "${params.id}")
+            {
+                uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
+            }
+          }`
+      );
+
+      if(!this.props.firstTimeCreate){
+          this.loadRecord(params, true);
+      }
+  };
+
+  loadRecord = (params, takeFromUrl) => {
+    // Pegar aqui o uuid da ficha passado na url pois soh eh necessario visualizar, nao criar
+    let uuidRecord = takeFromUrl ? params.ficha_id : this.state.recordId;
+    this.setState({ recordId: uuidRecord });
+    if (uuidRecord){
         sendAuthenticatedRequest(
             '/graphql/get/',
             'post',
@@ -91,91 +111,21 @@ class PatientRecordCreator extends Component {
                 });
             },
             `query {
-              getSingleRecord(uuidRecord: "${uuidRecord}")
-              {
-                  corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
-                  supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
-                  methodBodyFat, methodMethabolicRate
-              }
+                getSingleRecord(uuidRecord: "${uuidRecord}")
+                {
+                    corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
+                    supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
+                    methodBodyFat, methodMethabolicRate
+                }
             }`
         );
-        //this.setState({ editing: true });
     }
-};
-
-  componentDidMount = async () => {
-      const { params } = this.props.match;
-      sendAuthenticatedRequest(
-          '/graphql/get/',
-          'post',
-          (message) => this.setState({
-              message: message,
-          }),
-          (info) => this.setState({patient: info.data.getPatientInfo}),
-          `query {
-            getPatientInfo(uuidPatient: "${params.id}")
-            {
-                uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
-            }
-          }`
-      );
-
-      if(!this.props.firstTimeCreate){
-          this.loadRecord(params);
-      }
-  };
-
-  loadRecord = (params) => {
-    // Pegar aqui o uuid da ficha passado na url pois soh eh necessario visualizar, nao criar
-    let uuidRecord = params.ficha_id;
-    sendAuthenticatedRequest(
-        '/graphql/get/',
-        'post',
-        (message) => this.setState({
-            message: message,
-        }),
-        (info) => {
-            info = info.data.getSingleRecord;
-            this.setState({
-                weight: info.corporalMass,
-                height: info.height,
-                athlete: info.isAthlete === true ? 'Atleta' : 'Não atleta',
-                physicalActivity: this.mapNumberToPhysicalActivityOption(
-                    info.physicalActivityLevel,
-                ),
-                methabolicAuthor: info.methodBodyFat,
-                energyRequirements: info.methodMethabolicRate,
-                subscapular: info.subscapular,
-                triceps: info.triceps,
-                biceps: info.biceps,
-                chest: info.chest,
-                axillary: info.axillary,
-                supriailiac: info.supriailiac,
-                abdominal: info.abdominal,
-                thigh: info.thigh,
-                calf: info.calf,
-                waistCirc: info.waistCirc,
-                abdominalCirc: info.abdominalCirc,
-                hipsCirc: info.hipsCirc,
-                rightArmCirc: info.rightArmCirc,
-                thighCirc: info.thighCirc,
-                calfCirc: info.calfCirc,
-                obs: info.observations,
-            });
-        },
-        `query {
-            getSingleRecord(uuidRecord: "${uuidRecord}")
-            {
-                corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
-                supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
-                methodBodyFat, methodMethabolicRate
-            }
-        }`
-    );
   }
 
   setEdit = (editState) => {
     this.setState({ editing: editState });
+    if(editState)
+        this.loadRecord('', false);
   }
 
   setCreating = (creatingState) => {
@@ -250,13 +200,11 @@ class PatientRecordCreator extends Component {
               thighCirc: '',
               calfCirc: '',
               obs: '',
-              //redirectUrl: `/pacientes/${params.id}?refresh=true`,
               editing: false,
               creating: false
           });
       } else {
           setStateFunction = (info) => this.setState({
-              recordId: info.data.createPatientRecord,
               message: 'Ficha editada com sucesso!',
               weight: '',
               height: '',
@@ -282,8 +230,6 @@ class PatientRecordCreator extends Component {
               obs: '',
               editing: false,
               creating: false
-              //redirectUrl:
-            //`/pacientes/${params.id}/ficha/${params.ficha_id}`,
           });
       }
       /* console.log(
@@ -329,7 +275,7 @@ class PatientRecordCreator extends Component {
           setStateFunction,
           `mutation {
             ${this.state.editing ?
-              `updatePatientRecord(uuidPatient: "${params.id}", uuidPatientRecord: "${params.ficha_id}"`
+              `updatePatientRecord(uuidPatient: "${params.id}", uuidPatientRecord: "${this.state.recordId}"`
               : `createPatientRecord(uuidPatient: "${params.id}"`},
                                 input: {
                                     methodBodyFat: "${this.state.methabolicAuthor}",
@@ -486,9 +432,9 @@ class PatientRecordCreator extends Component {
   };
 
   render() {
-      const { params } = this.props.match;
+      //const { params } = this.props.match;
       // Voce esta apenas vendo a informacao da ficha se nao esta a criando pela primeira vez nem a editando
-      let viewing = (!this.props.firstTimeCreate) || !(this.state.editing || this.state.creating);
+      let viewing = (!this.props.firstTimeCreate && !this.state.editing) || !(this.state.editing || this.state.creating);
 
       return (
           <>
@@ -820,10 +766,10 @@ Paciente:
                                 value={ this.state.obs }
                                 style={ { marginBottom: '10px' } }
                               />
-                              {this.state.editing ? <Button size='large' onClick={ () => this.props.history.push(`/pacientes/${params.id}/ficha/${params.ficha_id}`) }>
+                              {this.state.editing ? <Button size='large' onClick={ () => this.setEdit(false) }>
                                 Voltar
                               </Button> : ''}
-                              <Button color="teal" size="large" onClick={ this.sendForm }>
+                              <Button color="teal" size="large" onClick={ () => this.sendForm() }>
                                   {this.state.editing ? 'Editar ficha' : 'Adicionar ficha'}
                               </Button>
                               {this.state.message && <p>{this.state.message}</p>}
