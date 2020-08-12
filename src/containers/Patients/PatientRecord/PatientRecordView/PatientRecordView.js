@@ -23,11 +23,11 @@ const patientRecordView = (props) => {
     return (
         <>
         <Grid
-            textAlign="center"
-            style={ { height: '10vh' } }
+          textAlign="center"
+          style={ { height: '10vh' } }
         >
             {console.log(props)}
-            <Grid.Column style={ { maxWidth: 900 }}>
+            <Grid.Column style={ { maxWidth: 900 } }>
                 <Header as="h2" color="teal" textAlign="center">
                     Resumo
                 </Header>
@@ -126,7 +126,7 @@ const patientRecordView = (props) => {
                                             <Segment>Peitoral: {props.record.chest} mm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
-                                            <Segment>Axiola média: {props.record.axillary} mm</Segment>
+                                            <Segment>Axila média: {props.record.axillary} mm</Segment>
                                         </Grid.Column>
                                         <Grid.Column>
                                             <Segment>Suproilíaca: {props.record.supriailiac} mm</Segment>
@@ -191,16 +191,16 @@ const patientRecordView = (props) => {
                 
             <Grid.Row>
                 <Button
-                   style={ { margin: '10px' } }
-                   color="teal"
-                   size="small"
-                   onClick={ () => props.editButton(true) }
+                  style={ { margin: '10px' } }
+                  color="teal"
+                  size="small"
+                  onClick={ () => props.editButton(true) }
                 >Editar ficha do paciente</Button>
                 <Button
-                   style={ { margin: '200px auto' } }
-                   color="red"
-                   size="small"
-                   onClick={ props.deleteButton }
+                  style={ { margin: '200px auto' } }
+                  color="red"
+                  size="small"
+                  onClick={ props.deleteButton }
                 >Excluir ficha</Button>
             </Grid.Row>
             </Segment>

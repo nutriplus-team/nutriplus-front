@@ -18,7 +18,7 @@ class PatientRecord extends Component {
   };
 
   componentDidMount = async () => {
-      console.log("EITA", this.props);
+      console.log('EITA', this.props);
       const { params } = this.props.match;
 
       sendAuthenticatedRequest(
@@ -103,7 +103,7 @@ class PatientRecord extends Component {
   )
 
   render() {
-      console.log("patientRecord state", this.state);
+      console.log('patientRecord state', this.state);
       return (
           <div>
               <ConfirmationModal
@@ -115,11 +115,11 @@ class PatientRecord extends Component {
               {this.state.error ? <p>{this.state.error}</p> : null}
               {this.state.record ? (
                 <PatientRecordView
-                    record={this.state.record}
-                    patient={this.state.patient}
-                    onlyView
-                    editButton={ (state) => this.props.setEdit(state) }
-                    deleteButton={ () => this.deleteRecordPreparation() }
+                  record={ this.state.record }
+                  patient={ this.state.patient }
+                  onlyView
+                  editButton={ (state) => this.props.setEdit(state) }
+                  deleteButton={ () => this.deleteRecordPreparation() }
                 />
               ) : this._renderPlaceholder()}
               {this.state.redirectUrl && <Redirect to={ this.state.redirectUrl } />}

@@ -9,7 +9,7 @@ import PatientRecordCreator from './PatientRecord/PatientRecordCreator/PatientRe
 import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 import Paginator from '../../utility/paginator';
 import classes from './Patients.module.css';
-import PatientAppoiment from './PatientAppointment/PatientAppointment';
+import PatientAppointment from './PatientAppointment/PatientAppointment';
 
 const placeholder =  (
   <Paginator
@@ -108,12 +108,12 @@ class Patients extends Component {
                   <Route
                     exact
                     path="/pacientes/:id/criar-ficha"
-                    render={ (props) => <PatientAppoiment { ...props } firstTimeCreate/> }
+                    render={ (props) => <PatientAppointment { ...props } firstTimeCreate/> }
                   />
                   <Route
                     exact
                     path="/pacientes/:id/ficha/:ficha_id"
-                    render={ (props) => <PatientAppoiment { ...props }/> }
+                    render={ (props) => <PatientAppointment { ...props }/> }
                   />
                   <Route
                     path="/pacientes/:id/ficha/:ficha_id/edit"

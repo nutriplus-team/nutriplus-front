@@ -144,7 +144,7 @@ class Patient extends Component {
       );
   };
 
-  deletePacientPreparation = () => {
+  deletePatientPreparation = () => {
       this.setState({ confirmation: true });
   }
 
@@ -152,13 +152,13 @@ class Patient extends Component {
     <PatientCard 
       backOnClick={ () => this.props.history.push('/pacientes') }
       patientOnClick={ () => this.props.history.push(`/pacientes/${id}/edit`) }
-      deletePacientPreparation={ this.deletePacientPreparation }
+      deletePatientPreparation={ this.deletePatientPreparation }
       info={ this.state.info }
       restrictions={ this.state.restrictions }
     />
   );
 
-  _renderPatientRecors = (id) => (
+  _renderPatientRecord = (id) => (
     <PatientRecords 
       recordQueryInfo={ this.state.recordQueryInfo }
       pageSize={ pageSize }
@@ -180,7 +180,7 @@ class Patient extends Component {
               <ConfirmationModal
                 message='Você quer mesmo excluir este paciente?'
                 open={ this.state.confirmation }
-                handleConfirmation={ () => this.deletePacient() }
+                handleConfirmation={ () => this.deletePatient() }
                 handleRejection={ () => this.setState({ confirmation: false }) }
               />
               {this.state.error ? <p>{this.state.error}</p> : null}
@@ -189,7 +189,7 @@ class Patient extends Component {
                   : patientCardPlaceholder()
               }
               {this.state.info 
-                  ? this._renderPatientRecors(params.id)
+                  ? this._renderPatientRecord(params.id)
                   : patientRecordsPlaceholder()}              
               
               {this.state.redirectUrl && <Redirect to={ this.state.redirectUrl } />}
