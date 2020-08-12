@@ -27,6 +27,7 @@ const SearchFood = (props) => {
                     foodName,
                     measureType,
                     measureAmount,
+                    measureTotalGrams,
                     nutritionFacts {
                       calories,
                       proteins,
@@ -91,7 +92,9 @@ const SearchFood = (props) => {
             page={ page }
             changePage={ (pageNumber) => setPage(pageNumber) }
             queryString={ 'searchFood' }
-            filter={ () => true }
+            filter={ (food) => !props.foodRestrictions.some(
+                (state_food) => state_food.foodName === food.foodName,
+            ) }
             listElementMap={ (obj) => (
               <p
                 style={ { cursor: 'pointer' } }

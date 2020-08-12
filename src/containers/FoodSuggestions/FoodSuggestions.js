@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import EndSuggestions from './EndSuggestions';
 import MainSuggestions from './MainSuggestions';
+import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 
 class FoodSuggestions extends Component {
   state = {
       attributes: null,
       global: null,
+      foodRestrictions: null,
   };
 
   componentDidMount = async () => {
@@ -14,10 +16,24 @@ class FoodSuggestions extends Component {
           mounted: 1,
           attributes: ['Calorias (kcal)', 'Proteínas (g)', 'Carboidratos (g)', 'Lipídios (g)', 'Fibra Alimentar (g)']
       });
+      sendAuthenticatedRequest(
+          '/graphql/get/',
+          'post',
+          () => {},
+          (info) => {
+              this.setState({ foodRestrictions: info.data.getFoodRestrictions });
+          },
+          `{
+            getFoodRestrictions(uuidPatient: "${this.props.match.params.id}")
+        {
+            uuid, foodName
+        }
+        }`
+      );
   };
 
   handleGlobal = (global) => {
-      this.setState({ global });
+      this.setState({ global: global });
   };
 
   render() {
@@ -32,6 +48,7 @@ class FoodSuggestions extends Component {
                             { ...props }
                             attributes={ this.state.attributes }
                             handleGlobal={ this.handleGlobal }
+                            foodRestrictions={ this.state.foodRestrictions }
                           />
                     ) }
                   />
