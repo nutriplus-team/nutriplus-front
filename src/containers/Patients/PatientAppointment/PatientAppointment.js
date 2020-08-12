@@ -11,6 +11,7 @@ class PatientAppoiment extends Component {
       error: null,
       redirectUrl: null,
       fichaId: null,
+      menuIds: [],
       menuRemoved: false
   };
 
@@ -22,7 +23,9 @@ class PatientAppoiment extends Component {
           (message) => this.setState({
               message: message,
           }),
-          (info) => this.setState({info: info.data.getPatientInfo}),
+          (info) => {
+              this.setState({info: info.data.getPatientInfo});
+          },
           `query {
             getPatientInfo(uuidPatient: "${params.id}")
             {
@@ -38,6 +41,10 @@ class PatientAppoiment extends Component {
       this.setState({menuRemoved: true});
   }
 
+  finishAppointment = () => {
+      this.props.history.push(`/pacientes/${this.props.match.params.id}`);
+  }
+
   render() {
       const { params } = this.props.match;
       return (
@@ -50,7 +57,7 @@ class PatientAppoiment extends Component {
                             <Button
                               color="teal"
                               size="small"
-                              onClick={ () => this.props.history.push(`/pacientes/${params.id}`) }
+                              onClick={ this.finishAppointment }
                             >
                             Voltar
                             </Button>
@@ -103,8 +110,7 @@ class PatientAppoiment extends Component {
                     Novo Cardápio
                     </Button> 
                         : <DisplayMenu 
-                          { ...this.props }  
-                          menuIds={ ['3e3df73c58f046a2943886b28066b187', 'fcb8d2278f4d47ca9f5d015b470f34c3', 'ec46722075ce46a393d6da2a81f4bab3'] }
+                          { ...this.props }
                           removeMenu={ this.removeMenu }
                           />}
                     </Grid.Row>

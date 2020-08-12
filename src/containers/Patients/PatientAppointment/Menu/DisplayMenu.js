@@ -8,6 +8,7 @@ import DisplayMenuViewer from '../../../../components/DisplayMenuViewer/DisplayM
 
 class DisplayMenu extends Component {
   state = {
+      menuIds: [],
       menus: [
           [null,null,null],
           [null,null,null],
@@ -27,11 +28,28 @@ class DisplayMenu extends Component {
       removeBtnDisabled: false
   };
 
-  componentDidMount = () => {
-      const menuIds = this.props.menuIds;
-      console.log(menuIds);
+  componentDidMount = async () => {
+      const { params } = this.props.match;
+      
+      await sendAuthenticatedRequest(
+          '/graphql/get/',
+          'post',
+          (message) => this.setState({
+              message: message,
+          }),
+          (info) => {
+              if (info.data.getSingleRecord !== null)
+                  this.setState({menuIds: [...info.data.getSingleRecord.menus]});
+          },
+          `query {
+            getSingleRecord(uuidRecord:"${params.ficha_id}")
+            {
+                menus
+            }
+        }`
+      );
 
-      menuIds.forEach((menuId) => {
+      this.state.menuIds.forEach((menuId) => {
           sendAuthenticatedRequest(
               '/graphql/get/',
               'post',
@@ -68,7 +86,7 @@ class DisplayMenu extends Component {
   removeMenu = async () => {
       this.setState({removeBtnDisabled: true});
 
-      const promises = this.props.menuIds.map(async (menuId) => 
+      const promises = this.state.menuIds.map(async (menuId) => 
           sendAuthenticatedRequest(
               '/graphql/get/',
               'post',

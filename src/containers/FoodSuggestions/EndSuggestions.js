@@ -292,7 +292,8 @@ class EndCardapio extends Component {
               () => {},
               `mutation
               {
-                  addMenu(mealType: ${meal}, uuidPatient: "${this.props.match.params.id}", uuidFoods: [${menu.map(food => `"${food.uuid}"`)}], quantities: [${menu.map(food => parseFloat(factors[food.foodName]).toFixed(1))}])
+                  addMenu(mealType: ${meal}, uuidRecord: "${this.props.match.params.ficha_id}", uuidPatient: "${this.props.match.params.id}", 
+                    uuidFoods: [${menu.map(food => `"${food.uuid}"`)}], quantities: [${menu.map(food => parseFloat(factors[food.foodName]).toFixed(1))}])
               }`,
           );
       });
@@ -311,7 +312,9 @@ class EndCardapio extends Component {
                   () => {},
                   `mutation
                   {
-                    addMenu(mealType: ${meal}, uuidPatient: "${this.props.match.params.id}", uuidFoods: [${menu.map(food => `"${food.uuid}"`)}], quantities: [${menu.map(food => parseFloat(factors[food.foodName]).toFixed(1))}])
+                    addMenu(mealType: ${meal}, uuidRecord: "${this.props.match.params.ficha_id}", uuidPatient: "${this.props.match.params.id}", 
+                        uuidFoods: [${menu.map(food => `"${food.uuid}"`)}], 
+                        quantities: [${menu.map(food => parseFloat(factors[food.foodName]).toFixed(1))}])
                   }`,
               );
           });
