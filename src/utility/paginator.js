@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Icon, Table, List, Grid } from 'semantic-ui-react';
 
 const paginator = (props) => {
+    console.log('paginator props', props);
     let results = props.queryResults.data[props.queryString]
         .filter(props.filter)
         .map(props.listElementMap);
@@ -67,10 +68,10 @@ const paginator = (props) => {
                             Visualizar
                             </Button>
                             <Button
-                            style={ { margin: '20px auto' } }
-                            color="red"
-                            size="small"
-                            onClick={ () => result.props.onClickDelete() }
+                              style={ { margin: '20px auto' } }
+                              color="red"
+                              size="small"
+                              onClick={ () => result.props.onClickDelete() }
                             >Excluir</Button>
                         </Grid.Column>
                         <Grid.Column>

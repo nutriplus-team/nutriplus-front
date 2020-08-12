@@ -286,8 +286,8 @@ class PatientRecordCreator extends Component {
               `updatePatientRecord(uuidPatient: "${params.id}", uuidPatientRecord: "${this.state.recordId}"`
               : `createPatientRecord(uuidPatient: "${params.id}"`},
                                 input: {
-                                    anamnesis: "${this.state.anamnesis}",
-                                    exam: "${this.state.exam}",
+                                    anamnesis: "${this.state.anamnesis.replace(/\r?\n|\r/g, '\\n')}",
+                                    exam: "${this.state.exam.replace(/\r?\n|\r/g, '\\n')}",
                                     methodBodyFat: "${this.state.methabolicAuthor}",
                                     methodMethabolicRate: "${this.state.energyRequirements}",
                                     corporalMass: ${(+this.state.weight).toFixed(2)},
