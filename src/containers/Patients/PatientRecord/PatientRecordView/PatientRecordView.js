@@ -194,7 +194,7 @@ const patientRecordView = (props) => {
                    style={ { margin: '10px' } }
                    color="teal"
                    size="small"
-                   onClick={ props.editButton }
+                   onClick={ () => props.editButton(true) }
                 >Editar ficha do paciente</Button>
                 <Button
                    style={ { margin: '200px auto' } }

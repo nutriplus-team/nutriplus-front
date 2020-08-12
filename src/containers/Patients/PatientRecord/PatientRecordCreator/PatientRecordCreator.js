@@ -42,10 +42,80 @@ class PatientRecordCreator extends Component {
       calfCirc: '',
       message: null,
       editing: false,
+      creating: true,
       obs: '',
       redirectUrl: null,
-      createrecord: true
+      recordId: ''
   };
+
+  componentDidUpdate = async () => {
+    const { params } = this.props.match;
+    sendAuthenticatedRequest(
+        '/graphql/get/',
+        'post',
+        (message) => this.setState({
+            message: message,
+        }),
+        (info) => this.setState({patient: info.data.getPatientInfo}),
+        `query {
+          getPatientInfo(uuidPatient: "${params.id}")
+          {
+              uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
+          }
+        }`
+    );
+    if (this.state.editing && !this.state.creating) {
+        // Pegar aqui o uuid da ficha
+        let uuidRecord = params.ficha_id ? params.ficha_id : this.state.recordId;
+        console.log("PARAMS",params);
+        console.log("RECORDID",this.state.recordId);
+        sendAuthenticatedRequest(
+            '/graphql/get/',
+            'post',
+            (message) => this.setState({
+                message: message,
+            }),
+            (info) => {
+                info = info.data.getSingleRecord;
+                this.setState({
+                    weight: info.corporalMass,
+                    height: info.height,
+                    athlete: info.isAthlete === true ? 'Atleta' : 'Não atleta',
+                    physicalActivity: this.mapNumberToPhysicalActivityOption(
+                        info.physicalActivityLevel,
+                    ),
+                    methabolicAuthor: info.methodBodyFat,
+                    energyRequirements: info.methodMethabolicRate,
+                    subscapular: info.subscapular,
+                    triceps: info.triceps,
+                    biceps: info.biceps,
+                    chest: info.chest,
+                    axillary: info.axillary,
+                    supriailiac: info.supriailiac,
+                    abdominal: info.abdominal,
+                    thigh: info.thigh,
+                    calf: info.calf,
+                    waistCirc: info.waistCirc,
+                    abdominalCirc: info.abdominalCirc,
+                    hipsCirc: info.hipsCirc,
+                    rightArmCirc: info.rightArmCirc,
+                    thighCirc: info.thighCirc,
+                    calfCirc: info.calfCirc,
+                    obs: info.observations,
+                });
+            },
+            `query {
+              getSingleRecord(uuidRecord: "${uuidRecord}")
+              {
+                  corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
+                  supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
+                  methodBodyFat, methodMethabolicRate
+              }
+            }`
+        );
+        //this.setState({ editing: true });
+    }
+};
 
   componentDidMount = async () => {
       const { params } = this.props.match;
@@ -63,7 +133,11 @@ class PatientRecordCreator extends Component {
             }
           }`
       );
-      if (params.ficha_id) {
+      if (this.state.editing && !this.state.creating) {
+          // Pegar aqui o uuid da ficha
+          let uuidRecord = params.ficha_id ? params.ficha_id : this.state.recordId;
+          console.log("PARAMS",params);
+          console.log("RECORDID",this.state.recordId);
           sendAuthenticatedRequest(
               '/graphql/get/',
               'post',
@@ -100,7 +174,7 @@ class PatientRecordCreator extends Component {
                   });
               },
               `query {
-                getSingleRecord(uuidRecord: "${params.ficha_id}")
+                getSingleRecord(uuidRecord: "${uuidRecord}")
                 {
                     corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
                     supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
@@ -108,9 +182,17 @@ class PatientRecordCreator extends Component {
                 }
               }`
           );
-          this.setState({ editing: true });
+          //this.setState({ editing: true });
       }
   };
+
+  setEdit = (editState) => {
+    this.setState({ editing: editState });
+  }
+
+  setCreating = (creatingState) => {
+    this.setState({ creating: creatingState });
+  }
 
   sendForm = async () => {
       const { params } = this.props.match;
@@ -155,7 +237,8 @@ class PatientRecordCreator extends Component {
       }
       let setStateFunction;
       if (!this.state.editing) {
-          setStateFunction = () => this.setState({
+          setStateFunction = (info) => this.setState({
+              recordId: info.data.createPatientRecord,
               message: 'Ficha salva com sucesso!',
               weight: '',
               height: '',
@@ -180,10 +263,12 @@ class PatientRecordCreator extends Component {
               calfCirc: '',
               obs: '',
               //redirectUrl: `/pacientes/${params.id}?refresh=true`,
-              createrecord: false,
+              editing: false,
+              creating: false
           });
       } else {
-          setStateFunction = () => this.setState({
+          setStateFunction = (info) => this.setState({
+              recordId: info.data.createPatientRecord,
               message: 'Ficha editada com sucesso!',
               weight: '',
               height: '',
@@ -207,6 +292,8 @@ class PatientRecordCreator extends Component {
               thighCirc: '',
               calfCirc: '',
               obs: '',
+              editing: false,
+              creating: false
               //redirectUrl:
             //`/pacientes/${params.id}/ficha/${params.ficha_id}`,
           });
@@ -415,7 +502,8 @@ class PatientRecordCreator extends Component {
 
       return (
           <>
-          {this.state.createrecord ? 
+          {console.log("OPA", this.state.recordId)}
+          {(this.state.editing || this.state.creating) ? 
           (<div>
               <h4>
 Paciente:
@@ -424,7 +512,6 @@ Paciente:
               <Grid
                 textAlign="center"
                 style={ { height: '10vh' } }
-                //verticalAlign="middle"
               >
                   <Grid.Column style={ { maxWidth: 900 }}>
                       <Header as="h2" color="teal" textAlign="center">
@@ -757,7 +844,7 @@ Paciente:
               </Grid>
               {this.state.redirectUrl && <Redirect to={ this.state.redirectUrl } />}
           </div>)
-          : <PatientRecord {...this.props} />}
+          : <PatientRecord {...this.props} recordUuid={this.state.recordId} setEdit={this.setEdit} setCreating={this.setCreating}/>}
           </>
       );
   }

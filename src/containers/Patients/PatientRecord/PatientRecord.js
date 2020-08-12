@@ -18,7 +18,9 @@ class PatientRecord extends Component {
   };
 
   componentDidMount = async () => {
+      console.log("EITA", this.props);
       const { params } = this.props.match;
+
       sendAuthenticatedRequest(
           '/graphql/get/',
           'post',
@@ -32,7 +34,7 @@ class PatientRecord extends Component {
               });
           },
           `query {
-            getSingleRecord(uuidRecord: "${params.ficha_id}")
+            getSingleRecord(uuidRecord: "${params.ficha_id ? params.ficha_id : this.props.recordUuid}")
             {
                 dateModified, corporalMass, height, age, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
                 supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
@@ -84,6 +86,7 @@ class PatientRecord extends Component {
 
   deleteRecordPreparation = () => {
       this.setState({ confirmation: true });
+      this.props.setCreating(true);
   }
 
   _renderPlaceholder = () => (
@@ -115,8 +118,7 @@ class PatientRecord extends Component {
                     record={this.state.record}
                     patient={this.state.patient}
                     onlyView
-                    editButton={ () => this.props.history.push(`/pacientes/${params.id
-                    }/ficha/${params.ficha_id}/edit`,)}
+                    editButton={ (state) => this.props.setEdit(state) }
                     deleteButton={ this.deleteRecordPreparation }
                     returnButton={ () => this.props.history.push(`/pacientes/${params.id}`) }
                 />
