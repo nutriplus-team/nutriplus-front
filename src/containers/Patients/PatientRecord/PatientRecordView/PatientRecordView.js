@@ -26,7 +26,6 @@ const patientRecordView = (props) => {
           textAlign="center"
           style={ { height: '10vh' } }
         >
-            {console.log(props)}
             <Grid.Column style={ { maxWidth: 900 } }>
                 <Header as="h2" color="teal" textAlign="center">
                     Resumo
@@ -48,7 +47,7 @@ const patientRecordView = (props) => {
                         <h4>Anamnese:</h4>
                         <Segment.Group>
                             <Segment>
-                                TODO
+                                {props.record.anamnesis}
                             </Segment>
                         </Segment.Group>
                     </Segment>
@@ -57,7 +56,7 @@ const patientRecordView = (props) => {
                         <h4>Exame:</h4>
                         <Segment.Group>
                             <Segment>
-                                TODO
+                              {props.record.exam}
                             </Segment>
                         </Segment.Group>
                     </Segment>
