@@ -1,286 +1,81 @@
 import React, { Component } from 'react';
-import { Table, Grid } from 'semantic-ui-react';
 
-const mealMap = {
-    0: 'Café da manhã',
-    1: 'Lanche da manhã',
-    2: 'Almoço',
-    3: 'Lanche da tarde',
-    4: 'Jantar',
-    5: 'Lanche da noite',
-};
+import {  Button } from 'semantic-ui-react';
 
-const attributesMap = {
-    'Calorias (kcal)': 'calories',
-    'Proteínas (g)': 'proteins',
-    'Carboidratos (g)': 'carbohydrates',
-    'Lipídeos (g)': 'lipids',
-    'Fibra Alimentar (g)': 'fiber',
-};
+import { sendAuthenticatedRequest } from '../../../../utility/httpHelper';
+
+import DisplayMenuViewer from '../../../../components/DisplayMenuViewer/DisplayMenuViewer';
 
 class DisplayMenu extends Component {
   state = {
-      newMenus: [
-          [[], [], []],
-          [[], [], []],
-          [[], [], []],
-          [[], [], []],
-          [[], [], []],
-          [[], [], []],
+      menus: [
+          [null,null,null],
+          [null,null,null],
+          [null,null,null],
+          [null,null,null],
+          [null,null,null],
+          [null,null,null],
       ],
-      newFactors: [
-          [[], [], []],
-          [[], [], []],
-          [[], [], []],
-          [[], [], []],
-          [[], [], []],
-          [[], [], []],
+      factors: [
+          [null,null,null],
+          [null,null,null],
+          [null,null,null],
+          [null,null,null],
+          [null,null,null],
+          [null,null,null],
       ],
-      options: [[], [], [], [], [], []],
-      mounted: 0,
   };
 
-  computeNF = (menu, meal) => {
-      const factors = this.props.global.factors[meal];
-      let nutritionalFacts;
-      const { attributes } = this.props;
-      attributes.forEach((attribute) => {
-          let nfVal = 0;
-          menu.forEach((food) => {
-              nfVal
-          += food.nutrition_facts[attributesMap[attribute]]
-            * factors[food.food_name];
-          });
-          const vn = [attribute, nfVal];
-          if (nutritionalFacts) nutritionalFacts.push(vn);
-          else nutritionalFacts = [vn];
-      });
-      return nutritionalFacts;
-  };
+  componentDidMount = () => {
+      const menuIds = this.props.menuIds;
+      console.log(menuIds);
 
-  componentDidMount = async () => {
-      this.props.global.menus.map(async (menu, meal) => {
-          if (menu.length === 0) {
-              return;
-          }
-          const actualNF = this.computeNF(menu, meal);
-          let i = 0;
-
-          let options = [];
-          const appendToOptions = (actual, index) => {
-              options = [
-                  ...options,
-                  <Table.Body key={ `${actual.food_name}_${i}_${index}` }>
-                      <Table.Row>
-                          <Table.Cell>{actual.food_name}</Table.Cell>
-                          <Table.Cell>
-                              {`${(
-                                  Number(this.state.newFactors[meal][i][index])
-                  * actual.measure_amount
-                              ).toFixed(2)
-                              } ${
-                                  actual.measure_type}`}
-                          </Table.Cell>
-                          <Table.Cell>
-                              {`${(
-                                  Number(this.state.newFactors[meal][i][index])
-                  * actual.measure_total_grams
-                              ).toFixed(2)} g`}
-                          </Table.Cell>
-                      </Table.Row>
-                  </Table.Body>,
-              ];
-          };
-          while (i < 3) {
-              await this.handleFetch(actualNF, meal, i);
-              options = [
-                  ...options,
-                  <Table.Body key={ i }>
-                      <Table.Row active>
-                      </Table.Row>
-                  </Table.Body>,
-              ];
-              this.state.newMenus[meal][i].forEach(appendToOptions);
-              i += 1;
-          }
-          const totalOptions = this.state.options;
-          totalOptions[meal] = options;
-          await new Promise((resolve) => {
-              this.setState({ totalOptions }, () => {
-                  resolve();
-              });
-          });
-      });
-      this.setState({ mounted: 1 });
-  };
-
-  handleFetch = async (actualNF, meal, i) => {
-      const content = {};
-      actualNF.forEach((attribute) => {
-          content[attributesMap[attribute[0]]] = attribute[1].toString(10);
-      });
-      let response;
-      /*await sendAuthenticatedRequestsendAuthenticatedRequest(
-          `/menu/generate/${meal + 1}/${this.props.match.params.id}/`,
-          'post',
-          () => {},
-          (resp) => (response = resp),
-          JSON.stringify(content),
-      );*/
-      if (response.Quantities.length && response.Suggestions.length) {
-          const newMenus = [...this.state.newMenus];
-          newMenus[meal][i] = response.Suggestions;
-          const newFactors = [...this.state.newFactors];
-          newFactors[meal][i] = response.Quantities;
-          await new Promise((resolve) => {
-              this.setState({ newMenus, newFactors }, () => {
-                  resolve();
-              });
-          });
-      }
-  };
-
-  generateContent = () => {
-      const content = this.props.global.menus.map((menu, meal) => {
-          let content_i;
-          // todas as refeicoes, todas as tabelas
-          if (menu.length === 0) {
-              return null;
-          }
-          content_i = menu.map((actual) =>
-          // uma refeicao, uma tabela com varios "ou"
-              (
-                  <Table.Body key={ actual.food_name }>
-                      <Table.Row>
-                          <Table.Cell>{actual.food_name}</Table.Cell>
-                          <Table.Cell>
-                              {`${(
-                                  Number(this.props.global.factors[meal][actual.food_name])
-                  * actual.measure_amount
-                              ).toFixed(2)
-                              } ${
-                                  actual.measure_type}`}
-                          </Table.Cell>
-                          <Table.Cell>
-                              {`${(
-                                  Number(this.props.global.factors[meal][actual.food_name])
-                  * actual.measure_total_grams
-                              ).toFixed(2)} g`}
-                          </Table.Cell>
-                      </Table.Row>
-                  </Table.Body>
-              ),
-          '');
-
-          const options = this.state.options[meal];
-          content_i = [...content_i, ...options];
-          return (
-              <React.Fragment key={ meal }>
-                  <Grid centered>
-                      <Grid.Column width={ 9 }>
-                          <Table>
-                              <Table.Header>
-                                  <Table.Row>
-                                      <Table.HeaderCell width={ 3 }>
-                                          {mealMap[meal]}
-                                      </Table.HeaderCell>
-                                      <Table.HeaderCell width={ 3 }>
-                      Quantidade caseira
-                                      </Table.HeaderCell>
-                                      <Table.HeaderCell width={ 3 }>
-                      Quantidade em gramas
-                                      </Table.HeaderCell>
-                                  </Table.Row>
-                              </Table.Header>
-                              {content_i}
-                          </Table>
-                      </Grid.Column>
-                  </Grid>
-              </React.Fragment>
-          );
-      });
-      return content;
-  };
-
-  handleEndCardapio = () => {
-      this.props.global.menus.forEach((menu, meal) => {
-          if (menu.length === 0) {
-              return null;
-          }
-          const body = {};
-          const factors = this.props.global.factors[meal];
-          body.meal_type = meal + 1;
-          let ansCardapio = '';
-          let ansQuantities = '';
-          menu.forEach((food) => {
-              ansCardapio += `${food.id}&`;
-              ansQuantities += `${factors[food.food_name]}&`;
-          });
-          ansCardapio = ansCardapio.slice(0, -1);
-          ansQuantities = ansQuantities.slice(0, -1);
-          body.foods = ansCardapio;
-          body.quantities = ansQuantities;
-         /* sendAuthenticatedRequest(
-              `/menu/add-new/${this.props.match.params.id}/`,
+      menuIds.forEach((menuId) => {
+          sendAuthenticatedRequest(
+              '/graphql/get/',
               'post',
-              () => {},
-              () => {},
-              JSON.stringify(body),
-          );*/
-      });
-
-      this.state.newMenus.forEach((opcoes, meal) => {
-          opcoes.forEach((menu, i) => {
-              if (menu.length === 0) {
-                  return;
+              (message) => console.log('Deu ruim... Abortar!!!', message),
+              (info) => {
+                  const newMenus = [...this.state.menus];
+                  newMenus[info.data['getMenu'].mealType] = info.data['getMenu'].portions.map((portion) => portion.food);
+  
+                  const newFactors = [...this.state.factors];
+                  newFactors[info.data['getMenu'].mealType] = info.data['getMenu'].portions.map((portion) => portion.quantity);
+  
+                  this.setState({menus: newMenus, factors: newFactors});
+              },
+              `query {
+              getMenu(uuidMenu: "${menuId}", uuidPatient: "${this.props.match.params.id}") {
+                 uuid
+                 mealType
+                 portions {
+                    quantity
+                    food {
+                       uuid
+                       foodName
+                       measureAmount,
+                      measureType,
+                      measureTotalGrams
+                    }
+                 }
               }
-              const body = {};
-              const factors = this.state.newFactors[meal][i];
-              body.meal_type = meal + 1;
-              let ansCardapio = '';
-              let ansQuantities = '';
-              menu.forEach((food, index) => {
-                  ansCardapio += `${food.id}&`;
-                  ansQuantities += `${factors[index]}&`;
-              });
-              ansCardapio = ansCardapio.slice(0, -1);
-              ansQuantities = ansQuantities.slice(0, -1);
-              body.foods = ansCardapio;
-              body.quantities = ansQuantities;
-              /*sendAuthenticatedRequest(
-                  `/menu/add-new/${this.props.match.params.id}/`,
-                  'post',
-                  /*(mes) => {
-                      console.log('mes: ', mes);
-                  },
-                  (res) => {
-                      console.log('res: ', res);
-                  },*//*
-                  () => {},
-                  () => {},
-                  JSON.stringify(body),
-              );*/
-          });
-      });
-
-      this.props.history.push('/');
+           }`
+          );});
   };
 
   render() {
-      if (this.state.mounted === 1) {
-          const content = this.generateContent();
-          return (
-              <div>
-                  <h1>Resumo</h1>
-                  <center>{content}</center>
-
-                  {/*<Button onClick={ () => this.handleEndCardapio() }>Fim</Button>*/}
-              </div>
-          );
-      }
-      return '';
+      return (
+          <>
+            <DisplayMenuViewer menus={ this.state.menus } factors={ this.state.factors }/>
+            <Button
+              style={ { margin: '20px auto' } }
+              color="red"
+              size="small"
+              onClick={ () => {} }
+            >Excluir Menu</Button>
+          </>
+      );
   }
 }
-
 
 export default DisplayMenu;
