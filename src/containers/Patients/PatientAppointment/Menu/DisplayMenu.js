@@ -24,6 +24,7 @@ class DisplayMenu extends Component {
           [null,null,null],
           [null,null,null],
       ],
+      removeBtnDisabled: false
   };
 
   componentDidMount = () => {
@@ -60,8 +61,30 @@ class DisplayMenu extends Component {
                  }
               }
            }`
-          );});
+          );
+      });
   };
+
+  removeMenu = async () => {
+      this.setState({removeBtnDisabled: true});
+
+      const promises = this.props.menuIds.map(async (menuId) => 
+          sendAuthenticatedRequest(
+              '/graphql/get/',
+              'post',
+              (message) => console.log('Deu ruim... Abortar!!!', message),
+              () => {},
+              `mutation
+                {
+                    removeMenu(uuidMenu: "${menuId}")
+                }`
+          )
+      );
+
+      await Promise.all(promises);
+      this.setState({removeBtnDisabled: false});
+      this.props.removeMenu();
+  }
 
   render() {
       return (
@@ -71,7 +94,8 @@ class DisplayMenu extends Component {
               style={ { margin: '20px auto' } }
               color="red"
               size="small"
-              onClick={ () => {} }
+              disabled={ this.state.removeBtnDisabled }
+              onClick={ this.removeMenu }
             >Excluir Menu</Button>
           </>
       );

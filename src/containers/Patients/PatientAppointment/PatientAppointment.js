@@ -11,6 +11,7 @@ class PatientAppoiment extends Component {
       error: null,
       redirectUrl: null,
       fichaId: null,
+      menuRemoved: false
   };
 
   componentDidMount = async () => {
@@ -32,6 +33,10 @@ class PatientAppoiment extends Component {
       if (params.id)
           this.setState({fichaId: params.ficha_id});
   };
+
+  removeMenu = () => {
+      this.setState({menuRemoved: true});
+  }
 
   render() {
       const { params } = this.props.match;
@@ -85,7 +90,7 @@ class PatientAppoiment extends Component {
                         <h2 style = { {textAlign: 'center', marginTop: '10px' } }>Cardápio</h2>   
                     </Grid.Row>
                     <Grid.Row>
-                    {this.props.firstTimeCreate ? 
+                    {this.props.firstTimeCreate || this.state.menuRemoved ? 
                     <Button
                       style={ { margin: '10px' } }
                       color="teal"
@@ -94,7 +99,12 @@ class PatientAppoiment extends Component {
                       disabled={ this.state.fichaId == null }
                     >
                     Novo Cardápio
-                    </Button> : <DisplayMenu { ...this.props }  menuIds={ ['e6d995bb835646e3bc337fdc4b2554a5'] }/>}
+                    </Button> 
+                        : <DisplayMenu 
+                          { ...this.props }  
+                          menuIds={ ['3e3df73c58f046a2943886b28066b187', 'fcb8d2278f4d47ca9f5d015b470f34c3', 'ec46722075ce46a393d6da2a81f4bab3'] }
+                          removeMenu={ this.removeMenu }
+                          />}
                     </Grid.Row>
                 </Grid.Column>
             </Grid>

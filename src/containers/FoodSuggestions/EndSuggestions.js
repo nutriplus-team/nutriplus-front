@@ -278,13 +278,14 @@ class EndCardapio extends Component {
       return content;
   };
 
-  handleEndCardapio = () => {
-      this.props.global.menus.forEach((menu, meal) => {
+  handleEndCardapio = async () => {
+      const promises1 = this.props.global.menus.map(async (menu, meal) => {
           if (menu.length === 0) {
               return;
           }
           const factors = this.props.global.factors[meal];
-          sendAuthenticatedRequest(
+
+          return sendAuthenticatedRequest(
               '/graphql/get/',
               'post',
               () => {},
@@ -296,13 +297,14 @@ class EndCardapio extends Component {
           );
       });
 
-      this.state.newMenus.forEach((opcoes, meal) => {
+      const promises2 = this.state.newMenus.map(async (opcoes, meal) => {
           opcoes.forEach((menu) => {
               if (menu.length === 0) {
                   return;
               }
               const factors = this.props.global.factors[meal];
-              sendAuthenticatedRequest(
+
+              return sendAuthenticatedRequest(
                   '/graphql/get/',
                   'post',
                   () => {},
@@ -315,7 +317,10 @@ class EndCardapio extends Component {
           });
       });
 
-      this.props.history.push('/');
+      const promises = [...promises1, ...promises2];
+
+      await Promise.all(promises);
+      this.props.history.push(`/pacientes/${this.props.match.params.id}/ficha/${this.props.match.params.ficha_id}`);
   };
 
   render() {
