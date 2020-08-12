@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
+
 import { Grid, Button } from 'semantic-ui-react';
+
+import { sendAuthenticatedRequest } from '../../utility/httpHelper';
+
 import Meal from './Meal';
 import MealTable from './MealTable';
 import Infos from './Infos';
 import SearchFood from './SearchFood';
 import GenerateSuggestions from './GenerateSuggestions';
-import { sendAuthenticatedRequest } from '../../utility/httpHelper';
+
+import IndicesTable from '../../components/IndicesTable/IndicesTable';
 
 const translationMap = {
     'Calorias (kcal)': 'calories',
@@ -24,37 +29,54 @@ const MainSuggestions = (props) => {
     const [mounted1, setMounted1] = useState(null);
     const [mounted2, setMounted2] = useState(null);
     const [foods, setFoods] = useState(null);
+    const [indices, setIndices] = useState([]);
     const [available, setAvailable] = useState(null);
 
-    useEffect(() => {
-        const runEffect = async () => {
-            sendAuthenticatedRequest(
-                '/graphql/get/',
-                'post',
-                () => {},
-                (info) => {
-                    setFoods(info.data.listFood);
-                    setMounted2(0);
-                },
-                `query {
-                  listFood {
-                      foodName,
-                      measureType,
-                      measureAmount,
-                      nutritionFacts {
-                        calories,
-                        proteins,
-                        carbohydrates,
-                        lipids,
-                        fiber
-                      }
-                  }
-              }`
-            );
-        };
+    useEffect(() => sendAuthenticatedRequest(
+        '/graphql/get/',
+        'post',
+        () => {},
+        (info) => {
+            setFoods(info.data.listFood);
+            setMounted2(0);
+        },
+        `query {
+          listFood {
+              foodName,
+              measureType,
+              measureAmount,
+              nutritionFacts {
+                calories,
+                proteins,
+                carbohydrates,
+                lipids,
+                fiber
+              }
+          }
+      }`
+    ), []);
 
-        runEffect();
-    }, []);
+    useEffect(() => sendAuthenticatedRequest(
+        '/graphql/get/',
+        'post',
+        () => {},
+        (info) => {
+            setIndices({
+                'bodyFat': {'name': info.data['getSingleRecord']['methodBodyFat'], 'value': info.data['getSingleRecord']['bodyFat']}, 
+                'methabolicRate': {'name': info.data['getSingleRecord']['methodMethabolicRate'], 'value': info.data['getSingleRecord']['methabolicRate']}, 
+                'energyRequirements': {'name':'Necessidades Energéticas', 'value': info.data['getSingleRecord']['energyRequirements']}
+            });
+        },
+        `query {
+            getSingleRecord(uuidRecord: "87972c5a61d940a3b418fe2b1f354c50") {
+                methodBodyFat,
+                methodMethabolicRate,
+                bodyFat,
+                methabolicRate,
+                energyRequirements
+          }
+      }`
+    ), []);
 
     useEffect(() => {
         const initializeAttributes = () => {
@@ -225,6 +247,10 @@ const MainSuggestions = (props) => {
                         </Grid>
                     </Grid.Column>
                     <Grid.Column width={ 4 }>
+                        <IndicesTable //87972c5a61d940a3b418fe2b1f354c50
+                          indices={ indices }
+                        />
+                        <br />
                         <GenerateSuggestions
                           translationMap={ translationMap }
                           attributes={ props.attributes }
