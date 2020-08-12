@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom';
 import { Button, Grid, Divider } from 'semantic-ui-react';
 import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 import PatientRecordCreator from '../PatientRecord/PatientRecordCreator/PatientRecordCreator';
+import DisplayMenu from './Menu/DisplayMenu';
 
 class PatientAppoiment extends Component {
   state = {
@@ -48,12 +49,12 @@ class PatientAppoiment extends Component {
                             </Button>
                         </Grid.Column>
                         <Grid.Column  >
-                            {this.props.create ? 
+                            {this.props.firstTimeCreate ? 
                             <h2> Nova consulta de {this.state.info.name}</h2> : 
                             <h2> Consulta de {this.state.info.name}</h2>}
                         </Grid.Column>
                         <Grid.Column>
-                            {this.props.create ? 
+                            {this.props.firstTimeCreate ? 
                             <Button
                               color="teal"
                               size="big"
@@ -73,7 +74,7 @@ class PatientAppoiment extends Component {
                         <h2 style = { {textAlign: 'center', marginTop: '10px' } }>Ficha do Paciente</h2>   
                     </Grid.Row>
                     <Grid.Row>
-                    <PatientRecordCreator { ...this.props } create={this.props.create}/>
+                    <PatientRecordCreator { ...this.props } create={this.props.firstTimeCreate}/>
                     </Grid.Row>
                 </Grid.Column>
                 <Grid.Column>
@@ -81,6 +82,7 @@ class PatientAppoiment extends Component {
                         <h2 style = { {textAlign: 'center', marginTop: '10px' } }>Cardápio</h2>   
                     </Grid.Row>
                     <Grid.Row>
+                    {this.props.firstTimeCreate? 
                     <Button
                       style={ { margin: '10px' } }
                       color="teal"
@@ -88,7 +90,7 @@ class PatientAppoiment extends Component {
                       onClick={ () => this.props.history.push(`/cardapio/${params.id}`) }
                     >
                     Novo Cardápio
-                    </Button> 
+                    </Button> : <DisplayMenu { ...this.props }/>}
                     </Grid.Row>
                 </Grid.Column>
             </Grid>
