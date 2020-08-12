@@ -1,157 +1,286 @@
 import React, { Component } from 'react';
-import { Grid, Header, Segment} from 'semantic-ui-react';
+import { Table, Grid } from 'semantic-ui-react';
+
+const mealMap = {
+    0: 'Café da manhã',
+    1: 'Lanche da manhã',
+    2: 'Almoço',
+    3: 'Lanche da tarde',
+    4: 'Jantar',
+    5: 'Lanche da noite',
+};
+
+const attributesMap = {
+    'Calorias (kcal)': 'calories',
+    'Proteínas (g)': 'proteins',
+    'Carboidratos (g)': 'carbohydrates',
+    'Lipídeos (g)': 'lipids',
+    'Fibra Alimentar (g)': 'fiber',
+};
 
 class DisplayMenu extends Component {
+  state = {
+      newMenus: [
+          [[], [], []],
+          [[], [], []],
+          [[], [], []],
+          [[], [], []],
+          [[], [], []],
+          [[], [], []],
+      ],
+      newFactors: [
+          [[], [], []],
+          [[], [], []],
+          [[], [], []],
+          [[], [], []],
+          [[], [], []],
+          [[], [], []],
+      ],
+      options: [[], [], [], [], [], []],
+      mounted: 0,
+  };
 
-    /*const mapNumberToPhysicalActivityOption = (number) => {
-        switch (+number) {
-        case 1:
-            return 'Não faz atividade física';
-        case 1.2:
-            return 'Sedentário';
-        case 1.3:
-            return 'Atividade física leve';
-        case 1.5:
-            return 'Atividade física moderada';
-        case 1.7:
-            return 'Atividade física intensa';
-        default:
-            return 'Wrong function usage';
-        }
-    };*/
+  computeNF = (menu, meal) => {
+      const factors = this.props.global.factors[meal];
+      let nutritionalFacts;
+      const { attributes } = this.props;
+      attributes.forEach((attribute) => {
+          let nfVal = 0;
+          menu.forEach((food) => {
+              nfVal
+          += food.nutrition_facts[attributesMap[attribute]]
+            * factors[food.food_name];
+          });
+          const vn = [attribute, nfVal];
+          if (nutritionalFacts) nutritionalFacts.push(vn);
+          else nutritionalFacts = [vn];
+      });
+      return nutritionalFacts;
+  };
 
-    render() {
-        return (
-            <>
-            <Grid
-                textAlign="center"
-                style={ { height: '10vh' } }
-            >
-                {console.log(this.props)}
-                <Grid.Column style={ { maxWidth: 900 }}>
-                    <Header as="h2" color="teal" textAlign="center">
-                        Resumo
-                    </Header>
+  componentDidMount = async () => {
+      this.props.global.menus.map(async (menu, meal) => {
+          if (menu.length === 0) {
+              return;
+          }
+          const actualNF = this.computeNF(menu, meal);
+          let i = 0;
 
-                    <Grid columns="equal">
-                        <Grid.Row>
-                            <Grid.Column>
-                                <Segment><h4>Taxa de gordura por :</h4>  </Segment>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Segment><h4>Taxa metabólica por :</h4> </Segment>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
+          let options = [];
+          const appendToOptions = (actual, index) => {
+              options = [
+                  ...options,
+                  <Table.Body key={ `${actual.food_name}_${i}_${index}` }>
+                      <Table.Row>
+                          <Table.Cell>{actual.food_name}</Table.Cell>
+                          <Table.Cell>
+                              {`${(
+                                  Number(this.state.newFactors[meal][i][index])
+                  * actual.measure_amount
+                              ).toFixed(2)
+                              } ${
+                                  actual.measure_type}`}
+                          </Table.Cell>
+                          <Table.Cell>
+                              {`${(
+                                  Number(this.state.newFactors[meal][i][index])
+                  * actual.measure_total_grams
+                              ).toFixed(2)} g`}
+                          </Table.Cell>
+                      </Table.Row>
+                  </Table.Body>,
+              ];
+          };
+          while (i < 3) {
+              await this.handleFetch(actualNF, meal, i);
+              options = [
+                  ...options,
+                  <Table.Body key={ i }>
+                      <Table.Row active>
+                      </Table.Row>
+                  </Table.Body>,
+              ];
+              this.state.newMenus[meal][i].forEach(appendToOptions);
+              i += 1;
+          }
+          const totalOptions = this.state.options;
+          totalOptions[meal] = options;
+          await new Promise((resolve) => {
+              this.setState({ totalOptions }, () => {
+                  resolve();
+              });
+          });
+      });
+      this.setState({ mounted: 1 });
+  };
 
-                    <Segment>
-                        <Segment textAlign="left">
-                            <h4>Anamnese:</h4>
-                            <Segment.Group>
-                                <Segment>
-                                    TODO
-                                </Segment>
-                            </Segment.Group>
-                        </Segment>
+  handleFetch = async (actualNF, meal, i) => {
+      const content = {};
+      actualNF.forEach((attribute) => {
+          content[attributesMap[attribute[0]]] = attribute[1].toString(10);
+      });
+      let response;
+      /*await sendAuthenticatedRequestsendAuthenticatedRequest(
+          `/menu/generate/${meal + 1}/${this.props.match.params.id}/`,
+          'post',
+          () => {},
+          (resp) => (response = resp),
+          JSON.stringify(content),
+      );*/
+      if (response.Quantities.length && response.Suggestions.length) {
+          const newMenus = [...this.state.newMenus];
+          newMenus[meal][i] = response.Suggestions;
+          const newFactors = [...this.state.newFactors];
+          newFactors[meal][i] = response.Quantities;
+          await new Promise((resolve) => {
+              this.setState({ newMenus, newFactors }, () => {
+                  resolve();
+              });
+          });
+      }
+  };
 
-                        <Segment textAlign="left">
-                            <h4>Exame:</h4>
-                            <Segment.Group>
-                                <Segment>
-                                    TODO
-                                </Segment>
-                            </Segment.Group>
-                        </Segment>
+  generateContent = () => {
+      const content = this.props.global.menus.map((menu, meal) => {
+          let content_i;
+          // todas as refeicoes, todas as tabelas
+          if (menu.length === 0) {
+              return null;
+          }
+          content_i = menu.map((actual) =>
+          // uma refeicao, uma tabela com varios "ou"
+              (
+                  <Table.Body key={ actual.food_name }>
+                      <Table.Row>
+                          <Table.Cell>{actual.food_name}</Table.Cell>
+                          <Table.Cell>
+                              {`${(
+                                  Number(this.props.global.factors[meal][actual.food_name])
+                  * actual.measure_amount
+                              ).toFixed(2)
+                              } ${
+                                  actual.measure_type}`}
+                          </Table.Cell>
+                          <Table.Cell>
+                              {`${(
+                                  Number(this.props.global.factors[meal][actual.food_name])
+                  * actual.measure_total_grams
+                              ).toFixed(2)} g`}
+                          </Table.Cell>
+                      </Table.Row>
+                  </Table.Body>
+              ),
+          '');
 
-                        <Grid
-                        columns="equal"
-                        textAlign="center"
-                        >
-                            <Grid.Column>
-                                <Segment><h4>Peso:</h4> Kg</Segment>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Segment><h4>Altura:</h4>  m</Segment>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Segment><h4>IMC:</h4> </Segment>
-                            </Grid.Column>
-                        </Grid>
+          const options = this.state.options[meal];
+          content_i = [...content_i, ...options];
+          return (
+              <React.Fragment key={ meal }>
+                  <Grid centered>
+                      <Grid.Column width={ 9 }>
+                          <Table>
+                              <Table.Header>
+                                  <Table.Row>
+                                      <Table.HeaderCell width={ 3 }>
+                                          {mealMap[meal]}
+                                      </Table.HeaderCell>
+                                      <Table.HeaderCell width={ 3 }>
+                      Quantidade caseira
+                                      </Table.HeaderCell>
+                                      <Table.HeaderCell width={ 3 }>
+                      Quantidade em gramas
+                                      </Table.HeaderCell>
+                                  </Table.Row>
+                              </Table.Header>
+                              {content_i}
+                          </Table>
+                      </Grid.Column>
+                  </Grid>
+              </React.Fragment>
+          );
+      });
+      return content;
+  };
 
-                        <Grid
-                        columns="equal"
-                        textAlign="center"
-                        >
-                            <Grid.Column>
-                                <Segment><h4>Massa muscular:</h4>  </Segment>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Segment><h4>Necessidades energéticas:</h4>  </Segment>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Segment><h4>Densidade corporal:</h4>  </Segment>
-                            </Grid.Column>
-                        </Grid>
+  handleEndCardapio = () => {
+      this.props.global.menus.forEach((menu, meal) => {
+          if (menu.length === 0) {
+              return null;
+          }
+          const body = {};
+          const factors = this.props.global.factors[meal];
+          body.meal_type = meal + 1;
+          let ansCardapio = '';
+          let ansQuantities = '';
+          menu.forEach((food) => {
+              ansCardapio += `${food.id}&`;
+              ansQuantities += `${factors[food.food_name]}&`;
+          });
+          ansCardapio = ansCardapio.slice(0, -1);
+          ansQuantities = ansQuantities.slice(0, -1);
+          body.foods = ansCardapio;
+          body.quantities = ansQuantities;
+         /* sendAuthenticatedRequest(
+              `/menu/add-new/${this.props.match.params.id}/`,
+              'post',
+              () => {},
+              () => {},
+              JSON.stringify(body),
+          );*/
+      });
 
-                        <Grid
-                        columns="equal"
-                        textAlign="center"
-                        >
-                            <Grid.Column>
-                                <Segment><h4>Atleta:</h4>  </Segment>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Segment><h4>Nível de atividade física:</h4> 
-                                </Segment>
-                            </Grid.Column>
-                        </Grid>
+      this.state.newMenus.forEach((opcoes, meal) => {
+          opcoes.forEach((menu, i) => {
+              if (menu.length === 0) {
+                  return;
+              }
+              const body = {};
+              const factors = this.state.newFactors[meal][i];
+              body.meal_type = meal + 1;
+              let ansCardapio = '';
+              let ansQuantities = '';
+              menu.forEach((food, index) => {
+                  ansCardapio += `${food.id}&`;
+                  ansQuantities += `${factors[index]}&`;
+              });
+              ansCardapio = ansCardapio.slice(0, -1);
+              ansQuantities = ansQuantities.slice(0, -1);
+              body.foods = ansCardapio;
+              body.quantities = ansQuantities;
+              /*sendAuthenticatedRequest(
+                  `/menu/add-new/${this.props.match.params.id}/`,
+                  'post',
+                  /*(mes) => {
+                      console.log('mes: ', mes);
+                  },
+                  (res) => {
+                      console.log('res: ', res);
+                  },*//*
+                  () => {},
+                  () => {},
+                  JSON.stringify(body),
+              );*/
+          });
+      });
 
-                        <Segment textAlign="left">
-                            <h3>Circunferências:</h3>
-                            <Segment.Group>
-                                <Segment>
-                                    <Grid columns="equal">
-                                        <Grid.Row>
-                                            <Grid.Column>
-                                                <Segment>Cintura: cm</Segment>
-                                            </Grid.Column>
-                                            <Grid.Column>
-                                                <Segment>Abdominal:  cm</Segment>
-                                            </Grid.Column>
-                                            <Grid.Column>
-                                                <Segment>Quadril:  cm</Segment>
-                                            </Grid.Column>
-                                        </Grid.Row>
-                                        <Grid.Row>
-                                            <Grid.Column>
-                                                <Segment>Braço direito:  cm</Segment>
-                                            </Grid.Column>
-                                            <Grid.Column>
-                                                <Segment>Coxa média:  cm</Segment>
-                                            </Grid.Column>
-                                            <Grid.Column>
-                                                <Segment>Panturrilha:  cm</Segment>
-                                            </Grid.Column>
-                                        </Grid.Row>
-                                    </Grid>
-                                </Segment>
-                            </Segment.Group>
-                        </Segment>
+      this.props.history.push('/');
+  };
 
-                        <Segment textAlign="left">
-                            <h4>Observações:</h4>
-                            <Segment.Group>
-                                <Segment>
-                                
-                                </Segment>
-                            </Segment.Group>
-                        </Segment>
-                </Segment>
-                </Grid.Column>
-            </Grid>
-            </>
-        );
-    };
-};
+  render() {
+      if (this.state.mounted === 1) {
+          const content = this.generateContent();
+          return (
+              <div>
+                  <h1>Resumo</h1>
+                  <center>{content}</center>
+
+                  {/*<Button onClick={ () => this.handleEndCardapio() }>Fim</Button>*/}
+              </div>
+          );
+      }
+      return '';
+  }
+}
+
 
 export default DisplayMenu;
