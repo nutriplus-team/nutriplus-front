@@ -366,13 +366,6 @@ const FoodsForm = (props) => {
               checked={ mealSet.includes(5) }
             />
           </Form.Field>
-          <Form.Field>
-            <Checkbox
-              label='Lanche da noite'
-              onChange={ () => handleToggle(6) }
-              checked={ mealSet.includes(6) }
-            />
-          </Form.Field>
           <Button type='submit' color='teal' size='large'>
             Salvar
           </Button>

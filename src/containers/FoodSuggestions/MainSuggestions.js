@@ -50,6 +50,7 @@ const MainSuggestions = (props) => {
                   foodName,
                   measureType,
                   measureAmount,
+                  measureTotalGrams,
                   nutritionFacts {
                     calories,
                     proteins,
