@@ -15,8 +15,8 @@ import PatientRecord from '../PatientRecord';
 
 class PatientRecordCreator extends Component {
   state = {
-      anamnese: '',
-      exames: '',
+      anamnesis: '',
+      exam: '',
       patient: null,
       weight: '',
       height: '',
@@ -85,6 +85,8 @@ class PatientRecordCreator extends Component {
                   info = info.data.getSingleRecord;
                   this.setState({
                       message: '',
+                      anamnesis: info.anamnesis,
+                      exam: info.exam,
                       weight: info.corporalMass,
                       height: info.height,
                       athlete: info.isAthlete === true ? 'Atleta' : 'Não atleta',
@@ -116,7 +118,7 @@ class PatientRecordCreator extends Component {
                   {
                       corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
                       supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
-                      methodBodyFat, methodMethabolicRate
+                      methodBodyFat, methodMethabolicRate, anamnesis, exam
                   }
               }`
           );
@@ -179,7 +181,6 @@ class PatientRecordCreator extends Component {
           setStateFunction = (info) => {
               this.setState({
                   recordId: info.data.createPatientRecord,
-                  message: 'Ficha salva com sucesso!',
                   weight: '',
                   height: '',
                   athlete: '',
@@ -202,8 +203,8 @@ class PatientRecordCreator extends Component {
                   thighCirc: '',
                   calfCirc: '',
                   obs: '',
-                  anamnese: '',
-                  exames: '',
+                  anamnesis: '',
+                  exam: '',
                   editing: false,
                   creating: false
               });
@@ -211,7 +212,6 @@ class PatientRecordCreator extends Component {
           };
       } else {
           setStateFunction = () => this.setState({
-              message: 'Ficha editada com sucesso!',
               weight: '',
               height: '',
               athlete: '',
@@ -234,8 +234,8 @@ class PatientRecordCreator extends Component {
               thighCirc: '',
               calfCirc: '',
               obs: '',
-              anamnese: '',
-              exames: '',
+              anamnesis: '',
+              exam: '',
               editing: false,
               creating: false
           });
@@ -286,6 +286,8 @@ class PatientRecordCreator extends Component {
               `updatePatientRecord(uuidPatient: "${params.id}", uuidPatientRecord: "${this.state.recordId}"`
               : `createPatientRecord(uuidPatient: "${params.id}"`},
                                 input: {
+                                    anamnesis: "${this.state.anamnesis}",
+                                    exam: "${this.state.exam}",
                                     methodBodyFat: "${this.state.methabolicAuthor}",
                                     methodMethabolicRate: "${this.state.energyRequirements}",
                                     corporalMass: ${(+this.state.weight).toFixed(2)},
@@ -466,21 +468,21 @@ Paciente:
                                 label='Anamnese'
                                 onChange={ (event) => {
                                     this.setState({
-                                        anamnese: event.target.value,
+                                        anamnesis: event.target.value,
                                         message: '',
                                     });
                                 } }
-                                value={ this.state.anamnese }
+                                value={ this.state.anamnesis }
                               />
                               <Form.TextArea
                                 label='Exames'
                                 onChange={ (event) => {
                                     this.setState({
-                                        exame: event.target.value,
+                                        exam: event.target.value,
                                         message: '',
                                     });
                                 } }
-                                value={ this.state.exame }
+                                value={ this.state.exam }
                               />
                                <Form.Group widths='equal'>
                                 <Form.Input
@@ -787,7 +789,14 @@ Paciente:
               </Grid>
               {this.state.redirectUrl && <Redirect to={ this.state.redirectUrl } />}
           </div>)
-              : <PatientRecord { ...this.props } recordUuid={ this.state.recordId } setEdit={ this.setEdit } setCreating={ this.setCreating }/>}
+              : 
+              <PatientRecord 
+                { ...this.props } 
+                recordUuid={ this.state.recordId } 
+                setEdit={ this.setEdit } 
+                setCreating={ this.setCreating }
+                setFichaId={ this.props.setFichaId }
+              />}
           </>
       );
   }

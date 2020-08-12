@@ -42,7 +42,6 @@ class PatientAppoiment extends Component {
       const { params } = this.props.match;
       return (
           <div>
-              {console.log(this.props)}
               {this.state.info ? (
                   <div>
                   <Grid style={ { margin: '20px' } }>
@@ -82,7 +81,10 @@ class PatientAppoiment extends Component {
                         <h2 style = { {textAlign: 'center', marginTop: '10px' } }>Ficha do Paciente</h2>   
                     </Grid.Row>
                     <Grid.Row>
-                    <PatientRecordCreator { ...this.props } setFichaId={ (id) => this.setState({fichaId: id}) }create={ this.props.firstTimeCreate }/>
+                    <PatientRecordCreator 
+                      { ...this.props } setFichaId={ (id) => this.setState({fichaId: id}) } 
+                      create={ this.props.firstTimeCreate }
+                    />
                     </Grid.Row>
                 </Grid.Column>
                 <Grid.Column>

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
 
 import { Placeholder } from 'semantic-ui-react';
 
@@ -13,7 +12,6 @@ class PatientRecord extends Component {
       record: null, 
       error: null, 
       patient: null, 
-      redirectUrl: null,
       confirmation: false
   };
 
@@ -38,7 +36,8 @@ class PatientRecord extends Component {
             {
                 dateModified, corporalMass, height, age, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
                 supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
-                muscularMass, corporalDensity, bodyFat, methabolicRate, energyRequirements, methodBodyFat, methodMethabolicRate
+                muscularMass, corporalDensity, bodyFat, methabolicRate, energyRequirements, methodBodyFat, methodMethabolicRate, anamnesis,
+                exam
             }
           }`
       );
@@ -74,9 +73,9 @@ class PatientRecord extends Component {
               });
           },
           () => {
-              this.setState({
-                  redirectUrl: `/pacientes/${params.id}/?refresh=true`,
-              });
+              this.props.setFichaId(null);
+              this.props.setCreating(true);
+              this.props.setEdit(false);
           },
           `mutation {
               removePatientRecord(uuidPatientRecord: "${params.ficha_id}")
@@ -86,8 +85,6 @@ class PatientRecord extends Component {
 
   deleteRecordPreparation = () => {
       this.setState({ confirmation: true });
-      this.props.setCreating(true);
-      this.props.setEdit(false);
   }
 
   _renderPlaceholder = () => (
@@ -122,7 +119,6 @@ class PatientRecord extends Component {
                   deleteButton={ () => this.deleteRecordPreparation() }
                 />
               ) : this._renderPlaceholder()}
-              {this.state.redirectUrl && <Redirect to={ this.state.redirectUrl } />}
           </div>
       );
   }
