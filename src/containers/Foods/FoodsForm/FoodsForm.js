@@ -35,8 +35,6 @@ const FoodsForm = (props) => {
         }
     );
     const [mealSet, setMealSet] = useState([]);
-    const [mealSetAdd, setMealSetAdd] = useState([]);
-    const [mealSetSub, setMealSetSub] = useState([]);
 
     const getMoreInfo = () => {
         if(isEditing) {
@@ -72,33 +70,15 @@ const FoodsForm = (props) => {
     };
 
     const handleToggle = (number) => {
-        // for updating setMeal
         const previous = [...mealSet];
+
         let update = [];
         if (previous.includes(number)) {
-            // removing from a meal
-
-            // updating state
             update = previous.filter((num) => num !== number);
-
-            // updating modifications
-            if (mealSetAdd.includes(number))
-                setMealSetAdd([...mealSetAdd].filter((num) => num !== number));
-            else
-                setMealSetSub([...mealSetSub, number]);
         }
         else {
-            // including in a meal
-
-            // updating state
             previous.push(number);
             update = previous;
-
-            // updating modifications
-            if (mealSetSub.includes(number))
-                setMealSetSub([...mealSetSub].filter((num) => num !== number));
-            else
-                setMealSetAdd([...mealSetAdd, number]);
         }
 
         setMealSet(update);
@@ -158,54 +138,8 @@ const FoodsForm = (props) => {
         if (!valid)
             return;
 
-        const updateMealSet = () => {
-            if (mealSetAdd.length !== 0 || mealSetSub.length !== 0) {
-                mealSetAdd
-                    .forEach((meal) => 
-                        sendAuthenticatedRequest(
-                            '/graphql/get/',
-                            'post',
-                            () => {
-                                setError({
-                                    header: 'Erro ao se comunicar com o serviço.',
-                                    content: 'Por favor, tente mais tarde.'
-                                });
-                                setIsLoading(false);
-                            },
-                            () => {},
-                            `mutation {
-                              addFoodToMeal(uuidFood: "${food['uuid']}",mealType: ${meal}),
-                            }`
-                        )
-                    );
-
-                mealSetSub
-                    .forEach((meal) => 
-                        sendAuthenticatedRequest(
-                            '/graphql/get/',
-                            'post',
-                            () => {
-                                setError({
-                                    header: 'Erro ao se comunicar com o serviço.',
-                                    content: 'Por favor, tente mais tarde.'
-                                });
-                                setIsLoading(false);
-                            },
-                            () => {},
-                            `mutation {
-                              removeFoodFromMeal(uuidFood: "${food['uuid']}",mealType: ${meal}),
-                            }`
-                        )
-                    );
-            }
-
-            setError({content: '', header: ''});
-            setIsLoading(false);
-            props.afterSubmit();
-        };
-
-        console.log(mealSetAdd, mealSetSub);
-        if (isEditing)
+        const updateMealSet = (newFooduuid) => {
+            console.log(newFooduuid);
             sendAuthenticatedRequest(
                 '/graphql/get/',
                 'post',
@@ -217,7 +151,29 @@ const FoodsForm = (props) => {
                     setIsLoading(false);
                 },
                 () => {
-                    updateMealSet();
+                    setError({content: '', header: ''});
+                    setIsLoading(false);
+                    props.afterSubmit();
+                },
+                `mutation {
+                  setMeals(uuidFood: "${newFooduuid}", mealTypes: [${mealSet}]),
+                }`
+            );
+        };
+
+        if (isEditing)
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                () => {
+                    setError({
+                        header: 'Erro ao se comunicar com o serviço.',
+                        content: 'Por favor, tente mais tarde.'
+                    });
+                    setIsLoading(false);
+                },
+                (info) => {
+                    updateMealSet(info.data['customizeFood']);
                 },
                 `mutation {
                   customizeFood( 
@@ -247,8 +203,8 @@ const FoodsForm = (props) => {
                     });
                     setIsLoading(false);
                 },
-                () => {
-                    updateMealSet();
+                (info) => {
+                    updateMealSet(info.data['createFood']);
                 },
                 `mutation {
                     createFood(
@@ -286,6 +242,7 @@ const FoodsForm = (props) => {
                 <Form.Input 
                   fluid
                   value={ name }
+                  disabled={ isEditing }
                   onChange={ (event) => setName(event.target.value) }
                 />
             </Form.Field>
@@ -294,6 +251,7 @@ const FoodsForm = (props) => {
                 <Form.Input 
                   fluid
                   value={ group }
+                  disabled={ isEditing }
                   onChange={ (event) => setGroup(event.target.value) }
                 />
             </Form.Field>

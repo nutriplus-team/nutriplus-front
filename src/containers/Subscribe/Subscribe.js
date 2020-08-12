@@ -85,7 +85,7 @@ class Subscribe extends Component {
               displayMessage: true,
               hasError: true,
               errorMsg: {
-                  header: 'As senhas são são iguais!',
+                  header: 'As senhas não são iguais!',
                   content: 'Escreva a mesma senha nos dois campos',
               }
           });
@@ -156,6 +156,26 @@ class Subscribe extends Component {
                   errorMsg: {
                       header: 'Senha fraca.',
                       content: 'Use uma senha mais forte.',
+                  },
+              });
+          else if (info.message.substr(0, 8) === 'Username')
+              this.setState({
+                  loading: false,
+                  hasError: true,
+                  displayMessage: true,
+                  errorMsg: {
+                      header: 'Nome de usuário já cadastrado.',
+                      content: 'Escolha outro nome de usuário.',
+                  },
+              });
+          else if (info.message.substr(0, 5) === 'Email')
+              this.setState({
+                  loading: false,
+                  hasError: true,
+                  displayMessage: true,
+                  errorMsg: {
+                      header: 'Email já cadastrado.',
+                      content: 'Escolha outro email.',
                   },
               });
           else

@@ -45,6 +45,8 @@ const FoodDatabaseEditor = () => {
                     uuid,
                     foodName,
                     foodGroup,
+                    custom,
+                    created,
                     measureTotalGrams,
                     measureType,
                     measureAmount
@@ -61,11 +63,9 @@ const FoodDatabaseEditor = () => {
         setLoaded(false);
 
         if (foodName === ''){
-            console.log('been here', page);
             requestFoodInfo(page);
         }
         else {
-            console.log('or here');
             sendAuthenticatedRequest(
                 '/graphql/get/',
                 'post',
@@ -87,6 +87,8 @@ const FoodDatabaseEditor = () => {
                         uuid,
                         foodName,
                         foodGroup,
+                        custom,
+                        created,
                         measureTotalGrams,
                         measureType,
                         measureAmount,
@@ -97,7 +99,6 @@ const FoodDatabaseEditor = () => {
     };
 
     const clickEdition = (foodId, foodIdx) => {
-        console.log('clicked');
         const food = foodInfo.data[queryString][foodIdx];
         if (food.uuid !== foodId)
             return;
@@ -105,11 +106,14 @@ const FoodDatabaseEditor = () => {
         setOpenFoodsModal(true);
     };
 
-    const removeFood = () => {
-        const foodId = selectedFood.uuid;
+    const buttonRemove = (foodId, foodIdx) => {
+        const food = foodInfo.data[queryString][foodIdx];
+        if (food.uuid !== foodId)
+            return;
+
         setFoodNameQuery('');
         setLoaded(false);
-        setOpenConfirmationModal(false);
+        
         sendAuthenticatedRequest(
             '/graphql/get/',
             'post',
@@ -154,7 +158,7 @@ const FoodDatabaseEditor = () => {
             <ConfirmationModal
               message='Você quer mesmo excluir este alimento?'
               open={ openConfirmationModal }
-              handleConfirmation={ () => removeFood() }
+              handleConfirmation={ () => buttonRemove() }
               handleRejection={ () => setOpenConfirmationModal(false) }
             />
             <FoodsModal 

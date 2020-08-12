@@ -4,41 +4,36 @@ import EndSuggestions from './EndSuggestions';
 import MainSuggestions from './MainSuggestions';
 import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 
-const displayMap = {
-    calories: 'Calorias',
-    proteins: 'Proteínas',
-    carbohydrates: 'Carboidratos',
-    lipids: 'Lipídeos',
-    fiber: 'Fibra Alimentar',
-};
-
 class FoodSuggestions extends Component {
   state = {
       attributes: null,
       global: null,
+      foodRestrictions: null,
   };
 
   componentDidMount = async () => {
       this.setState({
           mounted: 1,
+          attributes: ['Calorias (kcal)', 'Proteínas (g)', 'Carboidratos (g)', 'Lipídios (g)', 'Fibra Alimentar (g)']
       });
       sendAuthenticatedRequest(
-          '/foods/get-units/',
-          'get',
+          '/graphql/get/',
+          'post',
           () => {},
           (info) => {
-              const attributes = Object.keys(info).map(
-                  (key) => `${displayMap[key]} (${info[key]})`,
-              );
-              this.setState({
-                  attributes,
-              });
+              this.setState({ foodRestrictions: info.data.getFoodRestrictions });
           },
+          `{
+            getFoodRestrictions(uuidPatient: "${this.props.match.params.id}")
+        {
+            uuid, foodName
+        }
+        }`
       );
   };
 
   handleGlobal = (global) => {
-      this.setState({ global });
+      this.setState({ global: global });
   };
 
   render() {
@@ -53,6 +48,7 @@ class FoodSuggestions extends Component {
                             { ...props }
                             attributes={ this.state.attributes }
                             handleGlobal={ this.handleGlobal }
+                            foodRestrictions={ this.state.foodRestrictions }
                           />
                     ) }
                   />
