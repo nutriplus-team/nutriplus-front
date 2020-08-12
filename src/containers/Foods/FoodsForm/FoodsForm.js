@@ -19,29 +19,49 @@ const FoodsForm = (props) => {
     const [error, setError] = useState({content: '', header: ''});
     const [isLoading, setIsLoading] = useState(false);
   
-    const [name, setName] = useState(food['food_name'] || '');
-    const [group, setGroup] = useState(food['food_group'] || '');
-    const [totalGrams, setTotalGrams] = useState(food['measure_total_grams'] || 0);
-    const [type, setType] = useState(food['measure_type'] || '');
-    const [amount, setAmount] = useState(food['measure_amount'] || 0);
+    const [name, setName] = useState(food['foodName'] || '');
+    const [group, setGroup] = useState(food['foodGroup'] || '');
+    const [totalGrams, setTotalGrams] = useState(food['measureTotalGrams'] || 0);
+    const [type, setType] = useState(food['measureType'] || '');
+    const [amount, setAmount] = useState(food['measureAmount'] || 0);
     
     const [nutritionFacts, setNutritionFacts] = useState(
-        isEditing
-            ? props.food['nutrition_facts']
-            : {            
-                'calories': 0,
-                'proteins': 0,
-                'carbohydrates': 0,
-                'lipids': 0,
-                'fiber': 0,
-            }
+        {            
+            'calories': 0,
+            'proteins': 0,
+            'carbohydrates': 0,
+            'lipids': 0,
+            'fiber': 0,
+        }
     );
+    const [mealSet, setMealSet] = useState([]);
 
-    const [mealSet, setMealSet] = useState(
-        isEditing
-            ? props.food['meal_set']
-            : []
-    );
+    const getMoreInfo = () => {
+        if(isEditing) {
+            setIsLoading(true);
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                (message) => props.setError(message),
+                (info) => {
+                    setNutritionFacts(info.data['getUnits']);
+                    setMealSet(info.data['listMealsThatAFoodBelongsTo']);
+                    setIsLoading(false);
+                },
+                `query {
+                  getUnits(uuidFood: "${food['uuid']}") {
+                      calories,
+                      proteins,
+                      carbohydrates,
+                      lipids,
+                      fiber,
+                  },
+                  listMealsThatAFoodBelongsTo(uuidFood: "${food['uuid']}")
+                }`
+            );
+        }
+    };
+    useEffect(getMoreInfo, []);
 
     const handleNutritionFactsChange = (name, newValue) => {
         const update = {...nutritionFacts};
@@ -53,8 +73,9 @@ const FoodsForm = (props) => {
         const previous = [...mealSet];
 
         let update = [];
-        if (previous.includes(number))
+        if (previous.includes(number)) {
             update = previous.filter((num) => num !== number);
+        }
         else {
             previous.push(number);
             update = previous;
@@ -100,46 +121,110 @@ const FoodsForm = (props) => {
         setIsLoading(true);
 
         const updatedFood = {
-            'food_name': name,
-            'food_group': group,
-            'measure_total_grams': totalGrams,
-            'measure_type': type,
-            'measure_amount': amount,
+            'foodName': name,
+            'foodGroup': group,
+            'measureTotalGrams': totalGrams,
+            'measureType': type,
+            'measureAmount': amount,
             'calories': nutritionFacts['calories'],
             'proteins': nutritionFacts['proteins'],
             'carbohydrates': nutritionFacts['carbohydrates'],
             'lipids': nutritionFacts['lipids'],
             'fiber': nutritionFacts['fiber'],
-            'meal_set': mealSet.join('&')
+            'mealSet': mealSet
         };
 
         let valid = validateInputs();
         if (!valid)
             return;
 
-        let url;
-        if (isEditing)
-            url = `/foods/edit-food/${food.id}/`;
-        else
-            url = '/foods/add-new/';
+        const updateMealSet = (newFooduuid) => {
+            console.log(newFooduuid);
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                () => {
+                    setError({
+                        header: 'Erro ao se comunicar com o serviço.',
+                        content: 'Por favor, tente mais tarde.'
+                    });
+                    setIsLoading(false);
+                },
+                () => {
+                    setError({content: '', header: ''});
+                    setIsLoading(false);
+                    props.afterSubmit();
+                },
+                `mutation {
+                  setMeals(uuidFood: "${newFooduuid}", mealTypes: [${mealSet}]),
+                }`
+            );
+        };
 
-        sendAuthenticatedRequest(
-            url,
-            'post',
-            () => {
-                setError({
-                    header: 'Erro ao se comunicar com o serviço.',
-                    content: 'Por favor, tente mais tarde.'
-                });
-                setIsLoading(false);
-            },
-            () => {
-                setError({content: '', header: ''});
-                setIsLoading(false);
-                props.afterSubmit();
-            },
-            JSON.stringify(updatedFood)
-        );
+        if (isEditing)
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                () => {
+                    setError({
+                        header: 'Erro ao se comunicar com o serviço.',
+                        content: 'Por favor, tente mais tarde.'
+                    });
+                    setIsLoading(false);
+                },
+                (info) => {
+                    updateMealSet(info.data['customizeFood']);
+                },
+                `mutation {
+                  customizeFood( 
+                    uuidFood: "${food['uuid']}", 
+                    customInput: {
+                        measureTotalGrams: ${updatedFood.measureTotalGrams},
+                        measureType: "${updatedFood.measureType}",
+                        measureAmount: ${updatedFood.measureAmount}
+                    },
+                    nutritionInput: {
+                        calories: ${updatedFood.calories},
+                        proteins: ${updatedFood.proteins},
+                        carbohydrates: ${updatedFood.carbohydrates},
+                        lipids: ${updatedFood.lipids},
+                        fiber: ${updatedFood.fiber}    
+                    })
+              }`
+            );
+        else
+            sendAuthenticatedRequest(
+                '/graphql/get/',
+                'post',
+                () => {
+                    setError({
+                        header: 'Erro ao se comunicar com o serviço.',
+                        content: 'Por favor, tente mais tarde.'
+                    });
+                    setIsLoading(false);
+                },
+                (info) => {
+                    updateMealSet(info.data['createFood']);
+                },
+                `mutation {
+                    createFood(
+                      foodInput: {
+                            foodName: "${updatedFood.foodName}", 
+                            foodGroup: "${updatedFood.foodGroup}",
+                            measureTotalGrams: ${updatedFood.measureTotalGrams},
+                            measureType: "${updatedFood.measureType}",
+                            measureAmount: ${updatedFood.measureAmount}
+                      },
+                      nutritionInput: {
+                          calories: ${updatedFood.calories},
+                          proteins: ${updatedFood.proteins},
+                          carbohydrates: ${updatedFood.carbohydrates},
+                          lipids: ${updatedFood.lipids},
+                          fiber: ${updatedFood.fiber}    
+                      }
+                    )
+                }`
+            );
     };
 
     return (
@@ -157,6 +242,7 @@ const FoodsForm = (props) => {
                 <Form.Input 
                   fluid
                   value={ name }
+                  disabled={ isEditing }
                   onChange={ (event) => setName(event.target.value) }
                 />
             </Form.Field>
@@ -165,6 +251,7 @@ const FoodsForm = (props) => {
                 <Form.Input 
                   fluid
                   value={ group }
+                  disabled={ isEditing }
                   onChange={ (event) => setGroup(event.target.value) }
                 />
             </Form.Field>
@@ -240,27 +327,34 @@ const FoodsForm = (props) => {
           <Form.Field>
             <Checkbox
               label='Café da manhã'
+              onChange={ () => handleToggle(0) }
+              checked={ mealSet.includes(0) }
+            />
+          </Form.Field>
+          <Form.Field>
+            <Checkbox
+              label='Lanche da manhã'
               onChange={ () => handleToggle(1) }
               checked={ mealSet.includes(1) }
             />
           </Form.Field>
           <Form.Field>
             <Checkbox
-              label='Lanche da manhã'
+              label='Almoço'
               onChange={ () => handleToggle(2) }
               checked={ mealSet.includes(2) }
             />
           </Form.Field>
           <Form.Field>
             <Checkbox
-              label='Almoço'
+              label='Lanche da tarde'
               onChange={ () => handleToggle(3) }
               checked={ mealSet.includes(3) }
             />
           </Form.Field>
           <Form.Field>
             <Checkbox
-              label='Lanche da tarde'
+              label='Pré-Treino'
               onChange={ () => handleToggle(4) }
               checked={ mealSet.includes(4) }
             />
@@ -270,13 +364,6 @@ const FoodsForm = (props) => {
               label='Jantar'
               onChange={ () => handleToggle(5) }
               checked={ mealSet.includes(5) }
-            />
-          </Form.Field>
-          <Form.Field>
-            <Checkbox
-              label='Lanche da noite'
-              onChange={ () => handleToggle(6) }
-              checked={ mealSet.includes(6) }
             />
           </Form.Field>
           <Button type='submit' color='teal' size='large'>

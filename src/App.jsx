@@ -65,7 +65,7 @@ class App extends Component {
             render={ (props) => <Patients { ...props } /> }
           />
           <Route
-            path="/cardapio/:id"
+            path="/cardapio/:id/:ficha_id"
             render={ (props) => <FoodSuggestions { ...props } /> }
           />
           <Route

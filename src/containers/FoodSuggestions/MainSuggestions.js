@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
+
 import { Grid, Button } from 'semantic-ui-react';
+
+import { sendAuthenticatedRequest } from '../../utility/httpHelper';
+
 import Meal from './Meal';
 import MealTable from './MealTable';
 import Infos from './Infos';
 import SearchFood from './SearchFood';
 import GenerateSuggestions from './GenerateSuggestions';
-import { sendAuthenticatedRequest } from '../../utility/httpHelper';
+
+import IndicesTable from '../../components/IndicesTable/IndicesTable';
 
 const translationMap = {
     'Calorias (kcal)': 'calories',
     'Proteínas (g)': 'proteins',
     'Carboidratos (g)': 'carbohydrates',
-    'Lipídeos (g)': 'lipids',
+    'Lipídios (g)': 'lipids',
     'Fibra Alimentar (g)': 'fiber',
 };
 
@@ -24,28 +29,68 @@ const MainSuggestions = (props) => {
     const [mounted1, setMounted1] = useState(null);
     const [mounted2, setMounted2] = useState(null);
     const [foods, setFoods] = useState(null);
+    const [indices, setIndices] = useState(null);
     const [available, setAvailable] = useState(null);
 
-    useEffect(() => {
-        const runEffect = async () => {
-            sendAuthenticatedRequest(
-                '/foods/list-foods/',
-                'get',
-                () => {},
-                (info) => {
-                    setFoods(info);
-                    setMounted2(0);
-                },
-            );
-        };
+    const { ficha_id } = props.match.params;
+    const { attributes } = props;
 
-        runEffect();
+    useEffect(() => {
+        sendAuthenticatedRequest(
+            '/graphql/get/',
+            'post',
+            () => {},
+            (info) => {
+                setFoods(info.data.listFood);
+                setMounted2(0);
+            },
+            `query {
+              listFood {
+                  uuid,
+                  foodName,
+                  measureType,
+                  measureAmount,
+                  measureTotalGrams,
+                  nutritionFacts {
+                    calories,
+                    proteins,
+                    carbohydrates,
+                    lipids,
+                    fiber
+                  }
+              }
+          }`
+        );
     }, []);
+
+    useEffect(() => {
+        sendAuthenticatedRequest(
+            '/graphql/get/',
+            'post',
+            () => {},
+            (info) => {
+                setIndices({
+                    'bodyFat': {'name': info.data['getSingleRecord']['methodBodyFat'], 'value': info.data['getSingleRecord']['bodyFat']}, 
+                    'methabolicRate': {'name': info.data['getSingleRecord']['methodMethabolicRate'], 'value': info.data['getSingleRecord']['methabolicRate']}, 
+                    'energyRequirements': {'name':'Necessidades Energéticas', 'value': info.data['getSingleRecord']['energyRequirements']}
+                });
+            },
+            `query {
+                getSingleRecord(uuidRecord: "${ficha_id}") {
+                    methodBodyFat,
+                    methodMethabolicRate,
+                    bodyFat,
+                    methabolicRate,
+                    energyRequirements
+              }
+          }`
+        );
+    }, [ficha_id]);
 
     useEffect(() => {
         const initializeAttributes = () => {
             let resp;
-            props.attributes.forEach((attribute) => {
+            attributes.forEach((attribute) => {
                 if (resp) resp.push([attribute, 0]);
                 else resp = [[attribute, 0]];
             });
@@ -54,7 +99,7 @@ const MainSuggestions = (props) => {
         const initializeFactors = () => {
             const factors = {};
             foods.forEach((food) => {
-                factors[food.food_name] = 1;
+                factors[food.foodName] = 1;
             });
             return factors;
         };
@@ -90,17 +135,17 @@ const MainSuggestions = (props) => {
             setMounted1(1);
             setMounted2(1);
         }
-    }, [foods, mounted2, props.attributes]);
+    }, [foods, mounted2, attributes]);
 
     const handleMealChange = (e, { name, value }) => {
         if (name === 'Next') {
             if (+meal === 5) {
                 props.handleGlobal({
                     // nutritionFacts: nutritionFacts,
-                    menus,
-                    factors,
+                    menus: menus,
+                    factors: factors,
                 });
-                props.history.push(`/cardapio/${props.match.params.id}/fim`);
+                props.history.push(`/cardapio/${props.match.params.id}/${props.match.params.ficha_id}/fim`);
             } else setMeal(meal + 1);
         } else if (name === 'Prev') {
             if (meal > 0) setMeal(meal - 1);
@@ -130,20 +175,20 @@ const MainSuggestions = (props) => {
         setMenus(newMenus);
     };
 
-    const handleAvailable = (meal, available_items) => {
+    const handleAvailable = (meal, availableItems) => {
         const newAvailable = available.map((item, j) => {
             if (j === meal) {
-                return available_items;
+                return availableItems;
             }
             return item;
         });
         setAvailable(newAvailable);
     };
 
-    const handleFactors = (meal, factors_local) => {
+    const handleFactors = (meal, factorsLocal) => {
         const new_factors = factors.map((item, j) => {
             if (j === meal) {
-                return factors_local;
+                return factorsLocal;
             }
             return item;
         });
@@ -180,6 +225,7 @@ const MainSuggestions = (props) => {
                             <SearchFood
                               handlefoodClick={ handlefoodClick }
                               meal={ meal }
+                              foodRestrictions={ props.foodRestrictions }
                             />
                         </h4>
                     </Grid.Column>
@@ -190,7 +236,7 @@ const MainSuggestions = (props) => {
                           handleAvailable={ handleAvailable }
                           menus={ menus }
                           handleMenus={ handleMenus }
-                          attributes={ props.attributes }
+                          attributes={ attributes }
                           handleInfos={ handleInfos }
                           factors={ factors }
                           handleFactors={ handleFactors }
@@ -211,9 +257,13 @@ const MainSuggestions = (props) => {
                         </Grid>
                     </Grid.Column>
                     <Grid.Column width={ 4 }>
+                        <IndicesTable //87972c5a61d940a3b418fe2b1f354c50
+                          indices={ indices }
+                        />
+                        <br />
                         <GenerateSuggestions
                           translationMap={ translationMap }
-                          attributes={ props.attributes }
+                          attributes={ attributes }
                           meal={ meal }
                           NF={ suggestedNutFacts }
                           handleNFs={ handleSuggestedNutFacts } // handle dos valores digitados

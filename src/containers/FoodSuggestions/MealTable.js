@@ -51,7 +51,7 @@ class MealTable extends Component {
                             active={ meal === 4 }
                             onClick={ this.props.handleMeal }
                           >
-                Jantar
+                Pré-Treino
                           </Menu.Item>
                           <Menu.Item
                             name={ name }
@@ -59,7 +59,7 @@ class MealTable extends Component {
                             active={ meal === 5 }
                             onClick={ this.props.handleMeal }
                           >
-                Lanche da noite
+                Jantar
                           </Menu.Item>
                       </Menu.Menu>
                   </Menu.Item>

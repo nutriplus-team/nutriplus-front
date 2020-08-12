@@ -7,39 +7,65 @@ import ConfirmationModal from '../../../components/ConfirmationModal/Confirmatio
 import PatientCard, { patientCardPlaceholder } from '../../../components/PatientCard/PatientCard';
 import PatientRecords, { patientRecordsPlaceholder } from '../../../components/PatientRecords/PatientRecords';
 
+const pageSize = 10;
 
 class Patient extends Component {
   state = {
       recordQueryInfo: null,
       menuInfo: null,
+      restrictions: [],
       info: null,
       error: null,
-      hasNext: false,
-      hasPrevious: false,
       redirectUrl: null,
-      confirmation: false
+      confirmation: false,
+      confirmationFile: false,
+      page: null,
+      totalRecords: null,
+      toBeDeleted: ''
   };
+
+  getAllRecords = async () => sendAuthenticatedRequest(
+      '/graphql/get/',
+      'post',
+      (message) => this.setState({
+          error: message,
+      }),
+      (info) => this.setState({
+          totalRecords: info.data['getPatientRecords'].length,
+          page: 0
+      }),
+      `query {
+          getPatientRecords(uuidPatient: "${this.props.match.params.id}", indexPage: 0, sizePage: 1000000000)
+      {
+          dateModified, uuid
+      }
+      }`
+  );
+
+  getRecords = async ({redirect}) => sendAuthenticatedRequest(
+      '/graphql/get/',
+      'post',
+      (message) => this.setState({
+          error: message,
+      }),
+      (info) => this.setState({
+          recordQueryInfo: info,
+          redirectUrl: redirect ? `/pacientes/${this.props.match.params.id}` : null
+      }),
+      `query {
+          getPatientRecords(uuidPatient: "${this.props.match.params.id}", indexPage: ${this.state.page}, sizePage: ${pageSize})
+      {
+          dateModified, uuid, corporalMass, height
+      }
+      }`
+  );
 
   componentDidUpdate = async () => {
       if (this.props.location.search.length > 0) {
-          const { params } = this.props.match;
           const query = new URLSearchParams(this.props.location.search);
           if (query.get('refresh')) {
-              sendAuthenticatedRequest(
-                  `/patients/get-records/${params.id}/`,
-                  'get',
-                  (message) => {
-                      this.setState({
-                          error: message,
-                      });
-                  },
-                  (recordInfo) => this.setState({
-                      recordQueryInfo: recordInfo,
-                      hasPrevious: false,
-                      hasNext: recordInfo.next !== null,
-                      redirectUrl: `/pacientes/${params.id}`,
-                  }),
-              );
+              await this.getAllRecords();
+              this.getRecords({redirect: true});
           }
       }
   };
@@ -47,28 +73,36 @@ class Patient extends Component {
   componentDidMount = async () => {
       const { params } = this.props.match;
       sendAuthenticatedRequest(
-          `/patients/get-info/${params.id}/`,
-          'get',
+          '/graphql/get/',
+          'post',
           (message) => this.setState({
               error: message,
           }),
-          (info) => this.setState({ info }),
+          (info) => this.setState({info: info.data.getPatientInfo}),
+          `query {
+            getPatientInfo(uuidPatient: "${params.id}")
+            {
+                uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
+            }
+          }`
       );
       sendAuthenticatedRequest(
-          `/patients/get-records/${params.id}/`,
-          'get',
-          (message) => {
-              this.setState({
-                  error: message,
-              });
+          '/graphql/get/',
+          'post',
+          (message) => this.setState({error: message}),
+          (info) => {
+              this.setState({restrictions: info.data.getFoodRestrictions});
           },
-          (recordInfo) => this.setState({
-              recordQueryInfo: recordInfo,
-              hasPrevious: false,
-              hasNext: recordInfo.next !== null,
-          }),
+          `{
+            getFoodRestrictions(uuidPatient: "${params.id}")
+        {
+            uuid, foodName
+        }
+        }`
       );
-      sendAuthenticatedRequest(
+      await this.getAllRecords();
+      this.getRecords({redirect: false});
+      /*sendAuthenticatedRequest(
           `/menu/get-all/${params.id}/`,
           'get',
           (message) => {
@@ -79,51 +113,81 @@ class Patient extends Component {
           (menuInfo) => this.setState({
               menuInfo: menuInfo
           })
-      );
+      );*/
   };
 
-  deletePacient = async () => {
-      const { params } = this.props.match;
+  deletePatient = async () => {
+    const { params } = this.props.match;
       sendAuthenticatedRequest(
-          `/patients/remove-patient/${params.id}/`,
-          'get',
+          '/graphql/get/',
+          'post',
           (message) => {
               this.setState({
                   error: message,
               });
           },
-          () => {
+          (response) => {
+              console.log('deletePatient response', response);
               this.setState({ redirectUrl: '/pacientes?refresh=true' });
           },
+          `mutation{
+            removePatient(uuidPatient: "${params.ficha_id}")
+        }
+        `
       );
   };
 
-  deletePacientPreparation = () => {
+  deletePatientPreparation = () => {
       this.setState({ confirmation: true });
   }
+
+  deleteRecord = async () => {
+    const { params } = this.props.match;
+    sendAuthenticatedRequest(
+        '/graphql/get/',
+        'post',
+        (message) => {
+            this.setState({
+                error: message,
+            });
+        },
+        (response) => {
+            console.log('deletePatient response', response);
+            this.setState({ redirectUrl: `/pacientes/${params.id}?refresh=true`, confirmationFile: false });
+        },
+        `mutation {
+            removePatientRecord(uuidPatientRecord: "${this.state.toBeDeleted}")
+        }`
+        );
+    };
+
+    deleteRecordPreparation = (toBeDeleted) => {
+        this.setState({ confirmationFile: true, toBeDeleted: toBeDeleted });
+    }
 
   _renderPatientCard = (id) => (
     <PatientCard 
       backOnClick={ () => this.props.history.push('/pacientes') }
       patientOnClick={ () => this.props.history.push(`/pacientes/${id}/edit`) }
-      deletePacientPreparation={ this.deletePacientPreparation }
+      deletePatientPreparation={ this.deletePatientPreparation }
       info={ this.state.info }
+      restrictions={ this.state.restrictions }
     />
   );
 
-  _renderPatientRecors = (id) => (
+  _renderPatientRecord = (id) => (
     <PatientRecords 
       recordQueryInfo={ this.state.recordQueryInfo }
+      pageSize={ pageSize }
+      page={ this.state.page }
+      deleteRecordPreparation={ (recordID) => this.deleteRecordPreparation(recordID) }
+      changePage={ (pageNumber) => this.setState({page: pageNumber}) }
+      queryString={ 'getPatientRecords' }
       newRecordOnClick={ () => this.props.history.push(`/pacientes/${id}/criar-ficha`,) }
       editRecordOnClick={ (recordId) => this.props.history.push(`/pacientes/${id}/ficha/${recordId}`,) }
-      setResults={ (recordInfo) => this.setState({ recordQueryInfo: recordInfo }) }
-      setHasNext={ (value) => this.setState({ hasNext: value }) }
-      setHasPrevious={ (value) => this.setState({ hasPrevious: value }) }
       setMessage={ (message) => this.setState({
           error: message,
       }) }
-      hasPrevious={ this.state.hasPrevious }
-      hasNext={ this.state.hasNext }
     />
   )
 
@@ -132,9 +196,15 @@ class Patient extends Component {
       return (
           <div>
               <ConfirmationModal
+                message='Você quer mesmo excluir esta ficha?'
+                open={ this.state.confirmationFile }
+                handleConfirmation={ () => this.deleteRecord() }
+                handleRejection={ () => this.setState({ confirmationFile: false }) }
+              />
+              <ConfirmationModal
                 message='Você quer mesmo excluir este paciente?'
                 open={ this.state.confirmation }
-                handleConfirmation={ () => this.deletePacient() }
+                handleConfirmation={ () => this.deletePatient() }
                 handleRejection={ () => this.setState({ confirmation: false }) }
               />
               {this.state.error ? <p>{this.state.error}</p> : null}
@@ -143,7 +213,7 @@ class Patient extends Component {
                   : patientCardPlaceholder()
               }
               {this.state.info 
-                  ? this._renderPatientRecors(params.id)
+                  ? this._renderPatientRecord(params.id)
                   : patientRecordsPlaceholder()}              
               
               {this.state.redirectUrl && <Redirect to={ this.state.redirectUrl } />}

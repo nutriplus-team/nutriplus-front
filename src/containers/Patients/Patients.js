@@ -6,40 +6,77 @@ import {
 import Patient from './Patient/Patient';
 import Register from './Register/Register';
 import PatientRecordCreator from './PatientRecord/PatientRecordCreator/PatientRecordCreator';
-import PatientRecord from './PatientRecord/PatientRecord';
 import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 import Paginator from '../../utility/paginator';
 import classes from './Patients.module.css';
+import PatientAppointment from './PatientAppointment/PatientAppointment';
 
-const placeholder = (
+const placeholder =  (
   <Paginator
-    queryResults={ {results: [...Array(10).keys()]} }
+    queryResults={ {data: {placeholder: [...Array(10).keys()]}} }
+    totalLength={ 10 }
+    pageSize={ 10 }
+    page={ 0 }
+    changePage={ () => {} }
+    queryString={ 'placeholder' }
     filter={ () => true }
-    listElementMap={ (elem) => (
-        <li key={ elem }>
-            <Placeholder>
+    listElementMap={ (key) => (
+          <li key={ key }>
+              <Placeholder>
                 <Placeholder.Line />
             </Placeholder>
-        </li>
+          </li>
     ) }
-    setResults={ () => {} }
-    setHasNext={ () => {} }
-    setHasPrevious={ () => {} }
     setMessage={ () => {} }
-    hasPrevious={ false }
-    hasNext={ false }
     isList
   />
 );
+const pageSize = 10;
 
 class Patients extends Component {
   state = {
       patientsQueryInfo: null,
       error: null,
-      hasNext: false,
-      hasPrevious: false,
+      totalPatients: null,
       redirect: false,
+      page: null
   };
+
+  getAllPatients = async () => sendAuthenticatedRequest(
+      '/graphql/get/',
+      'post',
+      (message) => this.setState({
+          error: message,
+      }),
+      (info) => this.setState({
+          totalPatients: info.data['getAllPatients'].length,
+          page: 0
+      }),
+      `query {
+          getAllPatients(indexPage: 0, sizePage: 1000000000)
+      {
+          name, uuid
+      }
+      }`
+  );
+
+  getPatients = async ({redirect}) => sendAuthenticatedRequest(
+      '/graphql/get/',
+      'post',
+      (message) => this.setState({
+          error: message,
+      }),
+      (info) => this.setState({
+          patientsQueryInfo: info,
+          redirect: redirect
+      }),
+      `query {
+        getAllPatients(indexPage: ${this.state.page}, sizePage: ${pageSize})
+          {
+            name, uuid
+          }
+      }`
+  );
 
   componentDidUpdate = async () => {
       if (this.props.location.search.length > 0) {
@@ -49,41 +86,18 @@ class Patients extends Component {
               query.get('refresh')
         && this.props.location.pathname === '/pacientes'
           ) {
-              sendAuthenticatedRequest(
-                  '/patients/get-all-patients/',
-                  'get',
-                  (message) => this.setState({
-                      error: message,
-                  }),
-                  (info) => this.setState({
-                      patientsQueryInfo: info,
-                      error: null,
-                      hasPrevious: false,
-                      hasNext: info.next !== null,
-                      redirect: true,
-                  }),
-              );
+              this.getPatients({redirect: true});
           }
       }
   };
 
   componentDidMount = async () => {
-      sendAuthenticatedRequest(
-          '/patients/get-all-patients/',
-          'get',
-          (message) => this.setState({
-              error: message,
-          }),
-          (info) => this.setState({
-              patientsQueryInfo: info,
-              error: null,
-              hasPrevious: false,
-              hasNext: info.next !== null,
-          }),
-      );
+      await this.getAllPatients();
+      this.getPatients({redirect: false});
   };
 
   render() {
+      console.log('I\'ve been triggered.');
       return (
           <div>
               <Switch>
@@ -94,12 +108,16 @@ class Patients extends Component {
                   <Route
                     exact
                     path="/pacientes/:id/criar-ficha"
-                    render={ (props) => <PatientRecordCreator { ...props } /> }
+                    render={ (props) => <PatientAppointment { ...props } firstTimeCreate/> }
+                  />
+                  <Route
+                    path="/pacientes/:id/ficha/:ficha_id/final"
+                    render={ (props) => <PatientAppointment { ...props } final/> }
                   />
                   <Route
                     exact
                     path="/pacientes/:id/ficha/:ficha_id"
-                    render={ (props) => <PatientRecord { ...props } /> }
+                    render={ (props) => <PatientAppointment { ...props }/> }
                   />
                   <Route
                     path="/pacientes/:id/ficha/:ficha_id/edit"
@@ -121,31 +139,28 @@ class Patients extends Component {
                     render={ () => (
                           <div className={ classes.patients }>
                           <Header size='huge' style = { {textAlign: 'left' } } >Meus Pacientes</Header>
-                              {this.state.patientsQueryInfo ? 
-                                  (
-                                    <Paginator
-                                      queryResults={ this.state.patientsQueryInfo }
-                                      filter={ () => true }
-                                      listElementMap={ (patient) => (
-                                            <li key={ patient.id }>
-                                                <NavLink to={ `/pacientes/${patient.id}` }>
-                                                    {patient.name}
-                                                </NavLink>
-                                            </li>
-                                      ) }
-                                      setResults={ (patientInfo) => this.setState({ patientsQueryInfo: patientInfo }) }
-                                      setHasNext={ (value) => this.setState({ hasNext: value }) }
-                                      setHasPrevious={ (value) => this.setState({ hasPrevious: value }) }
-                                      setMessage={ (message) => this.setState({
-                                          error: message,
-                                      }) }
-                                      hasPrevious={ this.state.hasPrevious }
-                                      hasNext={ this.state.hasNext }
-                                      isList
-                                    /> 
-                                  )
-                                  : placeholder
-                              }
+                              {this.state.patientsQueryInfo ? (
+                                  <Paginator
+                                    queryResults={ this.state.patientsQueryInfo }
+                                    totalLength={ this.state.totalPatients }
+                                    pageSize={ pageSize }
+                                    page={ this.state.page }
+                                    changePage={ (pageNumber) => this.setState({page: pageNumber}, () => this.getPatients({redirect: false})) }
+                                    queryString={ 'getAllPatients' }
+                                    filter={ () => true }
+                                    listElementMap={ (patient) => (
+                                          <li key={ patient.uuid }>
+                                              <NavLink to={ `/pacientes/${patient.uuid}` }>
+                                                  {patient.name}
+                                              </NavLink>
+                                          </li>
+                                    ) }
+                                    setMessage={ (message) => this.setState({
+                                        error: message,
+                                    }) }
+                                    isList
+                                  />
+                              ) : placeholder}
                               {this.state.error && <p>{this.state.error}</p>}
                               {this.state.redirect && <Redirect to="/pacientes" />}
                         <Button

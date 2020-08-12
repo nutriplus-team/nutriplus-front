@@ -4,7 +4,7 @@ import { Button, Grid, GridColumn, Placeholder } from 'semantic-ui-react';
 
 import Paginator from '../../utility/paginator';
 
-const patientRecords = (props) => (
+const patientRecords = (props) => { console.log(props.recordQueryInfo); return (
     <Grid style={ { margin: '20px' } }>
         <Grid.Row style = { {textAlign: 'left' } } columns="equal">
             <Grid.Column></Grid.Column>
@@ -28,31 +28,30 @@ const patientRecords = (props) => (
                     </Grid>
                 </Grid.Row>
                 <Grid.Row>
-                    {props.recordQueryInfo ? (
-                    
-                    <Paginator
-                      isConsultList
-                      queryResults={ props.recordQueryInfo }
-                      filter={ () => true }
-                      listElementMap={ (record) => (
-                        <div
-                          key={ record.id }
-                          onClick={ () => props.editRecordOnClick(record.id) }
-                        >
-                        <span>Data: {record.date_modified}</span>
-                        <span>Peso:{record.corporal_mass}</span>
-                        <span>Altura:{record.height}</span>
-                        <span>IMC:{record.BMI}</span>
-                        </div>
-                      ) }
-                      setResults={ props.setResults }
-                      setHasNext={ props.setHasNext }
-                      setHasPrevious={ props.setHasPrevious }
-                      setMessage={ props.setMessage }
-                      hasPrevious={ props.hasPrevious }
-                      hasNext={ props.hasNext }
-                      buttonSize="large"
-                    />
+                    {props.recordQueryInfo ? (                    
+                      <Paginator
+                        isConsultList
+                        queryResults={ props.recordQueryInfo }
+                        pageSize={ props.pageSize }
+                        page={ props.page }
+                        changePage={ props.changePage }
+                        queryString={ props.queryString }
+                        filter={ () => true }
+                        listElementMap={ (record) => (
+                          <div
+                            key={ record.uuid }
+                            onClick={ () => props.editRecordOnClick(record.uuid) }
+                            onClickDelete={ () => props.deleteRecordPreparation(record.uuid) }
+                          >
+                          <span>Data: {record.dateModified}</span>
+                          <span>Peso:{record.corporalMass}</span>
+                          <span>Altura:{record.height}</span>
+                          <span>IMC:{Number(record.corporalMass / (record.height * record.height)).toFixed(1)}</span>
+                          </div>
+                        ) }
+                        setMessage={ props.setMessage }
+                        buttonSize="large"
+                      />
                     
                     ) : (<p>Ainda não há consultas para esse paciente!</p>)}
                 </Grid.Row>
@@ -60,7 +59,7 @@ const patientRecords = (props) => (
         <Grid.Column></Grid.Column>
         </Grid.Row>
     </Grid>
-);
+);};
 
 const patientRecordsPlaceholder = () => (
     <Grid style={ { margin: '20px' } }>
@@ -88,7 +87,11 @@ const patientRecordsPlaceholder = () => (
                 <Grid.Row>
                     <Paginator
                       isConsultList
-                      queryResults={ {results: [...Array(5).keys()]} }
+                      queryResults={ {data: {'placeholder': [...Array(5).keys()]}} }
+                      pageSize={ 5 }
+                      page={ 0 }
+                      changePage={ () => {} }
+                      queryString={ 'placeholder' }
                       filter={ () => true }
                       listElementMap={ (elem) => (
                         <div key={ elem }>
@@ -98,12 +101,7 @@ const patientRecordsPlaceholder = () => (
                           <div><Placeholder><Placeholder.Line/></Placeholder></div>
                         </div>
                       ) }
-                      setResults={ () => {} }
-                      setHasNext={ () => {} }
-                      setHasPrevious={ () => {} }
                       setMessage={ () => {} }
-                      hasPrevious={ false }
-                      hasNext={ false }
                       buttonSize="large"
                     />
                 </Grid.Row>

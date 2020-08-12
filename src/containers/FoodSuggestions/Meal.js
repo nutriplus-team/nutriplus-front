@@ -9,15 +9,15 @@ const mealMap = {
     1: 'Lanche da manhã',
     2: 'Almoço',
     3: 'Lanche da tarde',
-    4: 'Jantar',
-    5: 'Lanche da noite',
+    4: 'Pré-Treino',
+    5: 'Jantar',
 };
 
 const attributesMap = {
     'Calorias (kcal)': 'calories',
     'Proteínas (g)': 'proteins',
     'Carboidratos (g)': 'carbohydrates',
-    'Lipídeos (g)': 'lipids',
+    'Lipídios (g)': 'lipids',
     'Fibra Alimentar (g)': 'fiber',
 };
 
@@ -45,8 +45,8 @@ class Meal extends Component {
           let nfVal = 0;
           menu.forEach((food) => {
               nfVal
-          += food.nutrition_facts[attributesMap[attribute]]
-            * factors[food.food_name];
+          += food.nutritionFacts[attributesMap[attribute]]
+            * factors[food.foodName];
           });
           const nf = [attribute, nfVal];
           if (nutritionFact) nutritionFact.push(nf);
@@ -63,8 +63,8 @@ class Meal extends Component {
           let nfVal = 0;
           menu.forEach((food) => {
               nfVal
-          += food.nutrition_facts[attributesMap[attribute]]
-            * factors[food.food_name];
+          += food.nutritionFacts[attributesMap[attribute]]
+            * factors[food.foodName];
           });
           const nf = [attribute, nfVal];
           if (nutritionFact) nutritionFact.push(nf);
@@ -121,9 +121,9 @@ class Meal extends Component {
       const { menu } = this.state;
       if (available || menu) {
           const availableTable = available.map((food) => (
-              <Segment.Group compact key={ food.food_name }>
+              <Segment.Group compact key={ food.foodName }>
                   <Segment inverted color="green">
-                      <center>{food.food_name}</center>
+                      <center>{food.foodName}</center>
                   </Segment>
                   <Button.Group>
                       <Button
@@ -147,9 +147,9 @@ class Meal extends Component {
               </Segment.Group>
           ));
           const menuTable = menu.map((food) => (
-              <Segment.Group compact key={ food.food_name }>
+              <Segment.Group compact key={ food.foodName }>
                   <Segment inverted color="blue">
-                      <center>{food.food_name}</center>
+                      <center>{food.foodName}</center>
                   </Segment>
                   <Button.Group>
                       <Button
@@ -260,7 +260,7 @@ class Meal extends Component {
       if (event) {
           let factors = this.props.factors[this.props.meal];
           factors = factors ? factors : {}; 
-          factors[food.food_name] = event.target.value;
+          factors[food.foodName] = event.target.value;
           await new Promise((resolve) => {
               this.setState({ factors }, () => {
                   resolve();
@@ -277,11 +277,11 @@ class Meal extends Component {
       let content;
       if (menu) {
           content = menu.map((food) => (
-              <Table.Row key={ food.food_name }>
-                  <Table.Cell>{food.food_name}</Table.Cell>
+              <Table.Row key={ food.foodName }>
+                  <Table.Cell>{food.foodName}</Table.Cell>
                   <Table.Cell>
                       <Input
-                        value={ this.searchFactor(food.food_name) }
+                        value={ this.searchFactor(food.foodName) }
                         onChange={ (e) => {
                             if (!numberValidator(e.target.value, 2, true, 1)) return;
                             this.setFactor(food, e);
@@ -290,10 +290,10 @@ class Meal extends Component {
                   </Table.Cell>
                   <Table.Cell>
                       {`${(
-                          food.measure_amount * Number(this.searchFactor(food.food_name))
+                          food.measureAmount * Number(this.searchFactor(food.foodName))
                       ).toFixed(2)
                       } ${
-                          food.measure_type}`}
+                          food.measureType}`}
                   </Table.Cell>
               </Table.Row>
           ));

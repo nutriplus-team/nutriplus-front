@@ -65,24 +65,24 @@ class GenerateSuggestions extends Component {
   handleFetch = async () => {
       const content = {};
       this.state.NF.forEach((atribute) => {
-          content[this.props.translationMap[atribute[0]]] = atribute[1].toString(
-              10,
-          );
+          content[this.props.translationMap[atribute[0]]] = +atribute[1];
       });
       let response;
       await sendAuthenticatedRequest(
-          `/menu/generate/${this.props.meal + 1}/${this.props.patient_id}/`,
+          `/diet/generate/${this.props.patient_id}/${this.props.meal}/`,
           'post',
           () => {},
           (resp) => (response = resp),
           JSON.stringify(content),
+          false,
+          true
       );
-      if (response.Quantities.length && response.Suggestions.length) {
-          this.props.handleMenus(this.props.meal, response.Suggestions);
+      if (response.quantities.length && response.suggestions.length) {
+          this.props.handleMenus(this.props.meal, response.suggestions);
           this.setFactor(
               this.props.meal,
-              response.Suggestions,
-              response.Quantities,
+              response.suggestions,
+              response.quantities,
           );
       }
   };
@@ -90,7 +90,7 @@ class GenerateSuggestions extends Component {
   setFactor = (meal, foods, quantities) => {
       const factors = this.props.factors[meal];
       foods.forEach((food, index) => {
-          factors[food.food_name] = quantities[index];
+          factors[food.foodName] = quantities[index];
       });
       this.props.handleFactors(this.props.meal, factors);
   };
