@@ -49,23 +49,9 @@ class PatientRecordCreator extends Component {
   };
 
   componentDidUpdate = async () => {
-    const { params } = this.props.match;
-    sendAuthenticatedRequest(
-        '/graphql/get/',
-        'post',
-        (message) => this.setState({
-            message: message,
-        }),
-        (info) => this.setState({patient: info.data.getPatientInfo}),
-        `query {
-          getPatientInfo(uuidPatient: "${params.id}")
-          {
-              uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
-          }
-        }`
-    );
     if (this.state.editing && !this.state.creating) {
         // Pegar aqui o uuid da ficha
+        const { params } = this.props.match;
         let uuidRecord = params.ficha_id ? params.ficha_id : this.state.recordId;
         console.log("PARAMS",params);
         console.log("RECORDID",this.state.recordId);
@@ -133,58 +119,60 @@ class PatientRecordCreator extends Component {
             }
           }`
       );
-      if (this.state.editing && !this.state.creating) {
-          // Pegar aqui o uuid da ficha
-          let uuidRecord = params.ficha_id ? params.ficha_id : this.state.recordId;
-          console.log("PARAMS",params);
-          console.log("RECORDID",this.state.recordId);
-          sendAuthenticatedRequest(
-              '/graphql/get/',
-              'post',
-              (message) => this.setState({
-                  message: message,
-              }),
-              (info) => {
-                  info = info.data.getSingleRecord;
-                  this.setState({
-                      weight: info.corporalMass,
-                      height: info.height,
-                      athlete: info.isAthlete === true ? 'Atleta' : 'Não atleta',
-                      physicalActivity: this.mapNumberToPhysicalActivityOption(
-                          info.physicalActivityLevel,
-                      ),
-                      methabolicAuthor: info.methodBodyFat,
-                      energyRequirements: info.methodMethabolicRate,
-                      subscapular: info.subscapular,
-                      triceps: info.triceps,
-                      biceps: info.biceps,
-                      chest: info.chest,
-                      axillary: info.axillary,
-                      supriailiac: info.supriailiac,
-                      abdominal: info.abdominal,
-                      thigh: info.thigh,
-                      calf: info.calf,
-                      waistCirc: info.waistCirc,
-                      abdominalCirc: info.abdominalCirc,
-                      hipsCirc: info.hipsCirc,
-                      rightArmCirc: info.rightArmCirc,
-                      thighCirc: info.thighCirc,
-                      calfCirc: info.calfCirc,
-                      obs: info.observations,
-                  });
-              },
-              `query {
-                getSingleRecord(uuidRecord: "${uuidRecord}")
-                {
-                    corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
-                    supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
-                    methodBodyFat, methodMethabolicRate
-                }
-              }`
-          );
-          //this.setState({ editing: true });
+
+      if(!this.props.firstTimeCreate){
+          this.loadRecord(params);
       }
   };
+
+  loadRecord = (params) => {
+    // Pegar aqui o uuid da ficha passado na url pois soh eh necessario visualizar, nao criar
+    let uuidRecord = params.ficha_id;
+    sendAuthenticatedRequest(
+        '/graphql/get/',
+        'post',
+        (message) => this.setState({
+            message: message,
+        }),
+        (info) => {
+            info = info.data.getSingleRecord;
+            this.setState({
+                weight: info.corporalMass,
+                height: info.height,
+                athlete: info.isAthlete === true ? 'Atleta' : 'Não atleta',
+                physicalActivity: this.mapNumberToPhysicalActivityOption(
+                    info.physicalActivityLevel,
+                ),
+                methabolicAuthor: info.methodBodyFat,
+                energyRequirements: info.methodMethabolicRate,
+                subscapular: info.subscapular,
+                triceps: info.triceps,
+                biceps: info.biceps,
+                chest: info.chest,
+                axillary: info.axillary,
+                supriailiac: info.supriailiac,
+                abdominal: info.abdominal,
+                thigh: info.thigh,
+                calf: info.calf,
+                waistCirc: info.waistCirc,
+                abdominalCirc: info.abdominalCirc,
+                hipsCirc: info.hipsCirc,
+                rightArmCirc: info.rightArmCirc,
+                thighCirc: info.thighCirc,
+                calfCirc: info.calfCirc,
+                obs: info.observations,
+            });
+        },
+        `query {
+            getSingleRecord(uuidRecord: "${uuidRecord}")
+            {
+                corporalMass, height, isAthlete, physicalActivityLevel, subscapular, triceps, biceps, chest, axillary,
+                supriailiac, abdominal, thigh, calf, waistCirc, abdominalCirc, hipsCirc, rightArmCirc, thighCirc, calfCirc, observations,
+                methodBodyFat, methodMethabolicRate
+            }
+        }`
+    );
+  }
 
   setEdit = (editState) => {
     this.setState({ editing: editState });
@@ -499,11 +487,12 @@ class PatientRecordCreator extends Component {
 
   render() {
       const { params } = this.props.match;
+      // Voce esta apenas vendo a informacao da ficha se nao esta a criando pela primeira vez nem a editando
+      let viewing = (!this.props.firstTimeCreate) || !(this.state.editing || this.state.creating);
 
       return (
           <>
-          {console.log("OPA", this.state.recordId)}
-          {(this.state.editing || this.state.creating) ? 
+          {(!viewing) ? 
           (<div>
               <h4>
 Paciente:

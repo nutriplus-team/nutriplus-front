@@ -6,7 +6,6 @@ import {
 import Patient from './Patient/Patient';
 import Register from './Register/Register';
 import PatientRecordCreator from './PatientRecord/PatientRecordCreator/PatientRecordCreator';
-import PatientRecord from './PatientRecord/PatientRecord';
 import { sendAuthenticatedRequest } from '../../utility/httpHelper';
 import Paginator from '../../utility/paginator';
 import classes from './Patients.module.css';
@@ -109,13 +108,12 @@ class Patients extends Component {
                   <Route
                     exact
                     path="/pacientes/:id/criar-ficha"
-                    // render={ (props) => <PatientRecordCreator { ...props } /> }
-                    render={ (props) => <PatientAppoiment { ...props } /> }
+                    render={ (props) => <PatientAppoiment { ...props } firstTimeCreate/> }
                   />
                   <Route
                     exact
                     path="/pacientes/:id/ficha/:ficha_id"
-                    render={ (props) => <PatientRecord { ...props } /> }
+                    render={ (props) => <PatientAppoiment { ...props }/> }
                   />
                   <Route
                     path="/pacientes/:id/ficha/:ficha_id/edit"

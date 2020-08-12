@@ -48,16 +48,19 @@ class PatientAppoiment extends Component {
                             </Button>
                         </Grid.Column>
                         <Grid.Column  >
-                            <h2> Nova consulta de {this.state.info.name}</h2>
+                            {this.props.create ? 
+                            <h2> Nova consulta de {this.state.info.name}</h2> : 
+                            <h2> Consulta de {this.state.info.name}</h2>}
                         </Grid.Column>
                         <Grid.Column>
+                            {this.props.create ? 
                             <Button
                               color="teal"
                               size="big"
                               onClick={ () => this.props.history.push(`/pacientes/${params.id}/edit`) }
                             >
                             Finalizar Consulta
-                            </Button> 
+                            </Button> : null}
                         </Grid.Column>
                     </Grid.Row>
                     <Divider />
@@ -70,7 +73,7 @@ class PatientAppoiment extends Component {
                         <h2 style = { {textAlign: 'center', marginTop: '10px' } }>Ficha do Paciente</h2>   
                     </Grid.Row>
                     <Grid.Row>
-                    <PatientRecordCreator { ...this.props } />
+                    <PatientRecordCreator { ...this.props } create={this.props.create}/>
                     </Grid.Row>
                 </Grid.Column>
                 <Grid.Column>
