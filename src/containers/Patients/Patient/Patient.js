@@ -215,11 +215,6 @@ E-mail:
               >
           Criar cardápio para o paciente
               </Button>
-              {/*this.state.menuInfo && this.state.menuInfo.map(menu => 
-                  (<div key={ menu.id } style={ {margin: 'auto', width: '20%', border: '1px solid black'} }>
-                      <h4>{ mealMap[menu.meal_type] }</h4>
-                <p>{menu.portions.reduce((prev, curr)=> prev+` ${curr.quantity} ${curr.food.food_name}`, '')}</p></div>))
-              */}
               <br />
               {this.state.recordQueryInfo ? (
                   <div className={ classes.records }>

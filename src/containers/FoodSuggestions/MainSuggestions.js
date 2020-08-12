@@ -11,7 +11,7 @@ const translationMap = {
     'Calorias (kcal)': 'calories',
     'Proteínas (g)': 'proteins',
     'Carboidratos (g)': 'carbohydrates',
-    'Lipídeos (g)': 'lipids',
+    'Lipídios (g)': 'lipids',
     'Fibra Alimentar (g)': 'fiber',
 };
 
@@ -29,13 +29,27 @@ const MainSuggestions = (props) => {
     useEffect(() => {
         const runEffect = async () => {
             sendAuthenticatedRequest(
-                '/foods/list-foods/',
-                'get',
+                '/graphql/get/',
+                'post',
                 () => {},
                 (info) => {
-                    setFoods(info);
+                    setFoods(info.data.listFood);
                     setMounted2(0);
                 },
+                `query {
+                  listFood {
+                      foodName,
+                      measureType,
+                      measureAmount,
+                      nutritionFacts {
+                        calories,
+                        proteins,
+                        carbohydrates,
+                        lipids,
+                        fiber
+                      }
+                  }
+              }`
             );
         };
 
@@ -54,7 +68,7 @@ const MainSuggestions = (props) => {
         const initializeFactors = () => {
             const factors = {};
             foods.forEach((food) => {
-                factors[food.food_name] = 1;
+                factors[food.foodName] = 1;
             });
             return factors;
         };
@@ -130,20 +144,20 @@ const MainSuggestions = (props) => {
         setMenus(newMenus);
     };
 
-    const handleAvailable = (meal, available_items) => {
+    const handleAvailable = (meal, availableItems) => {
         const newAvailable = available.map((item, j) => {
             if (j === meal) {
-                return available_items;
+                return availableItems;
             }
             return item;
         });
         setAvailable(newAvailable);
     };
 
-    const handleFactors = (meal, factors_local) => {
+    const handleFactors = (meal, factorsLocal) => {
         const new_factors = factors.map((item, j) => {
             if (j === meal) {
-                return factors_local;
+                return factorsLocal;
             }
             return item;
         });

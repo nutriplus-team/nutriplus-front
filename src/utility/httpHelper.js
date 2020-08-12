@@ -5,6 +5,7 @@ export const sendAuthenticatedRequest = async (
     afterRequest,
     body = null,
     fullURL = false,
+    isJson = false,
 ) => {
     let response;
 
@@ -21,7 +22,7 @@ export const sendAuthenticatedRequest = async (
             body: body,
             headers: new Headers({
                 Authorization: 'Port ' + localStorage.getItem('stored_token'),
-                'Content-Type': 'text/plain',
+                'Content-Type': isJson ? 'application/json' : 'text/plain',
             }),
         });
     } else {
@@ -36,7 +37,7 @@ export const sendAuthenticatedRequest = async (
     console.log('response', response);
     const responseJson = await response.json();
     console.log('responseJson', responseJson);
-    if (response.status === 200 && responseJson.data) {
+    if (response.status === 200 && (responseJson.data || isJson)) {
         afterRequest(responseJson);
     } else if (response.status === 403) {
         setMessage('A sua sessão expirou! Logando de novo...');

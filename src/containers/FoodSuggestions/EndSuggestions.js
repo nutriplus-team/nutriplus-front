@@ -49,8 +49,8 @@ class EndCardapio extends Component {
           let nfVal = 0;
           menu.forEach((food) => {
               nfVal
-          += food.nutrition_facts[attributesMap[attribute]]
-            * factors[food.food_name];
+          += food.nutritionFacts[attributesMap[attribute]]
+            * factors[food.foodName];
           });
           const vn = [attribute, nfVal];
           if (nutritionalFacts) nutritionalFacts.push(vn);
@@ -67,21 +67,21 @@ class EndCardapio extends Component {
       const appendToOptions = (actual, index) => {
           options = [
               ...options,
-              <Table.Body key={ `${actual.food_name}_${j}_${index}` }>
+              <Table.Body key={ `${actual.foodName}_${j}_${index}` }>
                   <Table.Row>
-                      <Table.Cell>{actual.food_name}</Table.Cell>
+                      <Table.Cell>{actual.foodName}</Table.Cell>
                       <Table.Cell>
                           {`${(
                               Number(this.state.newFactors[meal][j][index])
-                * actual.measure_amount
+                * actual.measureAmount
                           ).toFixed(2)
                           } ${
-                              actual.measure_type}`}
+                              actual.measureType}`}
                       </Table.Cell>
                       <Table.Cell>
                           {`${(
                               Number(this.state.newFactors[meal][j][index])
-                * actual.measure_total_grams
+                * actual.measureTotalGrams
                           ).toFixed(2)} g`}
                       </Table.Cell>
                   </Table.Row>
@@ -132,21 +132,21 @@ class EndCardapio extends Component {
           const appendToOptions = (actual, index) => {
               options = [
                   ...options,
-                  <Table.Body key={ `${actual.food_name}_${i}_${index}` }>
+                  <Table.Body key={ `${actual.foodName}_${i}_${index}` }>
                       <Table.Row>
-                          <Table.Cell>{actual.food_name}</Table.Cell>
+                          <Table.Cell>{actual.foodName}</Table.Cell>
                           <Table.Cell>
                               {`${(
                                   Number(this.state.newFactors[meal][i][index])
-                  * actual.measure_amount
+                  * actual.measureAmount
                               ).toFixed(2)
                               } ${
-                                  actual.measure_type}`}
+                                  actual.measureType}`}
                           </Table.Cell>
                           <Table.Cell>
                               {`${(
                                   Number(this.state.newFactors[meal][i][index])
-                  * actual.measure_total_grams
+                  * actual.measureTotalGrams
                               ).toFixed(2)} g`}
                           </Table.Cell>
                       </Table.Row>
@@ -200,11 +200,11 @@ class EndCardapio extends Component {
           (resp) => (response = resp),
           JSON.stringify(content),
       );
-      if (response.Quantities.length && response.Suggestions.length) {
+      if (response.quantities.length && response.suggestions.length) {
           const newMenus = [...this.state.newMenus];
-          newMenus[meal][i] = response.Suggestions;
+          newMenus[meal][i] = response.suggestions;
           const newFactors = [...this.state.newFactors];
-          newFactors[meal][i] = response.Quantities;
+          newFactors[meal][i] = response.quantities;
           await new Promise((resolve) => {
               this.setState({ newMenus, newFactors }, () => {
                   resolve();
@@ -223,21 +223,21 @@ class EndCardapio extends Component {
           content_i = menu.map((actual) =>
           // uma refeicao, uma tabela com varios "ou"
               (
-                  <Table.Body key={ actual.food_name }>
+                  <Table.Body key={ actual.foodName }>
                       <Table.Row>
-                          <Table.Cell>{actual.food_name}</Table.Cell>
+                          <Table.Cell>{actual.foodName}</Table.Cell>
                           <Table.Cell>
                               {`${(
-                                  Number(this.props.global.factors[meal][actual.food_name])
-                  * actual.measure_amount
+                                  Number(this.props.global.factors[meal][actual.foodName])
+                  * actual.measureAmount
                               ).toFixed(2)
                               } ${
-                                  actual.measure_type}`}
+                                  actual.measureType}`}
                           </Table.Cell>
                           <Table.Cell>
                               {`${(
-                                  Number(this.props.global.factors[meal][actual.food_name])
-                  * actual.measure_total_grams
+                                  Number(this.props.global.factors[meal][actual.foodName])
+                  * actual.measureTotalGrams
                               ).toFixed(2)} g`}
                           </Table.Cell>
                       </Table.Row>
@@ -287,7 +287,7 @@ class EndCardapio extends Component {
           let ansQuantities = '';
           menu.forEach((food) => {
               ansCardapio += `${food.id}&`;
-              ansQuantities += `${factors[food.food_name]}&`;
+              ansQuantities += `${factors[food.foodName]}&`;
           });
           ansCardapio = ansCardapio.slice(0, -1);
           ansQuantities = ansQuantities.slice(0, -1);

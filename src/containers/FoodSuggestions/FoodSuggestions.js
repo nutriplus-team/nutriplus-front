@@ -2,15 +2,6 @@ import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import EndSuggestions from './EndSuggestions';
 import MainSuggestions from './MainSuggestions';
-import { sendAuthenticatedRequest } from '../../utility/httpHelper';
-
-const displayMap = {
-    calories: 'Calorias',
-    proteins: 'Proteínas',
-    carbohydrates: 'Carboidratos',
-    lipids: 'Lipídeos',
-    fiber: 'Fibra Alimentar',
-};
 
 class FoodSuggestions extends Component {
   state = {
@@ -21,20 +12,8 @@ class FoodSuggestions extends Component {
   componentDidMount = async () => {
       this.setState({
           mounted: 1,
+          attributes: ['Calorias (kcal)', 'Proteínas (g)', 'Carboidratos (g)', 'Lipídios (g)', 'Fibra Alimentar (g)']
       });
-      sendAuthenticatedRequest(
-          '/foods/get-units/',
-          'get',
-          () => {},
-          (info) => {
-              const attributes = Object.keys(info).map(
-                  (key) => `${displayMap[key]} (${info[key]})`,
-              );
-              this.setState({
-                  attributes,
-              });
-          },
-      );
   };
 
   handleGlobal = (global) => {
