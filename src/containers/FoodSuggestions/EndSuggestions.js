@@ -323,7 +323,7 @@ class EndCardapio extends Component {
       const promises = [...promises1, ...promises2];
 
       await Promise.all(promises);
-      this.props.history.push(`/pacientes/${this.props.match.params.id}/ficha/${this.props.match.params.ficha_id}`);
+      this.props.history.push(`/pacientes/${this.props.match.params.id}/ficha/${this.props.match.params.ficha_id}/final`);
   };
 
   render() {

@@ -99,7 +99,7 @@ class PatientAppoiment extends Component {
                         <h2 style = { {textAlign: 'center', marginTop: '10px' } }>Cardápio</h2>   
                     </Grid.Row>
                     <Grid.Row>
-                    {this.props.firstTimeCreate || this.state.menuRemoved ? 
+                    {(this.props.firstTimeCreate || this.state.menuRemoved) && !this.props.final ? 
                     <Button
                       style={ { margin: '10px' } }
                       color="teal"

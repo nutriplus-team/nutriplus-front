@@ -65,7 +65,7 @@ class PatientRecordCreator extends Component {
           }`
       );
 
-      if(!this.props.firstTimeCreate){
+      if(!this.props.firstTimeCreate || params.ficha_id){
           this.loadRecord(params, true);
       }
   };

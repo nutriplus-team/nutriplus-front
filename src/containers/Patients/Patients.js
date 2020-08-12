@@ -111,6 +111,10 @@ class Patients extends Component {
                     render={ (props) => <PatientAppointment { ...props } firstTimeCreate/> }
                   />
                   <Route
+                    path="/pacientes/:id/ficha/:ficha_id/final"
+                    render={ (props) => <PatientAppointment { ...props } final/> }
+                  />
+                  <Route
                     exact
                     path="/pacientes/:id/ficha/:ficha_id"
                     render={ (props) => <PatientAppointment { ...props }/> }
