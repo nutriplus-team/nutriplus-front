@@ -125,7 +125,7 @@ const FoodsForm = (props) => {
             'foodGroup': group,
             'measureTotalGrams': totalGrams,
             'measureType': type,
-            'measureAmountValue': amount,
+            'measureAmount': amount,
             'calories': nutritionFacts['calories'],
             'proteins': nutritionFacts['proteins'],
             'carbohydrates': nutritionFacts['carbohydrates'],
@@ -181,7 +181,7 @@ const FoodsForm = (props) => {
                     customInput: {
                         measureTotalGrams: ${updatedFood.measureTotalGrams},
                         measureType: "${updatedFood.measureType}",
-                        measureAmountValue: ${updatedFood.measureAmountValue}
+                        measureAmount: ${updatedFood.measureAmount}
                     },
                     nutritionInput: {
                         calories: ${updatedFood.calories},
@@ -213,7 +213,7 @@ const FoodsForm = (props) => {
                             foodGroup: "${updatedFood.foodGroup}",
                             measureTotalGrams: ${updatedFood.measureTotalGrams},
                             measureType: "${updatedFood.measureType}",
-                            measureAmountValue: ${updatedFood.measureAmountValue}
+                            measureAmount: ${updatedFood.measureAmount}
                       },
                       nutritionInput: {
                           calories: ${updatedFood.calories},

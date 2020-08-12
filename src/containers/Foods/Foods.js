@@ -106,11 +106,7 @@ const FoodDatabaseEditor = () => {
         setOpenFoodsModal(true);
     };
 
-    const buttonRemove = (foodId, foodIdx) => {
-        const food = foodInfo.data[queryString][foodIdx];
-        if (food.uuid !== foodId)
-            return;
-
+    const buttonRemove = (foodId) => {
         setFoodNameQuery('');
         setLoaded(false);
         
@@ -120,6 +116,8 @@ const FoodDatabaseEditor = () => {
             (message) => setError(message),
             () => {
                 requestFoodInfo(page);
+                setLoaded(true);
+                setOpenConfirmationModal(false);
             },
             `mutation {
                 removeFood(uuidFood: "${foodId}")
@@ -128,8 +126,8 @@ const FoodDatabaseEditor = () => {
     };
 
     const removeFoodPreparation = (foodId, foodIdx) => {
-        const food = foodInfo.results[foodIdx];
-        if (food.id !== foodId)
+        const food = foodInfo.data[queryString][foodIdx];
+        if (food.uuid !== foodId)
             return;
         setSelectedFood(food);
         setOpenConfirmationModal(true);
@@ -158,7 +156,7 @@ const FoodDatabaseEditor = () => {
             <ConfirmationModal
               message='Você quer mesmo excluir este alimento?'
               open={ openConfirmationModal }
-              handleConfirmation={ () => buttonRemove() }
+              handleConfirmation={ () => buttonRemove(selectedFood.uuid) }
               handleRejection={ () => setOpenConfirmationModal(false) }
             />
             <FoodsModal 
