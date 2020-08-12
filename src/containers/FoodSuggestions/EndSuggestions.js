@@ -60,7 +60,7 @@ class EndCardapio extends Component {
   };
 
   generateNewMenu = async (meal, i, actualNF) => {
-      await this.handleFetch(actualNF, meal, i);
+      await this.handleFetch(meal, i);
 
       let options = [];
       let j = 0;
@@ -114,7 +114,7 @@ class EndCardapio extends Component {
       const totalOptions = this.state.options;
       totalOptions[meal] = options;
       await new Promise((resolve) => {
-          this.setState({ totalOptions }, () => {
+          this.setState({ 'totalOptions': totalOptions }, () => {
               resolve();
           });
       });
@@ -154,7 +154,7 @@ class EndCardapio extends Component {
               ];
           };
           while (i < 3) {
-              await this.handleFetch(actualNF, meal, i);
+              await this.handleFetch(meal, i);
               options = [
                   ...options,
                   <Table.Body key={ i }>
@@ -187,18 +187,20 @@ class EndCardapio extends Component {
       this.setState({ mounted: 1 });
   };
 
-  handleFetch = async (actualNF, meal, i) => {
-      const content = {};
-      actualNF.forEach((attribute) => {
-          content[attributesMap[attribute[0]]] = attribute[1].toString(10);
-      });
+  handleFetch = async (meal, i) => {
+      const content = {
+          foods: this.props.global.menus[meal].map(food => food.uuid),
+          quantities: this.props.global.menus[meal].map(food => this.props.global.factors[meal][food.foodName]),
+      };
       let response;
       await sendAuthenticatedRequest(
-          `/menu/generate/${meal + 1}/${this.props.match.params.id}/`,
+          `/diet/replace/${this.props.match.params.id}/${meal}/`,
           'post',
           () => {},
           (resp) => (response = resp),
           JSON.stringify(content),
+          false,
+          true
       );
       if (response.quantities.length && response.suggestions.length) {
           const newMenus = [...this.state.newMenus];
@@ -278,66 +280,36 @@ class EndCardapio extends Component {
   handleEndCardapio = () => {
       this.props.global.menus.forEach((menu, meal) => {
           if (menu.length === 0) {
-              return null;
+              return;
           }
-          const body = {};
           const factors = this.props.global.factors[meal];
-          body.meal_type = meal + 1;
-          let ansCardapio = '';
-          let ansQuantities = '';
-          menu.forEach((food) => {
-              ansCardapio += `${food.id}&`;
-              ansQuantities += `${factors[food.foodName]}&`;
-          });
-          ansCardapio = ansCardapio.slice(0, -1);
-          ansQuantities = ansQuantities.slice(0, -1);
-          body.foods = ansCardapio;
-          body.quantities = ansQuantities;
           sendAuthenticatedRequest(
-              `/menu/add-new/${this.props.match.params.id}/`,
+              '/graphql/get/',
               'post',
-              /*(mes) => {
-                  console.log('mes: ', mes);
-              },
-              (res) => {
-                  console.log('res: ', res);
-              },*/
               () => {},
               () => {},
-              JSON.stringify(body),
+              `mutation
+              {
+                  addMenu(mealType: ${meal}, uuidPatient: "${this.props.match.params.id}", uuidFoods: [${menu.map(food => `"${food.uuid}"`)}], quantities: [${menu.map(food => parseFloat(factors[food.foodName]).toFixed(1))}])
+              }`,
           );
       });
 
       this.state.newMenus.forEach((opcoes, meal) => {
-          opcoes.forEach((menu, i) => {
+          opcoes.forEach((menu) => {
               if (menu.length === 0) {
                   return;
               }
-              const body = {};
-              const factors = this.state.newFactors[meal][i];
-              body.meal_type = meal + 1;
-              let ansCardapio = '';
-              let ansQuantities = '';
-              menu.forEach((food, index) => {
-                  ansCardapio += `${food.id}&`;
-                  ansQuantities += `${factors[index]}&`;
-              });
-              ansCardapio = ansCardapio.slice(0, -1);
-              ansQuantities = ansQuantities.slice(0, -1);
-              body.foods = ansCardapio;
-              body.quantities = ansQuantities;
+              const factors = this.props.global.factors[meal];
               sendAuthenticatedRequest(
-                  `/menu/add-new/${this.props.match.params.id}/`,
+                  '/graphql/get/',
                   'post',
-                  /*(mes) => {
-                      console.log('mes: ', mes);
-                  },
-                  (res) => {
-                      console.log('res: ', res);
-                  },*/
                   () => {},
                   () => {},
-                  JSON.stringify(body),
+                  `mutation
+                  {
+                    addMenu(mealType: ${meal}, uuidPatient: "${this.props.match.params.id}", uuidFoods: [${menu.map(food => `"${food.uuid}"`)}], quantities: [${menu.map(food => parseFloat(factors[food.foodName]).toFixed(1))}])
+                  }`,
               );
           });
       });

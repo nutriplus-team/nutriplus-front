@@ -38,9 +38,11 @@ const MainSuggestions = (props) => {
                 },
                 `query {
                   listFood {
+                      uuid,
                       foodName,
                       measureType,
                       measureAmount,
+                      measureTotalGrams,
                       nutritionFacts {
                         calories,
                         proteins,
@@ -111,8 +113,8 @@ const MainSuggestions = (props) => {
             if (+meal === 5) {
                 props.handleGlobal({
                     // nutritionFacts: nutritionFacts,
-                    menus,
-                    factors,
+                    menus: menus,
+                    factors: factors,
                 });
                 props.history.push(`/cardapio/${props.match.params.id}/fim`);
             } else setMeal(meal + 1);
@@ -194,6 +196,7 @@ const MainSuggestions = (props) => {
                             <SearchFood
                               handlefoodClick={ handlefoodClick }
                               meal={ meal }
+                              foodRestrictions={ props.foodRestrictions }
                             />
                         </h4>
                     </Grid.Column>
