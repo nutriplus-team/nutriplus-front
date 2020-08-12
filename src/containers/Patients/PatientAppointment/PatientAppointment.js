@@ -68,11 +68,11 @@ class PatientAppoiment extends Component {
                             <h2> Consulta de {this.state.info.name}</h2>}
                         </Grid.Column>
                         <Grid.Column>
-                            {this.props.firstTimeCreate ? 
+                            {(this.props.firstTimeCreate || this.props.final) ? 
                             <Button
                               color="teal"
                               size="big"
-                              onClick={ () => this.props.history.push(`/pacientes/${params.id}/edit`) }
+                              onClick={ () => this.props.history.push(`/pacientes/${params.id}`) }
                             >
                             Finalizar Consulta
                             </Button> : null}
