@@ -4,15 +4,13 @@ import { Placeholder } from 'semantic-ui-react';
 
 import { sendAuthenticatedRequest } from '../../../utility/httpHelper';
 
-import ConfirmationModal from '../../../components/ConfirmationModal/ConfirmationModal';
 import PatientRecordView from '../PatientRecord/PatientRecordView/PatientRecordView';
 
 class PatientRecord extends Component {
   state = {
       record: null, 
       error: null, 
-      patient: null, 
-      confirmation: false
+      patient: null
   };
 
   componentDidMount = async () => {
@@ -62,31 +60,6 @@ class PatientRecord extends Component {
       );
   };
 
-  deleteRecord = async () => {
-      const { params } = this.props.match;
-      sendAuthenticatedRequest(
-          '/graphql/get/',
-          'post',
-          (message) => {
-              this.setState({
-                  error: message,
-              });
-          },
-          () => {
-              this.props.setFichaId(null);
-              this.props.setCreating(true);
-              this.props.setEdit(false);
-          },
-          `mutation {
-              removePatientRecord(uuidPatientRecord: "${params.ficha_id}")
-          }`
-      );
-  };
-
-  deleteRecordPreparation = () => {
-      this.setState({ confirmation: true });
-  }
-
   _renderPlaceholder = () => (
       <>
         {
@@ -103,12 +76,6 @@ class PatientRecord extends Component {
       console.log('patientRecord state', this.state);
       return (
           <div>
-              <ConfirmationModal
-                message='Você quer mesmo excluir esta ficha?'
-                open={ this.state.confirmation }
-                handleConfirmation={ () => this.deleteRecord() }
-                handleRejection={ () => this.setState({ confirmation: false }) }
-              />
               {this.state.error ? <p>{this.state.error}</p> : null}
               {this.state.record ? (
                 <PatientRecordView
@@ -116,7 +83,6 @@ class PatientRecord extends Component {
                   patient={ this.state.patient }
                   onlyView
                   editButton={ (state) => this.props.setEdit(state) }
-                  deleteButton={ () => this.deleteRecordPreparation() }
                 />
               ) : this._renderPlaceholder()}
           </div>

@@ -66,6 +66,12 @@ const paginator = (props) => {
                             >
                             Visualizar
                             </Button>
+                            <Button
+                            style={ { margin: '20px auto' } }
+                            color="red"
+                            size="small"
+                            onClick={ () => result.props.onClickDelete() }
+                            >Excluir</Button>
                         </Grid.Column>
                         <Grid.Column>
 

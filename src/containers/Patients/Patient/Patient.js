@@ -18,8 +18,10 @@ class Patient extends Component {
       error: null,
       redirectUrl: null,
       confirmation: false,
+      confirmationFile: false,
       page: null,
-      totalRecords: null
+      totalRecords: null,
+      toBeDeleted: ''
   };
 
   getAllRecords = async () => sendAuthenticatedRequest(
@@ -115,7 +117,7 @@ class Patient extends Component {
   };
 
   deletePatient = async () => {
-      const { params } = this.props.match;
+    const { params } = this.props.match;
       sendAuthenticatedRequest(
           '/graphql/get/',
           'post',
@@ -129,7 +131,7 @@ class Patient extends Component {
               this.setState({ redirectUrl: '/pacientes?refresh=true' });
           },
           `mutation{
-            removePatient(uuidPatient: "${params.id}")
+            removePatient(uuidPatient: "${params.ficha_id}")
         }
         `
       );
@@ -138,6 +140,30 @@ class Patient extends Component {
   deletePatientPreparation = () => {
       this.setState({ confirmation: true });
   }
+
+  deleteRecord = async () => {
+    const { params } = this.props.match;
+    sendAuthenticatedRequest(
+        '/graphql/get/',
+        'post',
+        (message) => {
+            this.setState({
+                error: message,
+            });
+        },
+        (response) => {
+            console.log('deletePatient response', response);
+            this.setState({ redirectUrl: `/pacientes/${params.id}?refresh=true`, confirmationFile: false });
+        },
+        `mutation {
+            removePatientRecord(uuidPatientRecord: "${this.state.toBeDeleted}")
+        }`
+        );
+    };
+
+    deleteRecordPreparation = (toBeDeleted) => {
+        this.setState({ confirmationFile: true, toBeDeleted: toBeDeleted });
+    }
 
   _renderPatientCard = (id) => (
     <PatientCard 
@@ -154,6 +180,7 @@ class Patient extends Component {
       recordQueryInfo={ this.state.recordQueryInfo }
       pageSize={ pageSize }
       page={ this.state.page }
+      deleteRecordPreparation={ (recordID) => this.deleteRecordPreparation(recordID) }
       changePage={ (pageNumber) => this.setState({page: pageNumber}) }
       queryString={ 'getPatientRecords' }
       newRecordOnClick={ () => this.props.history.push(`/pacientes/${id}/criar-ficha`,) }
@@ -168,6 +195,12 @@ class Patient extends Component {
       const { params } = this.props.match;
       return (
           <div>
+              <ConfirmationModal
+                message='Você quer mesmo excluir esta ficha?'
+                open={ this.state.confirmationFile }
+                handleConfirmation={ () => this.deleteRecord() }
+                handleRejection={ () => this.setState({ confirmationFile: false }) }
+              />
               <ConfirmationModal
                 message='Você quer mesmo excluir este paciente?'
                 open={ this.state.confirmation }

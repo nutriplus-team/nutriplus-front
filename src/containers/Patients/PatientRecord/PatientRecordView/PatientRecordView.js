@@ -195,12 +195,6 @@ const patientRecordView = (props) => {
                   size="small"
                   onClick={ () => props.editButton(true) }
                 >Editar ficha do paciente</Button>
-                <Button
-                  style={ { margin: '200px auto' } }
-                  color="red"
-                  size="small"
-                  onClick={ props.deleteButton }
-                >Excluir ficha</Button>
             </Grid.Row>
             </Segment>
             </Grid.Column>

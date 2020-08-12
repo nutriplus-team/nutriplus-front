@@ -41,6 +41,7 @@ const patientRecords = (props) => { console.log(props.recordQueryInfo); return (
                           <div
                             key={ record.uuid }
                             onClick={ () => props.editRecordOnClick(record.uuid) }
+                            onClickDelete={ () => props.deleteRecordPreparation(record.uuid) }
                           >
                           <span>Data: {record.dateModified}</span>
                           <span>Peso:{record.corporalMass}</span>
