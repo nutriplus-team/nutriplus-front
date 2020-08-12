@@ -29,59 +29,67 @@ const MainSuggestions = (props) => {
     const [mounted1, setMounted1] = useState(null);
     const [mounted2, setMounted2] = useState(null);
     const [foods, setFoods] = useState(null);
-    const [indices, setIndices] = useState([]);
+    const [indices, setIndices] = useState(null);
     const [available, setAvailable] = useState(null);
 
-    useEffect(() => sendAuthenticatedRequest(
-        '/graphql/get/',
-        'post',
-        () => {},
-        (info) => {
-            setFoods(info.data.listFood);
-            setMounted2(0);
-        },
-        `query {
-          listFood {
-              foodName,
-              measureType,
-              measureAmount,
-              nutritionFacts {
-                calories,
-                proteins,
-                carbohydrates,
-                lipids,
-                fiber
-              }
-          }
-      }`
-    ), []);
+    const { ficha_id } = props.match.params;
+    const { attributes } = props;
 
-    useEffect(() => sendAuthenticatedRequest(
-        '/graphql/get/',
-        'post',
-        () => {},
-        (info) => {
-            setIndices({
-                'bodyFat': {'name': info.data['getSingleRecord']['methodBodyFat'], 'value': info.data['getSingleRecord']['bodyFat']}, 
-                'methabolicRate': {'name': info.data['getSingleRecord']['methodMethabolicRate'], 'value': info.data['getSingleRecord']['methabolicRate']}, 
-                'energyRequirements': {'name':'Necessidades Energéticas', 'value': info.data['getSingleRecord']['energyRequirements']}
-            });
-        },
-        `query {
-            getSingleRecord(uuidRecord: "87972c5a61d940a3b418fe2b1f354c50") {
-                methodBodyFat,
-                methodMethabolicRate,
-                bodyFat,
-                methabolicRate,
-                energyRequirements
-          }
-      }`
-    ), []);
+    useEffect(() => {
+        sendAuthenticatedRequest(
+            '/graphql/get/',
+            'post',
+            () => {},
+            (info) => {
+                setFoods(info.data.listFood);
+                setMounted2(0);
+            },
+            `query {
+              listFood {
+                  uuid,
+                  foodName,
+                  measureType,
+                  measureAmount,
+                  nutritionFacts {
+                    calories,
+                    proteins,
+                    carbohydrates,
+                    lipids,
+                    fiber
+                  }
+              }
+          }`
+        );
+    }, []);
+
+    useEffect(() => {
+        sendAuthenticatedRequest(
+            '/graphql/get/',
+            'post',
+            () => {},
+            (info) => {
+                setIndices({
+                    'bodyFat': {'name': info.data['getSingleRecord']['methodBodyFat'], 'value': info.data['getSingleRecord']['bodyFat']}, 
+                    'methabolicRate': {'name': info.data['getSingleRecord']['methodMethabolicRate'], 'value': info.data['getSingleRecord']['methabolicRate']}, 
+                    'energyRequirements': {'name':'Necessidades Energéticas', 'value': info.data['getSingleRecord']['energyRequirements']}
+                });
+            },
+            `query {
+                getSingleRecord(uuidRecord: "${ficha_id}") {
+                    methodBodyFat,
+                    methodMethabolicRate,
+                    bodyFat,
+                    methabolicRate,
+                    energyRequirements
+              }
+          }`
+        );
+    }, [ficha_id]);
 
     useEffect(() => {
         const initializeAttributes = () => {
             let resp;
-            props.attributes.forEach((attribute) => {
+            attributes.forEach((attribute) => {
                 if (resp) resp.push([attribute, 0]);
                 else resp = [[attribute, 0]];
             });
@@ -126,7 +134,7 @@ const MainSuggestions = (props) => {
             setMounted1(1);
             setMounted2(1);
         }
-    }, [foods, mounted2, props.attributes]);
+    }, [foods, mounted2, attributes]);
 
     const handleMealChange = (e, { name, value }) => {
         if (name === 'Next') {
@@ -136,7 +144,7 @@ const MainSuggestions = (props) => {
                     menus: menus,
                     factors: factors,
                 });
-                props.history.push(`/cardapio/${props.match.params.id}/fim`);
+                props.history.push(`/cardapio/${props.match.params.id}/${props.match.params.ficha_id}/fim`);
             } else setMeal(meal + 1);
         } else if (name === 'Prev') {
             if (meal > 0) setMeal(meal - 1);
@@ -227,7 +235,7 @@ const MainSuggestions = (props) => {
                           handleAvailable={ handleAvailable }
                           menus={ menus }
                           handleMenus={ handleMenus }
-                          attributes={ props.attributes }
+                          attributes={ attributes }
                           handleInfos={ handleInfos }
                           factors={ factors }
                           handleFactors={ handleFactors }
@@ -254,7 +262,7 @@ const MainSuggestions = (props) => {
                         <br />
                         <GenerateSuggestions
                           translationMap={ translationMap }
-                          attributes={ props.attributes }
+                          attributes={ attributes }
                           meal={ meal }
                           NF={ suggestedNutFacts }
                           handleNFs={ handleSuggestedNutFacts } // handle dos valores digitados

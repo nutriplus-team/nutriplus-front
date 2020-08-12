@@ -8,10 +8,12 @@ const FoodSearchInput = (props) => {
 
     const searchRef = useRef();
 
+    const { foodName } = props;
+
     useEffect(() => {
-        setSearch(props.foodName);
-        setInputInfo(props.foodName);
-    }, [props.foodName]);
+        setSearch(foodName);
+        setInputInfo(foodName);
+    }, [foodName]);
 
     useEffect(() => {
         const timer = setTimeout(() => {

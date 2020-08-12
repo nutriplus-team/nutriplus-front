@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'semantic-ui-react';
 
-const indicesTable = (props) => (
+const indicesTable = (props) => (props.indices &&
     <Table>
         <Table.Header>
             <Table.Row>

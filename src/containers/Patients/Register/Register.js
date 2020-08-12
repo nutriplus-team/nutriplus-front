@@ -78,6 +78,7 @@ const Register = (props) => {
                     setEthnicity(
                         info.ethnicGroup === 0 ? 'Branco/Hispânico' : 'Afroamericano',
                     );
+                    setLoading(false);
                     //setRestrictions(info.foodRestrictions); --> send another request for food restrictions
                 },
                 `{
@@ -117,6 +118,7 @@ const Register = (props) => {
                         (info) => {
                             setQueryTotal(info.data['searchFood'].length);
                             setPage(0);
+                            setLoading(false);
                         },
                         `query {
                           searchFood(partialFoodName: "${restrictionQuery}", indexPage: 0, sizePage: 1000000000) {

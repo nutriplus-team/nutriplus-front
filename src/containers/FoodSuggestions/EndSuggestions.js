@@ -188,6 +188,7 @@ class EndCardapio extends Component {
   };
 
   handleFetch = async (meal, i) => {
+      console.log(this.props.global);
       const content = {
           foods: this.props.global.menus[meal].map(food => food.uuid),
           quantities: this.props.global.menus[meal].map(food => this.props.global.factors[meal][food.foodName]),

@@ -42,7 +42,7 @@ class FoodSuggestions extends Component {
           routes = (
               <Switch>
                   <Route
-                    path="/cardapio/:id/principal"
+                    path="/cardapio/:id/:ficha_id/principal"
                     render={ (props) => (
                           <MainSuggestions
                             { ...props }
@@ -53,7 +53,7 @@ class FoodSuggestions extends Component {
                     ) }
                   />
                   <Route
-                    path="/cardapio/:id/fim"
+                    path="/cardapio/:id/:ficha_id/fim"
                     render={ (props) => (
                           <EndSuggestions
                             { ...props }
@@ -64,7 +64,7 @@ class FoodSuggestions extends Component {
                   />
 
                   <Redirect
-                    to={ `/cardapio/${this.props.match.params.id}/principal` }
+                    to={ `/cardapio/${this.props.match.params.id}/${this.props.match.params.ficha_id}/principal` }
                   />
               </Switch>
           );

@@ -10,6 +10,7 @@ class PatientAppoiment extends Component {
       info: null,
       error: null,
       redirectUrl: null,
+      fichaId: null,
   };
 
   componentDidMount = async () => {
@@ -22,12 +23,14 @@ class PatientAppoiment extends Component {
           }),
           (info) => this.setState({info: info.data.getPatientInfo}),
           `query {
-          getPatientInfo(uuidPatient: "${params.id}")
-          {
-              uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
-          }
-        }`
+            getPatientInfo(uuidPatient: "${params.id}")
+            {
+                uuid, name, ethnicGroup, email, dateOfBirth, nutritionist, cpf, biologicalSex
+            }
+          }`
       );
+      if (params.id)
+          this.setState({fichaId: params.ficha_id});
   };
 
   render() {
@@ -74,7 +77,7 @@ class PatientAppoiment extends Component {
                         <h2 style = { {textAlign: 'center', marginTop: '10px' } }>Ficha do Paciente</h2>   
                     </Grid.Row>
                     <Grid.Row>
-                    <PatientRecordCreator { ...this.props } create={ this.props.firstTimeCreate }/>
+                    <PatientRecordCreator { ...this.props } setFichaId={ (id) => this.setState({fichaId: id}) }create={ this.props.firstTimeCreate }/>
                     </Grid.Row>
                 </Grid.Column>
                 <Grid.Column>
@@ -82,12 +85,13 @@ class PatientAppoiment extends Component {
                         <h2 style = { {textAlign: 'center', marginTop: '10px' } }>Cardápio</h2>   
                     </Grid.Row>
                     <Grid.Row>
-                    {this.props.firstTimeCreate? 
+                    {this.props.firstTimeCreate ? 
                     <Button
                       style={ { margin: '10px' } }
                       color="teal"
                       size="small"
-                      onClick={ () => this.props.history.push(`/cardapio/${params.id}`) }
+                      onClick={ () => this.props.history.push(`/cardapio/${params.id}/${this.state.fichaId}`) }
+                      disabled={ this.state.fichaId == null }
                     >
                     Novo Cardápio
                     </Button> : <DisplayMenu { ...this.props }  menuIds={ ['e6d995bb835646e3bc337fdc4b2554a5'] }/>}

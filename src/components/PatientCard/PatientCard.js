@@ -37,7 +37,7 @@ const patientCard = (props) => (
                                 <Button
                                   color="purple"
                                   size="mini"
-                                  onClick={ props.deletePacientPreparation }
+                                  onClick={ props.deletePatientPreparation }
                                 >
                                 Excluir
                                 </Button>
