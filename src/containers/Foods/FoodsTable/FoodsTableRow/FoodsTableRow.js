@@ -32,6 +32,10 @@ const FoodsTableRow = (props) => {
             (message) => props.setError(message),
             (info) => {
                 const newFood = {...food};
+
+                if (info.data['getUnits'] === null)
+                    info.data['getUnits'] = [];
+                
                 newFood['nutritionFacts'] = info.data['getUnits'];
                 newFood['mealSet'] = info.data['listMealsThatAFoodBelongsTo'];
                 setFood(newFood);
