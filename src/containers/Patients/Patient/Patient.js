@@ -131,7 +131,7 @@ class Patient extends Component {
               this.setState({ redirectUrl: '/pacientes?refresh=true' });
           },
           `mutation{
-            removePatient(uuidPatient: "${params.ficha_id}")
+            removePatient(uuidPatient: "${params.id}")
         }
         `
       );
